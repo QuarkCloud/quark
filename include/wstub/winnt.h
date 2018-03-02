@@ -3,10 +3,13 @@
 #define __QUARK_WSTUB_WINNT_H 1
 
 #include <winerror.h>
+#include <windef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define NTAPI __stdcall
 
 #ifndef DECLSPEC_IMPORT
 #define DECLSPEC_IMPORT __declspec(dllimport)
@@ -353,6 +356,150 @@ typedef struct _FILE_NOTIFY_INFORMATION {
 #define GENERIC_WRITE                    (0x40000000L)
 #define GENERIC_EXECUTE                  (0x20000000L)
 #define GENERIC_ALL                      (0x10000000L)
+
+
+//
+//  Doubly linked list structure.  Can be used as either a list head, or
+//  as link words.
+//
+
+typedef struct _LIST_ENTRY {
+   struct _LIST_ENTRY *Flink;
+   struct _LIST_ENTRY *Blink;
+} LIST_ENTRY, *PLIST_ENTRY, * PRLIST_ENTRY;
+
+//
+//  Singly linked list structure. Can be used as either a list head, or
+//  as link words.
+//
+
+typedef struct _SINGLE_LIST_ENTRY {
+    struct _SINGLE_LIST_ENTRY *Next;
+} SINGLE_LIST_ENTRY, *PSINGLE_LIST_ENTRY;
+
+//
+// These are needed for portable debugger support.
+//
+
+typedef struct LIST_ENTRY32 {
+    DWORD Flink;
+    DWORD Blink;
+} LIST_ENTRY32;
+typedef LIST_ENTRY32 *PLIST_ENTRY32;
+
+typedef struct LIST_ENTRY64 {
+    ULONGLONG Flink;
+    ULONGLONG Blink;
+} LIST_ENTRY64;
+typedef LIST_ENTRY64 *PLIST_ENTRY64;
+
+typedef struct _RTL_CRITICAL_SECTION_DEBUG {
+    WORD   Type;
+    WORD   CreatorBackTraceIndex;
+    struct _RTL_CRITICAL_SECTION *CriticalSection;
+    LIST_ENTRY ProcessLocksList;
+    DWORD EntryCount;
+    DWORD ContentionCount;
+    DWORD Flags;
+    WORD   CreatorBackTraceIndexHigh;
+    WORD   SpareWORD  ;
+} RTL_CRITICAL_SECTION_DEBUG, *PRTL_CRITICAL_SECTION_DEBUG, RTL_RESOURCE_DEBUG, *PRTL_RESOURCE_DEBUG;
+
+#define RTL_CRITSECT_TYPE 0
+#define RTL_RESOURCE_TYPE 1
+//
+// These flags define the upper byte of the critical section SpinCount field
+//
+#define RTL_CRITICAL_SECTION_FLAG_NO_DEBUG_INFO         0x01000000
+#define RTL_CRITICAL_SECTION_FLAG_DYNAMIC_SPIN          0x02000000
+#define RTL_CRITICAL_SECTION_FLAG_STATIC_INIT           0x04000000
+#define RTL_CRITICAL_SECTION_ALL_FLAG_BITS              0xFF000000
+#define RTL_CRITICAL_SECTION_FLAG_RESERVED              (RTL_CRITICAL_SECTION_ALL_FLAG_BITS & (~(RTL_CRITICAL_SECTION_FLAG_NO_DEBUG_INFO | RTL_CRITICAL_SECTION_FLAG_DYNAMIC_SPIN | RTL_CRITICAL_SECTION_FLAG_STATIC_INIT)))
+
+//
+// These flags define possible values stored in the Flags field of a critsec debuginfo.
+//
+#define RTL_CRITICAL_SECTION_DEBUG_FLAG_STATIC_INIT     0x00000001
+
+#pragma pack(push, 8)
+
+typedef struct _RTL_CRITICAL_SECTION {
+    PRTL_CRITICAL_SECTION_DEBUG DebugInfo;
+
+    //
+    //  The following three fields control entering and exiting the critical
+    //  section for the resource
+    //
+
+    LONG LockCount;
+    LONG RecursionCount;
+    HANDLE OwningThread;        // from the thread's ClientId->UniqueThread
+    HANDLE LockSemaphore;
+    ULONG_PTR SpinCount;        // force size on 64-bit systems when packed
+} RTL_CRITICAL_SECTION, *PRTL_CRITICAL_SECTION;
+
+#pragma pack(pop)
+
+typedef struct _RTL_SRWLOCK {                            
+        PVOID Ptr;                                       
+} RTL_SRWLOCK, *PRTL_SRWLOCK;                            
+#define RTL_SRWLOCK_INIT {0}                            
+typedef struct _RTL_CONDITION_VARIABLE {                    
+        PVOID Ptr;                                       
+} RTL_CONDITION_VARIABLE, *PRTL_CONDITION_VARIABLE;      
+#define RTL_CONDITION_VARIABLE_INIT {0}                 
+#define RTL_CONDITION_VARIABLE_LOCKMODE_SHARED  0x1     
+typedef LONG (NTAPI *PVECTORED_EXCEPTION_HANDLER)(
+    struct _EXCEPTION_POINTERS *ExceptionInfo
+    );
+
+typedef enum _HEAP_INFORMATION_CLASS {
+
+    HeapCompatibilityInformation,
+    HeapEnableTerminationOnCorruption
+
+
+} HEAP_INFORMATION_CLASS;
+
+#define DLL_PROCESS_ATTACH   1    
+#define DLL_THREAD_ATTACH    2    
+#define DLL_THREAD_DETACH    3    
+#define DLL_PROCESS_DETACH   0    
+
+
+//
+// Run once
+//
+
+#define RTL_RUN_ONCE_INIT {0}   // Static initializer
+
+//
+// Run once flags
+//
+
+#define RTL_RUN_ONCE_CHECK_ONLY     0x00000001UL
+#define RTL_RUN_ONCE_ASYNC          0x00000002UL
+#define RTL_RUN_ONCE_INIT_FAILED    0x00000004UL
+
+//
+// The context stored in the run once structure must leave the following number
+// of low order bits unused.
+//
+
+#define RTL_RUN_ONCE_CTX_RESERVED_BITS 2
+
+typedef union _RTL_RUN_ONCE {       
+    PVOID Ptr;                      
+} RTL_RUN_ONCE, *PRTL_RUN_ONCE;     
+
+typedef
+DWORD /* LOGICAL */
+(NTAPI *PRTL_RUN_ONCE_INIT_FN) (
+    PRTL_RUN_ONCE RunOnce,
+    PVOID Parameter,
+     PVOID *Context
+    );
+
 
 #ifdef __cplusplus
 }

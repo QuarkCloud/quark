@@ -87,7 +87,6 @@ struct flock64
     pid_t l_pid;	/* Process holding the lock.  */
 };
 
-
 # ifndef R_OK			/* Verbatim from <unistd.h>.  Ugh.  */
 #  define R_OK	4		/* Test for read permission.  */
 #  define W_OK	2		/* Test for write permission.  */
@@ -100,7 +99,7 @@ struct flock64
 # define SEEK_END	2	/* Seek from end of file.  */
 
 
-QKCAPI int fcntl (int fd, int cmd , ...);
+QKCAPI int fcntl (int fd , int cmd , ...);
 
 
 # define F_ULOCK 0	/* Unlock a previously locked region.  */

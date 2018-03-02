@@ -28,7 +28,7 @@ typedef char *  va_list;
 
 #define _crt_va_start(ap,v)  ( ap = (va_list)_ADDRESSOF(v) + _INTSIZEOF(v) )
 #define _crt_va_arg(ap,t)    ( *(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )
-#define _crt_va_end(ap)      ( ap = (va_list)0 )#elif defined (_M_AMD64)
+#define _crt_va_end(ap)      ( ap = (va_list)0 )
 
 #elif defined (_M_AMD64)
 extern void __cdecl __va_start(va_list *, ...) ;

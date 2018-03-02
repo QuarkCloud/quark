@@ -225,6 +225,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stdio.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdlib.cpp"
 				>
 			</File>
@@ -233,9 +237,45 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sys_epoll.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sys_inotify.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\time.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\unistd.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\utime.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\wait.cpp"
+				>
+			</File>
+			<Filter
+				Name="wintf"
+				>
+				<File
+					RelativePath=".\wintf\wdll.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\wintf\wobj.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\wintf\wthr.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Í·ÎÄ¼þ"
@@ -427,6 +467,18 @@
 				</File>
 				<File
 					RelativePath="..\include\sys\wait.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="wintf"
+				>
+				<File
+					RelativePath="..\include\wintf\wobj.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\wintf\wthr.h"
 					>
 				</File>
 			</Filter>

@@ -2,7 +2,6 @@
 #define __QKC_SYS_EPOLL_H 1
 
 #include <quark_compile.h>
-
 #include <stdint.h>
 
 enum EPOLL_EVENTS

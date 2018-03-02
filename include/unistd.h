@@ -53,7 +53,7 @@ QKCAPI int chown(const char * file , uid_t owner , gid_t group) ;
 QKCAPI int chdir(const char * path) ;
 QKCAPI char *getcwd(char * buf , size_t size) ;
 QKCAPI int dup(int fd) ;
-QKCAPI int dup2(int fd , int fd2) ;
+QKCAPI int dup2(int fd1 , int fd2) ;
 
 //太多了，需要的时候再实现
 QKCAPI long int sysconf(int name) ;
@@ -76,8 +76,8 @@ QKCAPI int getpagesize(void) ;
 QKCAPI int truncate(const char * file , off_t length) ;
 QKCAPI int truncate64(const char * file , off64_t length) ;
 
-QKCAPI int ftruncate(int fd , off_t length) {return ::chsize(fd , length) ;}
-QKCAPI int ftruncate64(int fd , off64_t length) {return ::_chsize_s(fd , length) ;}
+QKCAPI int ftruncate(int fd , off_t length) ;
+QKCAPI int ftruncate64(int fd , off64_t length) ;
 
 QKCAPI int brk(void * addr) ;
 

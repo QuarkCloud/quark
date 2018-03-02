@@ -229,6 +229,9 @@ typedef struct _FILETIME {
 } FILETIME, *PFILETIME, *LPFILETIME;
 #define _FILETIME_
 
+typedef ULONG_PTR SIZE_T, *PSIZE_T;
+typedef LONG_PTR SSIZE_T, *PSSIZE_T;
+
 
 //
 // Add Windows flavor DWORD_PTR types
