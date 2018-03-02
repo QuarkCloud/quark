@@ -1556,6 +1556,162 @@ SleepConditionVariableSRW (
 #define CONDITION_VARIABLE_LOCKMODE_SHARED RTL_CONDITION_VARIABLE_LOCKMODE_SHARED
 
 
+
+#define HasOverlappedIoCompleted(lpOverlapped) (((DWORD)(lpOverlapped)->Internal) != STATUS_PENDING)
+
+WINBASEAPI
+BOOL
+WINAPI
+GetOverlappedResult(
+    __in  HANDLE hFile,
+    __in  LPOVERLAPPED lpOverlapped,
+    __out LPDWORD lpNumberOfBytesTransferred,
+    __in  BOOL bWait
+    );
+
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+CreateIoCompletionPort(
+    __in     HANDLE FileHandle,
+    __in_opt HANDLE ExistingCompletionPort,
+    __in     ULONG_PTR CompletionKey,
+    __in     DWORD NumberOfConcurrentThreads
+    );
+
+WINBASEAPI
+BOOL
+WINAPI
+GetQueuedCompletionStatus(
+    __in  HANDLE CompletionPort,
+    __out LPDWORD lpNumberOfBytesTransferred,
+    __out PULONG_PTR lpCompletionKey,
+    __out LPOVERLAPPED *lpOverlapped,
+    __in  DWORD dwMilliseconds
+    );
+
+
+WINBASEAPI
+BOOL
+WINAPI
+PostQueuedCompletionStatus(
+    __in     HANDLE CompletionPort,
+    __in     DWORD dwNumberOfBytesTransferred,
+    __in     ULONG_PTR dwCompletionKey,
+    __in_opt LPOVERLAPPED lpOverlapped
+    );
+
+
+//
+// The following flags allows an application to change
+// the semantics of IO completion notification.
+//
+
+//
+// Don't queue an entry to an associated completion port if returning success
+// synchronously.
+//
+#define FILE_SKIP_COMPLETION_PORT_ON_SUCCESS    0x1
+
+//
+// Don't set the file handle event on IO completion.
+//
+#define FILE_SKIP_SET_EVENT_ON_HANDLE           0x2
+
+
+#define SEM_FAILCRITICALERRORS      0x0001
+#define SEM_NOGPFAULTERRORBOX       0x0002
+#define SEM_NOALIGNMENTFAULTEXCEPT  0x0004
+#define SEM_NOOPENFILEERRORBOX      0x8000
+
+WINBASEAPI
+UINT
+WINAPI
+GetErrorMode(
+    VOID
+    );
+
+WINBASEAPI
+UINT
+WINAPI
+SetErrorMode(
+    __in UINT uMode
+    );
+
+WINBASEAPI
+BOOL
+WINAPI
+ReadProcessMemory(
+    __in      HANDLE hProcess,
+    __in      LPCVOID lpBaseAddress,
+     LPVOID lpBuffer,
+    __in      SIZE_T nSize,
+    __out_opt SIZE_T * lpNumberOfBytesRead
+    );
+
+WINBASEAPI
+BOOL
+WINAPI
+WriteProcessMemory(
+    __in      HANDLE hProcess,
+    __in      LPVOID lpBaseAddress,
+     LPCVOID lpBuffer,
+    __in      SIZE_T nSize,
+    __out_opt SIZE_T * lpNumberOfBytesWritten
+    );
+
+typedef PCONTEXT LPCONTEXT;
+
+WINBASEAPI
+BOOL
+WINAPI
+GetThreadContext(
+    __in    HANDLE hThread,
+    __inout LPCONTEXT lpContext
+    );
+
+WINBASEAPI
+BOOL
+WINAPI
+SetThreadContext(
+    __in HANDLE hThread,
+    __in CONST CONTEXT *lpContext
+    );
+
+
+WINBASEAPI
+DWORD
+WINAPI
+SuspendThread(
+    __in HANDLE hThread
+    );
+
+WINBASEAPI
+DWORD
+WINAPI
+ResumeThread(
+    __in HANDLE hThread
+    );
+
+
+
+typedef
+VOID
+(APIENTRY *PAPCFUNC)(
+    __in ULONG_PTR dwParam
+    );
+
+WINBASEAPI
+DWORD
+WINAPI
+QueueUserAPC(
+    __in PAPCFUNC pfnAPC,
+    __in HANDLE hThread,
+    __in ULONG_PTR dwData
+    );
+
+
 #ifdef __cplusplus
 }
 #endif

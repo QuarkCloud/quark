@@ -245,6 +245,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sys_mman.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\time.cpp"
 				>
 			</File>
