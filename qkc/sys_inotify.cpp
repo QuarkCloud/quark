@@ -12,6 +12,7 @@ int inotify_init (void)
 
 int inotify_add_watch (int fd, const char *name, uint32_t mask)
 {
+    //::FindFirstChangeNotification(
 
     return 0 ;
 }

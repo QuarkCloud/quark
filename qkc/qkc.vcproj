@@ -478,6 +478,10 @@
 				Name="wintf"
 				>
 				<File
+					RelativePath="..\include\wintf\wcrt.h"
+					>
+				</File>
+				<File
 					RelativePath="..\include\wintf\wobj.h"
 					>
 				</File>

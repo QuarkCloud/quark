@@ -1,9 +1,14 @@
 
 #include <sys/mman.h>
 #include <windows.h>
+#include <wintf/wcrt.h>
 
 void *mmap (void * addr, size_t len, int prot, int flags, int fd, off_t offset)
 {
+    /**
+        fd是linux系统的句柄，需要转译成windows的句柄HANDLE
+    */
+    HANDLE handle = (HANDLE)::_get_osfhandle(fd) ;
     return NULL ;
 }
 

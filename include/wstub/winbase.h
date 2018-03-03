@@ -1712,6 +1712,80 @@ QueueUserAPC(
     );
 
 
+WINBASEAPI
+LPVOID
+WINAPI
+MapViewOfFile(
+    __in HANDLE hFileMappingObject,
+    __in DWORD dwDesiredAccess,
+    __in DWORD dwFileOffsetHigh,
+    __in DWORD dwFileOffsetLow,
+    __in SIZE_T dwNumberOfBytesToMap
+    );
+
+WINBASEAPI
+BOOL
+WINAPI
+FlushViewOfFile(
+    __in LPCVOID lpBaseAddress,
+    __in SIZE_T dwNumberOfBytesToFlush
+    );
+
+WINBASEAPI
+BOOL
+WINAPI
+UnmapViewOfFile(
+    __in LPCVOID lpBaseAddress
+    );
+
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+CreateFileMappingA(
+    __in     HANDLE hFile,
+    __in_opt LPSECURITY_ATTRIBUTES lpFileMappingAttributes,
+    __in     DWORD flProtect,
+    __in     DWORD dwMaximumSizeHigh,
+    __in     DWORD dwMaximumSizeLow,
+    __in_opt LPCSTR lpName
+    );
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+CreateFileMappingW(
+    __in     HANDLE hFile,
+    __in_opt LPSECURITY_ATTRIBUTES lpFileMappingAttributes,
+    __in     DWORD flProtect,
+    __in     DWORD dwMaximumSizeHigh,
+    __in     DWORD dwMaximumSizeLow,
+    __in_opt LPCWSTR lpName
+    );
+
+#define CreateFileMapping DECLEAR_FUNC_AW(CreateFileMapping)
+
+WINBASEAPI
+__out
+HANDLE
+WINAPI
+OpenFileMappingA(
+    __in DWORD dwDesiredAccess,
+    __in BOOL bInheritHandle,
+    __in LPCSTR lpName
+    );
+WINBASEAPI
+__out
+HANDLE
+WINAPI
+OpenFileMappingW(
+    __in DWORD dwDesiredAccess,
+    __in BOOL bInheritHandle,
+    __in LPCWSTR lpName
+    );
+#define OpenFileMapping DECLEAR_FUNC_AW(OpenFileMapping)
+
+
 #ifdef __cplusplus
 }
 #endif
