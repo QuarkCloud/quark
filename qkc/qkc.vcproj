@@ -249,6 +249,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sys_stat.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sys_sysinfo.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\time.cpp"
 				>
 			</File>
@@ -427,10 +435,6 @@
 				</File>
 				<File
 					RelativePath="..\include\sys\stat.h"
-					>
-				</File>
-				<File
-					RelativePath="..\include\sys\statfs.h"
 					>
 				</File>
 				<File

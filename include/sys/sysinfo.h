@@ -1,48 +1,38 @@
-/* Copyright (C) 1996, 1999, 2001 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
+#ifndef __QKC_SYS_SYSINFO_H
+#define __QKC_SYS_SYSINFO_H 1
 
-   The GNU C Library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
+#include <quark_compile.h>
+#include <sys/types.h>
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
-#ifndef _SYS_SYSINFO_H
-#define _SYS_SYSINFO_H	1
+struct sysinfo {
+  long uptime;                /* Seconds since boot */
+  unsigned long loads[3];     /* 1, 5, and 15 minute load averages */
+  unsigned long totalram;     /* Total usable main memory size */
+  unsigned long freeram;      /* Available memory size */
+  unsigned long sharedram;    /* Amount of shared memory */
+  unsigned long bufferram;    /* Memory used by buffers */
+  unsigned long totalswap;    /* Total swap space size */
+  unsigned long freeswap;     /* swap space still available */
+  unsigned short procs;       /* Number of current processes */
+  unsigned long totalhigh;    /* Total high memory size */
+  unsigned long freehigh;     /* Available high memory size */
+  unsigned int mem_unit;      /* Memory unit size in bytes */
+  char __f[10];               /* Pads structure to 64 bytes */
+};
 
-#include <features.h>
+QKCAPI int sysinfo (struct sysinfo * info) ;
+QKCAPI int get_nprocs_conf (void) ;
+QKCAPI int get_nprocs (void) ;
+QKCAPI long int get_phys_pages (void) ;
+QKCAPI long int get_avphys_pages (void) ;
 
-/* Get sysinfo structure from kernel header.  */
-#include <linux/kernel.h>
+#ifdef	__cplusplus
+}
+#endif
 
-__BEGIN_DECLS
-
-/* Returns information on overall system statistics.  */
-extern int sysinfo (struct sysinfo *__info) __THROW;
-
-
-/* Return number of configured processors.  */
-extern int get_nprocs_conf (void) __THROW;
-
-/* Return number of available processors.  */
-extern int get_nprocs (void) __THROW;
-
-
-/* Return number of physical pages of memory in the system.  */
-extern long int get_phys_pages (void) __THROW;
-
-/* Return number of available physical pages of memory in the system.  */
-extern long int get_avphys_pages (void) __THROW;
-
-__END_DECLS
-
-#endif	/* sys/sysinfo.h */
+#endif	/** __QKC_SYS_SYSINFO_H */

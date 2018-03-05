@@ -76,6 +76,16 @@ typedef CONST PSTR *PCZPSTR;
 typedef CONST CHAR *LPCSTR, *PCSTR;
 typedef PCSTR *PZPCSTR;
 
+typedef char CCHAR;          
+typedef DWORD LCID;         
+typedef PDWORD PLCID;       
+typedef WORD   LANGID;      
+#define APPLICATION_ERROR_MASK       0x20000000
+#define ERROR_SEVERITY_SUCCESS       0x00000000
+#define ERROR_SEVERITY_INFORMATIONAL 0x40000000
+#define ERROR_SEVERITY_WARNING       0x80000000
+#define ERROR_SEVERITY_ERROR         0xC0000000
+
 
 #ifdef STRICT
 typedef void * HANDLE ;
@@ -358,11 +368,18 @@ typedef struct _FILE_NOTIFY_INFORMATION {
 #define GENERIC_ALL                      (0x10000000L)
 
 
+#define ANSI_NULL ((CHAR)0)     
+#define UNICODE_NULL ((WCHAR)0) 
+#define UNICODE_STRING_MAX_BYTES ((WORD  ) 65534) 
+#define UNICODE_STRING_MAX_CHARS (32767) 
+typedef BYTE  BOOLEAN;           
+typedef BOOLEAN *PBOOLEAN;       
+//
+
 //
 //  Doubly linked list structure.  Can be used as either a list head, or
 //  as link words.
 //
-
 typedef struct _LIST_ENTRY {
    struct _LIST_ENTRY *Flink;
    struct _LIST_ENTRY *Blink;

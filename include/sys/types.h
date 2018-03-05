@@ -18,7 +18,8 @@ typedef uint64_t                uquad_t  ;
 
 typedef uint32_t                uid_t ;
 typedef uint32_t                gid_t ;
-//typedef ulong_t                 ino_t ;
+typedef ulong_t                 dev_t ;
+typedef ulong_t                 ino_t ;
 typedef uquad_t                 ino64_t ;
 typedef uint32_t                mode_t;
 typedef long_t                  off_t ;
@@ -33,6 +34,8 @@ typedef int64_t                 time_t ;
 typedef int32_t                 key_t ;
 typedef int32_t                 clockid_t ;
 typedef uint32_t                socklen_t ;
+typedef ulong_t                 nlink_t ;
+
 
 #ifdef __cplusplus
 }
