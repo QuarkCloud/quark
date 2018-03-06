@@ -1915,6 +1915,108 @@ GetFileInformationByHandleEx(
 );
 
 
+typedef struct _MEMORYSTATUSEX {
+    DWORD dwLength;
+    DWORD dwMemoryLoad;
+    DWORDLONG ullTotalPhys;
+    DWORDLONG ullAvailPhys;
+    DWORDLONG ullTotalPageFile;
+    DWORDLONG ullAvailPageFile;
+    DWORDLONG ullTotalVirtual;
+    DWORDLONG ullAvailVirtual;
+    DWORDLONG ullAvailExtendedVirtual;
+} MEMORYSTATUSEX, *LPMEMORYSTATUSEX;
+
+WINBASEAPI
+BOOL
+WINAPI
+GlobalMemoryStatusEx(
+    __out LPMEMORYSTATUSEX lpBuffer
+    );
+
+
+
+typedef struct _SYSTEM_INFO {
+    union {
+        DWORD dwOemId;          // Obsolete field...do not use
+        struct {
+            WORD wProcessorArchitecture;
+            WORD wReserved;
+        };
+    };
+    DWORD dwPageSize;
+    LPVOID lpMinimumApplicationAddress;
+    LPVOID lpMaximumApplicationAddress;
+    DWORD_PTR dwActiveProcessorMask;
+    DWORD dwNumberOfProcessors;
+    DWORD dwProcessorType;
+    DWORD dwAllocationGranularity;
+    WORD wProcessorLevel;
+    WORD wProcessorRevision;
+} SYSTEM_INFO, *LPSYSTEM_INFO;
+
+WINBASEAPI
+VOID
+WINAPI
+GetSystemInfo(
+    __out LPSYSTEM_INFO lpSystemInfo
+    );
+
+
+WINBASEAPI
+BOOL
+WINAPI
+SetSystemFileCacheSize (
+    __in SIZE_T MinimumFileCacheSize,
+    __in SIZE_T MaximumFileCacheSize,
+    __in DWORD Flags
+    );
+
+WINBASEAPI
+BOOL
+WINAPI
+GetSystemFileCacheSize (
+    __out PSIZE_T lpMinimumFileCacheSize,
+    __out PSIZE_T lpMaximumFileCacheSize,
+    __out PDWORD lpFlags
+    );
+
+
+WINBASEAPI
+VOID
+WINAPI
+GetSystemTime(
+    __out LPSYSTEMTIME lpSystemTime
+    );
+
+WINBASEAPI
+VOID
+WINAPI
+GetSystemTimeAsFileTime(
+    __out LPFILETIME lpSystemTimeAsFileTime
+    );
+
+WINBASEAPI
+BOOL
+WINAPI
+SetSystemTime(
+    __in CONST SYSTEMTIME *lpSystemTime
+    );
+
+WINBASEAPI
+VOID
+WINAPI
+GetLocalTime(
+    __out LPSYSTEMTIME lpSystemTime
+    );
+
+WINBASEAPI
+BOOL
+WINAPI
+SetLocalTime(
+    __in CONST SYSTEMTIME *lpSystemTime
+    );
+
 #ifdef __cplusplus
 }
 #endif

@@ -3,8 +3,6 @@
 #define __QKC_SYS_TIME_H 1
 
 #include <quark_compile.h>
-
-
 #include <time.h>
 #include <stdint.h>
 #include <sys/types.h>
@@ -23,12 +21,6 @@
 /* Flag to indicate time is absolute.  */
 #define TIMER_ABSTIME		1
 
-struct timeval
-{
-    time_t tv_sec;		        /* Seconds.  */
-    suseconds_t tv_usec;	    /* Microseconds.  */
-};
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37,8 +29,6 @@ QKCAPI int gettimeofday (struct timeval * tv , void * tz) ;
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
 
 #endif  /** __QKC_SYS_TIME_H */

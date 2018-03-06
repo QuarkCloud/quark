@@ -2,9 +2,10 @@
 #define __QKC_SYS_SYSLOG_H 1
 
 #include <quark_compile.h>
-#if QKC_PLATFORM==QKC_PLATFORM_LINUX
-#include <sys/syslog.h>
-#else
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
 #define	LOG_EMERG	0	/* system is unusable */
 #define	LOG_ALERT	1	/* action must be taken immediately */
@@ -120,11 +121,6 @@ CODE facilitynames[] =
 #define	LOG_NDELAY	0x08	/* don't delay open */
 #define	LOG_NOWAIT	0x10	/* don't wait for console forks: DEPRECATED */
 #define	LOG_PERROR	0x20	/* log to stderr as well */
-
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
 
 QKCAPI void closelog(void);
 

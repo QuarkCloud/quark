@@ -257,6 +257,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sys_syslog.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sys_time.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sys_times.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\time.cpp"
 				>
 			</File>
@@ -275,6 +287,10 @@
 			<Filter
 				Name="wintf"
 				>
+				<File
+					RelativePath=".\wintf\wcap.cpp"
+					>
+				</File>
 				<File
 					RelativePath=".\wintf\wdll.cpp"
 					>
@@ -481,6 +497,10 @@
 			<Filter
 				Name="wintf"
 				>
+				<File
+					RelativePath="..\include\wintf\wcap.h"
+					>
+				</File>
 				<File
 					RelativePath="..\include\wintf\wcrt.h"
 					>

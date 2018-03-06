@@ -146,6 +146,7 @@ typedef unsigned int        *PUINT;
 typedef UINT_PTR            WPARAM;
 typedef LONG_PTR            LPARAM;
 typedef LONG_PTR            LRESULT;
+typedef ULONG_PTR DWORD_PTR, *PDWORD_PTR;
 
 #ifndef NOMINMAX
 
