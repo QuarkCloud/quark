@@ -1,16 +1,23 @@
 
 #include <sys/times.h>
 #include <windows.h>
+#include <errno.h>
 
-//struct tms
-//{
-//    clock_t tms_utime;		/* User CPU time.  */
-//    clock_t tms_stime;		/* System CPU time.  */
+static inline void get_system_time(PLARGE_INTEGER systime)
+{
+    FILETIME ft ;
+    ::GetSystemTimeAsFileTime(&ft) ;
+    systime->LowPart = ft.dwLowDateTime ;
+    systime->HighPart = ft.dwHighDateTime ;
+}
+#define NSPERSEC 10000000LL
+static clock_t __stdcall __to_clock_t (PLARGE_INTEGER src, int flag)
+{
+  uint64_t total = src->QuadPart;
+  total /= NSPERSEC / CLOCKS_PER_SEC;
+  return (clock_t)total;
+}
 
-//    clock_t tms_cutime;		/* User CPU time of dead children.  */
-//    clock_t tms_cstime;		/* System CPU time of dead children.  */
-//};
-/**
 clock_t times (struct tms * buffer)
 {
 
@@ -19,32 +26,26 @@ clock_t times (struct tms * buffer)
     LARGE_INTEGER ticks;
     clock_t tc = (clock_t) -1;
 
-    __try
+    try
     {
-      if (!stodi.BootTime.QuadPart)
-    NtQuerySystemInformation (SystemTimeOfDayInformation,
-			      &stodi, sizeof stodi, NULL);
+        if (!stodi.BootTime.QuadPart)
+            NtQuerySystemInformation (SystemTimeOfDayInformation, &stodi, sizeof stodi, NULL);
 
-      NtQueryInformationProcess (NtCurrentProcess (), ProcessTimes,
-			     &kut, sizeof kut, NULL);
-      get_system_time (&ticks);
+        NtQueryInformationProcess (NtCurrentProcess (), ProcessTimes,  &kut, sizeof kut, NULL);
+        get_system_time (&ticks);
 
-      ticks.QuadPart -= stodi.BootTime.QuadPart;
-      tc = (clock_t) (ticks.QuadPart * CLOCKS_PER_SEC / NSPERSEC);
+        ticks.QuadPart -= stodi.BootTime.QuadPart;
+        tc = (clock_t) (ticks.QuadPart * CLOCKS_PER_SEC / NSPERSEC);
 
-      buf->tms_stime = __to_clock_t (&kut.KernelTime, 0);
-      buf->tms_utime = __to_clock_t (&kut.UserTime, 0);
-      timeval_to_filetime (&myself->rusage_children.ru_stime, &kut.KernelTime);
-      buf->tms_cstime = __to_clock_t (&kut.KernelTime, 1);
-      timeval_to_filetime (&myself->rusage_children.ru_utime, &kut.UserTime);
-      buf->tms_cutime = __to_clock_t (&kut.UserTime, 1);
+        buffer->tms_stime = __to_clock_t (&kut.KernelTime, 0);
+        buffer->tms_utime = __to_clock_t (&kut.UserTime, 0);
+        buffer->tms_cstime = __to_clock_t (&kut.KernelTime, 1);
+        buffer->tms_cutime = __to_clock_t (&kut.UserTime, 1);
     }
-    __except (EFAULT)
+    catch(...)
     {
-      tc = (clock_t) -1;
+        tc = (clock_t) -1;
     }
-    __endtry
-    syscall_printf ("%D = times(%p)", tc, buf);
     return tc;
 }
-*/
+

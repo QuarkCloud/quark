@@ -2447,8 +2447,43 @@ typedef struct _SYSTEM_TIMEOFDAY_INFORMATION
   BYTE Reserved1[20];		/* Per MSDN.  Always 0. */
 } SYSTEM_TIMEOFDAY_INFORMATION, *PSYSTEM_TIMEOFDAY_INFORMATION;
 
-NTSYSAPI  NTSTATUS NTAPI NtQuerySystemInformation (SYSTEM_INFORMATION_CLASS,
-					   PVOID, ULONG, PULONG);
+
+typedef enum _PROCESSINFOCLASS
+{
+  ProcessBasicInformation = 0,
+  ProcessQuotaLimits = 1,
+  ProcessVmCounters = 3,
+  ProcessTimes = 4,
+  ProcessSessionInformation = 24,
+  ProcessWow64Information = 26,
+  ProcessImageFileName = 27,
+  ProcessDebugFlags = 31
+} PROCESSINFOCLASS;
+
+#define NtCurrentProcess() ((HANDLE) (LONG_PTR) -1)
+#define NtCurrentThread()  ((HANDLE) (LONG_PTR) -2)
+
+
+typedef NTSTATUS (NTAPI *PFN_NtQuerySystemInformation) (SYSTEM_INFORMATION_CLASS, PVOID, ULONG, PULONG);
+static inline NTSTATUS NtQuerySystemInformation (SYSTEM_INFORMATION_CLASS cz , PVOID ptr , ULONG ul , PULONG plu)
+{
+    PFN_NtQuerySystemInformation pfn = NULL ;
+    if(pfn != NULL)
+        return pfn(cz , ptr , ul , plu) ;
+    else
+        return 1 ;
+}
+
+typedef NTSTATUS (NTAPI * PFN_NtQueryInformationProcess) (HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG) ;
+static inline NTSTATUS NTAPI NtQueryInformationProcess (HANDLE handle , PROCESSINFOCLASS pi , PVOID ptr , ULONG ul , PULONG plu)
+{
+    PFN_NtQueryInformationProcess pfn = NULL ;
+    if(pfn != NULL)
+        return pfn(handle , pi , ptr , ul , plu) ;
+    else
+        return 1 ;
+}
+
 
 typedef CONTEXT *PCONTEXT;
 

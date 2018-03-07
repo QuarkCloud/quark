@@ -134,8 +134,5 @@ QKCAPI void syslog(int pri, const char *fmt , ...) ;
 }
 #endif
 
-#endif
-
-
 
 #endif /* sys/syslog.h */

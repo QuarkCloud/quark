@@ -269,6 +269,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sys_uio.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\time.cpp"
 				>
 			</File>
