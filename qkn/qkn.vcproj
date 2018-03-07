@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="test"
-	ProjectGUID="{050A49E1-B22F-4631-BD07-C8ABAB4C2DA2}"
-	RootNamespace="test"
+	Name="qkn"
+	ProjectGUID="{D6504F8D-6F55-4E84-9924-5E12680571E1}"
+	RootNamespace="qkn"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -20,8 +20,8 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
-			CharacterSet="1"
+			ConfigurationType="2"
+			CharacterSet="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)include\wintf&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;QKN_EXPORTS"
 				IgnoreStandardIncludePath="true"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -63,12 +63,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="qkcd.lib"
-				OutputFile="$(SolutionDir)win32\$(ProjectName)d.exe"
+				OutputFile="$(SolutionDir)win32\$(ProjectName)d.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="$(SolutionDir)win32"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -97,8 +95,8 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
-			CharacterSet="1"
+			ConfigurationType="2"
+			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -120,12 +118,15 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)include\wintf&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;QKN_EXPORTS"
+				IgnoreStandardIncludePath="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4996"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -138,9 +139,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(SolutionDir)win32\$(ProjectName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -177,7 +179,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\main.cpp"
+				RelativePath=".\qkn_init.cpp"
 				>
 			</File>
 		</Filter>

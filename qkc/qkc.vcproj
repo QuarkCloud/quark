@@ -120,9 +120,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;QKC_EXPORTS"
-				IgnoreStandardIncludePath="false"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)include\wstub&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;QKC_EXPORTS"
+				IgnoreStandardIncludePath="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -487,14 +487,6 @@
 				</File>
 				<File
 					RelativePath="..\include\sys\unistd.h"
-					>
-				</File>
-				<File
-					RelativePath="..\include\sys\utime.h"
-					>
-				</File>
-				<File
-					RelativePath="..\include\sys\wait.h"
 					>
 				</File>
 			</Filter>

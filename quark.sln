@@ -5,10 +5,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qkc", "qkc\qkc.vcproj", "{A
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qkw", "qkw\qkw.vcproj", "{691DCBB8-A263-4BE4-B02F-1014FBF1934E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcproj", "{050A49E1-B22F-4631-BD07-C8ABAB4C2DA2}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A08041CF-81D7-4A5C-A1D1-216FA37D2D46} = {A08041CF-81D7-4A5C-A1D1-216FA37D2D46}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qkn", "qkn\qkn.vcproj", "{D6504F8D-6F55-4E84-9924-5E12680571E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,10 +21,10 @@ Global
 		{691DCBB8-A263-4BE4-B02F-1014FBF1934E}.Debug|Win32.Build.0 = Debug|Win32
 		{691DCBB8-A263-4BE4-B02F-1014FBF1934E}.Release|Win32.ActiveCfg = Release|Win32
 		{691DCBB8-A263-4BE4-B02F-1014FBF1934E}.Release|Win32.Build.0 = Release|Win32
-		{050A49E1-B22F-4631-BD07-C8ABAB4C2DA2}.Debug|Win32.ActiveCfg = Debug|Win32
-		{050A49E1-B22F-4631-BD07-C8ABAB4C2DA2}.Debug|Win32.Build.0 = Debug|Win32
-		{050A49E1-B22F-4631-BD07-C8ABAB4C2DA2}.Release|Win32.ActiveCfg = Release|Win32
-		{050A49E1-B22F-4631-BD07-C8ABAB4C2DA2}.Release|Win32.Build.0 = Release|Win32
+		{D6504F8D-6F55-4E84-9924-5E12680571E1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D6504F8D-6F55-4E84-9924-5E12680571E1}.Debug|Win32.Build.0 = Debug|Win32
+		{D6504F8D-6F55-4E84-9924-5E12680571E1}.Release|Win32.ActiveCfg = Release|Win32
+		{D6504F8D-6F55-4E84-9924-5E12680571E1}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
