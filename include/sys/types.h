@@ -26,7 +26,7 @@ typedef long_t                  off_t ;
 typedef quad_t                  off64_t ;
 typedef quad_t                  fpos_t ;
 typedef int32_t                 pid_t ;
-typedef long_t                  clock_t ;
+typedef quad_t                  clock_t ;
 typedef long_t                  ssize_t ;
 typedef uint32_t                useconds_t ;
 typedef long_t                  suseconds_t ;

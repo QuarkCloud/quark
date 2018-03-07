@@ -49,7 +49,7 @@ struct tm
 
 typedef void * timer_t ;
 
-QKCAPI clock_t clock (void) ;
+QUARK_LINKAGE clock_t clock (void) ;
 QKCAPI time_t time (time_t *ts) ;
 QKCAPI double difftime (time_t t1, time_t t0) ;
 QKCAPI time_t mktime (struct tm * tp) ;

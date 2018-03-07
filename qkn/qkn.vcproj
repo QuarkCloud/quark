@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)include\wintf&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)include\wintf&quot;;&quot;$(SolutionDir)include\wstub&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;QKN_EXPORTS"
 				IgnoreStandardIncludePath="true"
 				MinimalRebuild="true"
@@ -188,6 +188,34 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<Filter
+				Name="wstub"
+				>
+				<File
+					RelativePath="..\include\wstub\winsock2.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="wintf"
+				>
+				<File
+					RelativePath="..\include\wintf\wcap.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\wintf\wcrt.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\wintf\wobj.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\wintf\wthr.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="资源文件"

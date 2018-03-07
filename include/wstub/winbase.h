@@ -2017,6 +2017,16 @@ SetLocalTime(
     __in CONST SYSTEMTIME *lpSystemTime
     );
 
+
+WINBASEAPI
+BOOL
+WINAPI
+GetSystemTimes(
+    __out_opt LPFILETIME lpIdleTime,
+    __out_opt LPFILETIME lpKernelTime,
+    __out_opt LPFILETIME lpUserTime
+    );
+
 #ifdef __cplusplus
 }
 #endif

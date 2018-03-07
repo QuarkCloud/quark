@@ -44,6 +44,22 @@ QUARK_LINKAGE errno_t _set_doserrno(unsigned long value);
 QUARK_LINKAGE  errno_t _get_doserrno(unsigned long * value);
 
 
+//TIMEœ‡πÿ
+QUARK_LINKAGE void _tzset(void);
+QUARK_LINKAGE double _difftime64(__time64_t time1 , __time64_t time2);
+QUARK_LINKAGE char * _ctime64(const __time64_t * time);
+QUARK_LINKAGE errno_t _ctime64_s(char *buf, size_t bytes , const __time64_t * time);
+
+QUARK_LINKAGE struct tm * _gmtime64(const __time64_t * time );
+QUARK_LINKAGE errno_t _gmtime64_s(struct tm * tm, const __time64_t *time);
+
+QUARK_LINKAGE struct tm * _localtime64(const __time64_t * time);
+QUARK_LINKAGE errno_t _localtime64_s(struct tm *  tm , const __time64_t * time);
+
+QUARK_LINKAGE __time64_t _mktime64(struct tm * tm);
+QUARK_LINKAGE __time64_t _mkgmtime64(struct tm * tm);
+QUARK_LINKAGE __time64_t _time64(__time64_t * time);
+
 #ifdef	__cplusplus
 }
 #endif

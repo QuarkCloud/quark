@@ -1,47 +1,76 @@
 
 #include <time.h>
+#include <wintf/wcrt.h>
 
-clock_t clock (void)
-{
-    return 0 ;
-}
+/**
+
+//TIMEœ‡πÿ
+QUARK_LINKAGE double _difftime64(__time64_t time1 , __time64_t time2);
+QUARK_LINKAGE char * _ctime64(const __time64_t * time);
+QUARK_LINKAGE errno_t _ctime64_s(char *buf, size_t bytes , const __time64_t * time);
+
+QUARK_LINKAGE struct tm * _gmtime64(const __time64_t * time );
+QUARK_LINKAGE errno_t _gmtime64_s(struct tm * tm, const __time64_t *time);
+
+QUARK_LINKAGE struct tm * _localtime64(const __time64_t * time);
+QUARK_LINKAGE errno_t _localtime64_s(struct tm *  tm , const __time64_t * time);
+
+QUARK_LINKAGE __time64_t _mktime64(struct tm * tm);
+QUARK_LINKAGE __time64_t _mkgmtime64(struct tm * tm);
+QUARK_LINKAGE __time64_t _time64(__time64_t * time);
+*/
 
 time_t time (time_t *ts)
 {
-    return 0 ;
+    __time64_t t64 = 0 ;
+    ::_time64(&t64) ;
+
+    if(ts != NULL)
+        *ts = t64 ;
+    return t64 ;
 }
 
 double difftime (time_t t1, time_t t0)
 {
-    return 0 ;
+    return _difftime64(t1 , t0) ;
 }
 
 time_t mktime (struct tm * tp)
 {
-    return 0 ;
+    return _mktime64(tp) ;
 }
 
 struct tm *gmtime (const time_t *ts)
 {
-    return NULL ;
+    return _gmtime64(ts) ;
 }
 
 struct tm *localtime (const time_t *ts)
 {
-    return NULL ;
+    return _localtime64(ts) ;
 }
 
 struct tm *gmtime_r (const time_t *ts, struct tm * tp)
 {
-    return NULL ;
+    if(_gmtime64_s(tp , ts) == 0)
+        return tp ;
+    else
+        return NULL ;
 }
 
 struct tm *localtime_r (const time_t * ts, struct tm * tp)
 {
-    return NULL ;
+    if(_localtime64_s(tp , ts) == 0)
+        return tp ;
+    else
+        return NULL ;
+
 }
 
-void tzset (void) {}
+void tzset (void) 
+{
+    _tzset() ;
+}
 
 int nanosleep (const struct timespec * ts ,    struct timespec * remaining)
 {
