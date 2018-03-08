@@ -249,6 +249,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sys_socket.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\sys_stat.cpp"
 				>
 			</File>
@@ -286,6 +290,10 @@
 			</File>
 			<File
 				RelativePath=".\wait.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\winsock2_imp.cpp"
 				>
 			</File>
 			<Filter

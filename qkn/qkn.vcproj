@@ -182,6 +182,10 @@
 				RelativePath=".\qkn_init.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\winsock2_imp.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Í·ÎÄ¼þ"

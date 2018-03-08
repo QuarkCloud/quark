@@ -15,6 +15,29 @@ typedef unsigned short  u_short;
 typedef unsigned int    u_int;
 typedef unsigned long   u_long;
 
+#ifndef s_addr
+#pragma once
+
+//
+// IPv4 Internet address
+// This is an 'on-wire' format structure.
+//
+typedef struct in_addr {
+        union {
+                struct { UCHAR s_b1,s_b2,s_b3,s_b4; } S_un_b;
+                struct { USHORT s_w1,s_w2; } S_un_w;
+                ULONG S_addr;
+        } S_un;
+#define s_addr  S_un.S_addr /* can be used for most tcp & ip code */
+#define s_host  S_un.S_un_b.s_b2    // host on imp
+#define s_net   S_un.S_un_b.s_b1    // network
+#define s_imp   S_un.S_un_w.s_w2    // imp
+#define s_impno S_un.S_un_b.s_b4    // imp #
+#define s_lh    S_un.S_un_b.s_b3    // logical host
+} IN_ADDR, *PIN_ADDR, FAR *LPIN_ADDR;
+
+#endif
+
 typedef UINT_PTR        SOCKET;
 #define WSAAPI          FAR PASCAL
 
@@ -40,98 +63,102 @@ typedef struct WSAData {
 #endif
 } WSADATA, FAR * LPWSADATA;
 
+#define INVALID_SOCKET  (SOCKET)(~0)
+#define SOCKET_ERROR            (-1)
+
+
 /* Socket function prototypes */
-SOCKET WSAAPI accept(IN SOCKET s , struct sockaddr FAR * addr, __inout_opt int FAR * addrlen);
-typedef SOCKET (WSAAPI * LPFN_ACCEPT)(IN SOCKET s, struct sockaddr FAR * addr, __inout_opt int FAR * addrlen);
+SOCKET _imp_accept(SOCKET s , struct sockaddr FAR * addr,  int FAR * addrlen);
+typedef SOCKET (WSAAPI * LPFN_ACCEPT)(SOCKET s, struct sockaddr FAR * addr,  int FAR * addrlen);
 
-int WSAAPI bind(IN SOCKET s, const struct sockaddr FAR * name,  IN int namelen);
-typedef int (WSAAPI * LPFN_BIND)(IN SOCKET s, const struct sockaddr FAR * name,IN int namelen);
+int _imp_bind(SOCKET s, const struct sockaddr FAR * name,  int namelen);
+typedef int (WSAAPI * LPFN_BIND)(SOCKET s, const struct sockaddr FAR * name,int namelen);
 
-int WSAAPI closesocket(IN SOCKET s);
-typedef int (WSAAPI * LPFN_CLOSESOCKET)(IN SOCKET s);
+int _imp_closesocket(SOCKET s);
+typedef int (WSAAPI * LPFN_CLOSESOCKET)(SOCKET s);
 
-int WSAAPI connect(IN SOCKET s,const struct sockaddr FAR * name,IN int namelen);
-typedef int (WSAAPI * LPFN_CONNECT)(IN SOCKET s,const struct sockaddr FAR * name,IN int namelen);
+int _imp_connect(SOCKET s,const struct sockaddr FAR * name,int namelen);
+typedef int (WSAAPI * LPFN_CONNECT)(SOCKET s,const struct sockaddr FAR * name,int namelen);
 
-int WSAAPI ioctlsocket(IN SOCKET s,IN long cmd,__inout u_long FAR * argp);
-typedef int (WSAAPI * LPFN_IOCTLSOCKET)(IN SOCKET s,IN long cmd,__inout u_long FAR * argp);
+int _imp_ioctlsocket(SOCKET s,long cmd, u_long FAR * argp);
+typedef int (WSAAPI * LPFN_IOCTLSOCKET)(SOCKET s,long cmd, u_long FAR * argp);
 
-int WSAAPI getpeername(IN SOCKET s,struct sockaddr FAR * name,__inout int FAR * namelen);
-typedef int (WSAAPI * LPFN_GETPEERNAME)(IN SOCKET s,struct sockaddr FAR * name,__inout int FAR * namelen);
+int _imp_getpeername(SOCKET s,struct sockaddr FAR * name, int FAR * namelen);
+typedef int (WSAAPI * LPFN_GETPEERNAME)(SOCKET s,struct sockaddr FAR * name, int FAR * namelen);
 
-int WSAAPI getsockname(IN SOCKET s,struct sockaddr FAR * name,__inout int FAR * namelen);
-typedef int (WSAAPI * LPFN_GETSOCKNAME)(IN SOCKET s,struct sockaddr FAR * name,__inout int FAR * namelen);
+int _imp_getsockname(SOCKET s,struct sockaddr FAR * name, int FAR * namelen);
+typedef int (WSAAPI * LPFN_GETSOCKNAME)(SOCKET s,struct sockaddr FAR * name, int FAR * namelen);
 
-int WSAAPI getsockopt(IN SOCKET s,IN int level,IN int optname,char FAR * optval,__inout int FAR * optlen);
-typedef int (WSAAPI * LPFN_GETSOCKOPT)(IN SOCKET s,IN int level,IN int optname,char FAR * optval,__inout int FAR * optlen);
+int _imp_getsockopt(SOCKET s,int level,int optname,char FAR * optval, int FAR * optlen);
+typedef int (WSAAPI * LPFN_GETSOCKOPT)(SOCKET s,int level,int optname,char FAR * optval, int FAR * optlen);
 
-u_long WSAAPI htonl(IN u_long hostlong);
-typedef u_long (WSAAPI * LPFN_HTONL)(IN u_long hostlong);
+u_long _imp_htonl(u_long hostlong);
+typedef u_long (WSAAPI * LPFN_HTONL)(u_long hostlong);
 
-u_short WSAAPI htons(IN u_short hostshort);
-typedef u_short (WSAAPI * LPFN_HTONS)(IN u_short hostshort);
+u_short _imp_htons(u_short hostshort);
+typedef u_short (WSAAPI * LPFN_HTONS)(u_short hostshort);
 
-unsigned long WSAAPI inet_addr(__in IN const char FAR * cp);
-typedef unsigned long (WSAAPI * LPFN_INET_ADDR)(IN const char FAR * cp);
+unsigned long _imp_inet_addr( const char FAR * cp);
+typedef unsigned long (WSAAPI * LPFN_INET_ADDR)(const char FAR * cp);
 
-char FAR * WSAAPI inet_ntoa(IN struct in_addr in);
-typedef char FAR * (WSAAPI * LPFN_INET_NTOA)(IN struct in_addr in);
+char FAR * _imp_inet_ntoa(struct in_addr in);
+typedef char FAR * (WSAAPI * LPFN_INET_NTOA)(struct in_addr in);
 
-int WSAAPI listen(IN SOCKET s,IN int backlog);
-typedef int (WSAAPI * LPFN_LISTEN)(IN SOCKET s,IN int backlog);
+int _imp_listen(SOCKET s,int backlog);
+typedef int (WSAAPI * LPFN_LISTEN)(SOCKET s,int backlog);
 
-u_long WSAAPI ntohl(IN u_long netlong);
-typedef u_long (WSAAPI * LPFN_NTOHL)(IN u_long netlong);
+u_long _imp_ntohl(u_long netlong);
+typedef u_long (WSAAPI * LPFN_NTOHL)(u_long netlong);
 
-u_short WSAAPI ntohs(IN u_short netshort);
-typedef u_short (WSAAPI * LPFN_NTOHS)(IN u_short netshort);
+u_short _imp_ntohs(u_short netshort);
+typedef u_short (WSAAPI * LPFN_NTOHS)(u_short netshort);
 
-int WSAAPI recv(IN SOCKET s, char FAR * buf, IN int len,IN int flags);
-typedef int (WSAAPI * LPFN_RECV)(IN SOCKET s,char FAR * buf,IN int len,IN int flags);
+int _imp_recv(SOCKET s, char FAR * buf, int len,int flags);
+typedef int (WSAAPI * LPFN_RECV)(SOCKET s,char FAR * buf,int len,int flags);
 
-int WSAAPI recvfrom(IN SOCKET s,char FAR * buf,IN int len,IN int flags,struct sockaddr FAR * from,__inout_opt int FAR * fromlen);
-typedef int (WSAAPI * LPFN_RECVFROM)(IN SOCKET s,char FAR * buf,IN int len,IN int flags,struct sockaddr FAR * from,__inout_opt int FAR * fromlen);
+int _imp_recvfrom(SOCKET s,char FAR * buf,int len,int flags,struct sockaddr FAR * from, int FAR * fromlen);
+typedef int (WSAAPI * LPFN_RECVFROM)(SOCKET s,char FAR * buf,int len,int flags,struct sockaddr FAR * from, int FAR * fromlen);
 
-int WSAAPI send(IN SOCKET s,const char FAR * buf,IN int len,IN int flags);
-typedef int (WSAAPI * LPFN_SEND)( IN SOCKET s,const char FAR * buf,IN int len,IN int flags);
+int _imp_send(SOCKET s,const char FAR * buf,int len,int flags);
+typedef int (WSAAPI * LPFN_SEND)( SOCKET s,const char FAR * buf,int len,int flags);
 
-int WSAAPI sendto(IN SOCKET s,const char FAR * buf,IN int len, IN int flags, const struct sockaddr FAR * to,IN int tolen);
-typedef int (WSAAPI * LPFN_SENDTO)(IN SOCKET s,const char FAR * buf,IN int len,IN int flags,const struct sockaddr FAR * to,IN int tolen);
+int _imp_sendto(SOCKET s,const char FAR * buf,int len, int flags, const struct sockaddr FAR * to,int tolen);
+typedef int (WSAAPI * LPFN_SENDTO)(SOCKET s,const char FAR * buf,int len,int flags,const struct sockaddr FAR * to,int tolen);
 
-int WSAAPI setsockopt(IN SOCKET s,IN int level,IN int optname,const char FAR * optval,IN int optlen);
-typedef int (WSAAPI * LPFN_SETSOCKOPT)(IN SOCKET s,IN int level,IN int optname,const char FAR * optval,IN int optlen);
+int _imp_setsockopt(SOCKET s,int level,int optname,const char FAR * optval,int optlen);
+typedef int (WSAAPI * LPFN_SETSOCKOPT)(SOCKET s,int level,int optname,const char FAR * optval,int optlen);
 
-int WSAAPI shutdown(IN SOCKET s,IN int how);
-typedef int (WSAAPI * LPFN_SHUTDOWN)(IN SOCKET s,IN int how);
+int _imp_shutdown(SOCKET s,int how);
+typedef int (WSAAPI * LPFN_SHUTDOWN)(SOCKET s,int how);
 
-SOCKET WSAAPI socket(IN int af,IN int type,IN int protocol);
-typedef SOCKET (WSAAPI * LPFN_SOCKET)(IN int af,IN int type,IN int protocol);
+SOCKET _imp_socket(int af,int type,int protocol);
+typedef SOCKET (WSAAPI * LPFN_SOCKET)(int af,int type,int protocol);
 
-struct hostent FAR * WSAAPI gethostbyaddr( const char FAR * addr,IN int len, IN int type);
-typedef struct hostent FAR * (WSAAPI * LPFN_GETHOSTBYADDR)(const char FAR * addr,IN int len,IN int type);
+struct hostent FAR * _imp_gethostbyaddr( const char FAR * addr,int len, int type);
+typedef struct hostent FAR * (WSAAPI * LPFN_GETHOSTBYADDR)(const char FAR * addr,int len,int type);
 
-struct hostent FAR * WSAAPI gethostbyname(__in const char FAR * name);
-typedef struct hostent FAR * (WSAAPI * LPFN_GETHOSTBYNAME)( __in const char FAR * name);
+struct hostent FAR * _imp_gethostbyname( const char FAR * name);
+typedef struct hostent FAR * (WSAAPI * LPFN_GETHOSTBYNAME)(  const char FAR * name);
 
-int WSAAPI gethostname(char FAR * name,IN int namelen);
-typedef int (WSAAPI * LPFN_GETHOSTNAME)(char FAR * name,IN int namelen);
+int _imp_gethostname(char FAR * name,int namelen);
+typedef int (WSAAPI * LPFN_GETHOSTNAME)(char FAR * name,int namelen);
 
-struct servent FAR * WSAAPI getservbyport(__in int port,__in const char FAR * proto);
-typedef struct servent FAR * (WSAAPI * LPFN_GETSERVBYPORT)(IN int port, __in const char FAR * proto);
+struct servent FAR * _imp_getservbyport( int port, const char FAR * proto);
+typedef struct servent FAR * (WSAAPI * LPFN_GETSERVBYPORT)(int port,  const char FAR * proto);
 
-struct servent FAR * WSAAPI getservbyname(__in const char FAR * name, __in const char FAR * proto);
-typedef struct servent FAR * (WSAAPI * LPFN_GETSERVBYNAME)( __in const char FAR * name,__in const char FAR * proto);
+struct servent FAR * _imp_getservbyname( const char FAR * name,  const char FAR * proto);
+typedef struct servent FAR * (WSAAPI * LPFN_GETSERVBYNAME)(  const char FAR * name, const char FAR * proto);
 
-struct protoent FAR * WSAAPI getprotobynumber(IN int number);
-typedef struct protoent FAR * (WSAAPI * LPFN_GETPROTOBYNUMBER)(IN int number);
+struct protoent FAR * _imp_getprotobynumber(int number);
+typedef struct protoent FAR * (WSAAPI * LPFN_GETPROTOBYNUMBER)(int number);
 
-struct protoent FAR * WSAAPI getprotobyname(IN const char FAR * name);
-typedef struct protoent FAR * (WSAAPI * LPFN_GETPROTOBYNAME)(__in const char FAR * name);
+struct protoent FAR * _imp_getprotobyname(const char FAR * name);
+typedef struct protoent FAR * (WSAAPI * LPFN_GETPROTOBYNAME)( const char FAR * name);
 
-int WSAAPI WSAStartup(IN WORD wVersionRequested,OUT LPWSADATA lpWSAData);
-typedef int (WSAAPI * LPFN_WSASTARTUP)(IN WORD wVersionRequested,OUT LPWSADATA lpWSAData);
+int _imp_WSAStartup(WORD wVersionRequested, LPWSADATA lpWSAData);
+typedef int (WSAAPI * LPFN_WSASTARTUP)(WORD wVersionRequested, LPWSADATA lpWSAData);
 
-int WSAAPI WSACleanup(void);
+int _imp_WSACleanup(void);
 typedef int (WSAAPI * LPFN_WSACLEANUP)(void);
 
 #ifdef __cplusplus
