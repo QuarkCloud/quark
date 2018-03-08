@@ -6,6 +6,11 @@
 #include <stdint.h>
 #include <windows.h>
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+
 /**
     linux使用int表示描述系统对象的索引，而windows是使用HANDLE表示。在windows的crt中，
     只对文件句柄作了转化，其他都没有处理。为了实现posix接口，需要一个映射机制来屏蔽两者之间的差异。
@@ -26,7 +31,8 @@ typedef enum __wobj_type__{
     WOBJ_EVENT ,
     WOBJ_SOCK ,
     WOBJ_SHM ,
-    WOBJ_NOTF
+    WOBJ_NOTF ,
+    WOBJ_IOCP
 } wobj_type;
 
 #define WOBJ_ID_BASE_SHIFT      20
@@ -40,9 +46,6 @@ typedef struct __st_wobj{
     void * addition ;
 } wobj_t ;
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
 
 QKCAPI wobj_t * wobj_get(int wid) ;
 

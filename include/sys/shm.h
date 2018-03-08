@@ -93,7 +93,7 @@ extern "C" {
 #endif
     
 //Œ¥ µœ÷
-QKCAPI int shmctl (int shmid, int __cmd, struct shmid_ds * buf) ;
+QKCAPI int shmctl (int shmid, int cmd, struct shmid_ds * buf) ;
 
 QKCAPI int shmget (key_t key, size_t size, int shmflg) ;
 

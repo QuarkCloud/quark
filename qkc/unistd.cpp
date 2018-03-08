@@ -1,6 +1,9 @@
 
 #include <unistd.h>
+#include <errno.h>
 #include <wintf/wcrt.h>
+#include <wintf/wobj.h>
+#include <winsock2.h>
 
 off_t lseek(int fd , off_t offset , int whence)
 {
@@ -14,7 +17,43 @@ off64_t lseek64(int fd , off64_t offset , int whence)
 
 int close(int fd)
 {
-    return ::_close(fd) ;
+    if(fd < IOINFO_ARRAYS)
+        return ::_close(fd) ;
+
+    wobj_t * wobj = wobj_get(fd) ;
+    if(wobj == NULL)
+    {
+        errno = EINVAL ;
+        return -1 ;
+    }
+
+    wobj_type type = wobj->type ;
+
+    if(type == WOBJ_OTHR || type == WOBJ_PROC || type == WOBJ_THRD || 
+        type == WOBJ_MUTEX || type == WOBJ_CS || type == WOBJ_SEMA || type == WOBJ_EVENT || 
+        type == WOBJ_IOCP)
+    {
+        ::CloseHandle(wobj->handle) ;
+    }
+    else if(type == WOBJ_MODU)
+    {
+        ::FreeLibrary((HMODULE)wobj->handle) ;
+    }
+    else if(type == WOBJ_SOCK)
+    {
+        ::_imp_closesocket((SOCKET)wobj->handle) ;
+    }
+    else if(type == WOBJ_NOTF) 
+    {
+        ::FindCloseChangeNotification(wobj->handle) ;
+    }
+    else
+    {
+        errno = ENOSYS ;
+        return -1 ;
+    }
+
+    return 0 ;
 }
 
 ssize_t read(int fd , void * buf , size_t nbytes)

@@ -1,6 +1,7 @@
 
 #include <sys/epoll.h>
-
+#include <wintf/wobj.h>
+#include <windows.h>
 
 int epoll_create (int size)
 {
