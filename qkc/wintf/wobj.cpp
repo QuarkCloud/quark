@@ -58,7 +58,7 @@ int wobj_set(wobj_type type , HANDLE handle , void * addition)
             xid = 0 ;
 
         wobj_t * ko = __wobjs__ + xid ;
-        if((ko->handle == NULL || ko->handle == INVALID_HANDLE_VALUE) && ko->type == WOBJ_VOID && ko->wid == 0)
+        if((ko->handle != NULL && ko->handle != INVALID_HANDLE_VALUE) || ko->type != WOBJ_VOID || ko->wid != 0)
         {
             ++xid ;
             continue ;

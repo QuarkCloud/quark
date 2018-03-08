@@ -1,17 +1,6 @@
 
 #include <fcntl.h>
-
-
-#ifdef __cplusplus
-extern "C"{
-#endif
-
-QUARK_LINKAGE int _creat(const char * file , mode_t mode) ;
-QUARK_LINKAGE int _open(const char * file , int flag , mode_t mode) ;
-
-#ifdef __cplusplus
-}
-#endif
+#include <wintf/wcrt.h>
 
 int fcntl (int fd, int cmd , ...)
 {

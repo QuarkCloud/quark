@@ -193,7 +193,7 @@ unsigned long _imp_inet_addr( const char FAR * cp)
     return __socket_pfns__.lpfn_inet_addr(cp) ;
 }
 
-char FAR * _imp_inet_ntoa(struct in_addr in)
+char FAR * _imp_inet_ntoa(IN_ADDR in)
 {
     if(socket_library_init() == false)
         return NULL ;

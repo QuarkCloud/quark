@@ -2,17 +2,7 @@
 #include <wait.h>
 #include <errno.h>
 #include <windows.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-QUARK_LINKAGE intptr_t _cwait(int * status , intptr_t process , int action);
-
-#ifdef __cplusplus
-}
-#endif
-
+#include <wintf/wcrt.h>
 
 pid_t wait(__WAIT_STATUS stat_loc)
 {

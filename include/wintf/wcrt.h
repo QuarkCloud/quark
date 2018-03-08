@@ -3,6 +3,7 @@
 #define __QKC_WINTF_WOBJ_H 1
 
 #include <quark_compile.h>
+#include <stdio.h>
 
 #ifdef	__cplusplus
 extern "C" {
@@ -10,7 +11,6 @@ extern "C" {
 
 QUARK_LINKAGE intptr_t _get_osfhandle(int fd);
 QUARK_LINKAGE int _open_osfhandle(intptr_t handle, int flags);
-QUARK_LINKAGE int _open(const char * filename , int oflag , int mode = 0);
 QUARK_LINKAGE int _unlink(const char * filename);
 
 QUARK_LINKAGE int _chmod(const char * filename , int mode);
@@ -59,6 +59,53 @@ QUARK_LINKAGE errno_t _localtime64_s(struct tm *  tm , const __time64_t * time);
 QUARK_LINKAGE __time64_t _mktime64(struct tm * tm);
 QUARK_LINKAGE __time64_t _mkgmtime64(struct tm * tm);
 QUARK_LINKAGE __time64_t _time64(__time64_t * time);
+
+//fcntl
+QUARK_LINKAGE int _creat(const char * file , mode_t mode) ;
+QUARK_LINKAGE int _open(const char * file , int flag , mode_t mode) ;
+
+
+//stdio
+QUARK_LINKAGE char *tmpnam_s (char *s);
+QUARK_LINKAGE int _fcloseall (void);
+QUARK_LINKAGE FILE *_fdopen (int fd , const char *modes);
+QUARK_LINKAGE int _snprintf (char * s , size_t maxlen , const char * format , ...);
+QUARK_LINKAGE int _vsnprintf (char * s , size_t maxlen , const char * format , va_list arg);
+QUARK_LINKAGE int _getw (FILE *stream);
+QUARK_LINKAGE int _putw (int w , FILE *stream);
+
+QUARK_LINKAGE int _fseeki64 (FILE *stream , off_t off , int whence);
+QUARK_LINKAGE off_t _ftelli64 (FILE *stream);
+QUARK_LINKAGE int _fileno (FILE *stream);
+
+QUARK_LINKAGE void _lock_file (FILE *stream);
+QUARK_LINKAGE void _unlock_file (FILE *stream);
+
+//string
+QUARK_LINKAGE char *  strtok_s(char * str , const char * delim,  char ** context);
+
+//unistd
+QUARK_LINKAGE off_t _lseek(int fd , off_t offset , int whence) ;
+QUARK_LINKAGE off64_t _lseeki64(int fd , off64_t offset , int whence) ;
+QUARK_LINKAGE int _close(int fd) ;
+QUARK_LINKAGE ssize_t _read(int fd , void * buf , size_t nbytes) ;
+QUARK_LINKAGE ssize_t _write(int fd , const void * buf , size_t n) ;
+QUARK_LINKAGE void _sleep(unsigned int seconds) ;
+QUARK_LINKAGE int _chdir(const char * path) ;
+QUARK_LINKAGE int _chsize(int fd ,long size);
+QUARK_LINKAGE int _chsize_s(int fd ,__int64 size);
+QUARK_LINKAGE char *_getcwd(char * buf , size_t size) ;
+QUARK_LINKAGE int _dup(int fd) ;
+QUARK_LINKAGE int _dup2(int fd , int fd2) ;
+QUARK_LINKAGE pid_t _getpid(void) ;
+QUARK_LINKAGE int _rmdir(const char * path) ;
+QUARK_LINKAGE int _locking(int fd , int cmd , off_t len) ;
+
+//utime
+QUARK_LINKAGE int _utime64(const char * file , struct utimbuf * file_times) ;
+
+//wait
+QUARK_LINKAGE intptr_t _cwait(int * status , intptr_t process , int action);
 
 #ifdef	__cplusplus
 }

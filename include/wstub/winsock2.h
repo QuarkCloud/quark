@@ -15,28 +15,9 @@ typedef unsigned short  u_short;
 typedef unsigned int    u_int;
 typedef unsigned long   u_long;
 
-#ifndef s_addr
-#pragma once
-
-//
-// IPv4 Internet address
-// This is an 'on-wire' format structure.
-//
-typedef struct in_addr {
-        union {
-                struct { UCHAR s_b1,s_b2,s_b3,s_b4; } S_un_b;
-                struct { USHORT s_w1,s_w2; } S_un_w;
-                ULONG S_addr;
-        } S_un;
-#define s_addr  S_un.S_addr /* can be used for most tcp & ip code */
-#define s_host  S_un.S_un_b.s_b2    // host on imp
-#define s_net   S_un.S_un_b.s_b1    // network
-#define s_imp   S_un.S_un_w.s_w2    // imp
-#define s_impno S_un.S_un_b.s_b4    // imp #
-#define s_lh    S_un.S_un_b.s_b3    // logical host
+typedef struct win_addr {
+    u_int s_addr ;
 } IN_ADDR, *PIN_ADDR, FAR *LPIN_ADDR;
-
-#endif
 
 typedef UINT_PTR        SOCKET;
 #define WSAAPI          FAR PASCAL
@@ -65,6 +46,17 @@ typedef struct WSAData {
 
 #define INVALID_SOCKET  (SOCKET)(~0)
 #define SOCKET_ERROR            (-1)
+
+
+#if !defined(MAKEWORD)
+#define MAKEWORD(low,high) \
+        ((WORD)(((BYTE)(low)) | ((WORD)((BYTE)(high))) << 8))
+#endif
+
+#ifndef WINSOCK_VERSION
+#define WINSOCK_VERSION MAKEWORD(2,2)
+#endif
+
 
 
 /* Socket function prototypes */
@@ -101,8 +93,8 @@ typedef u_short (WSAAPI * LPFN_HTONS)(u_short hostshort);
 unsigned long _imp_inet_addr( const char FAR * cp);
 typedef unsigned long (WSAAPI * LPFN_INET_ADDR)(const char FAR * cp);
 
-char FAR * _imp_inet_ntoa(struct in_addr in);
-typedef char FAR * (WSAAPI * LPFN_INET_NTOA)(struct in_addr in);
+char FAR * _imp_inet_ntoa(IN_ADDR in);
+typedef char FAR * (WSAAPI * LPFN_INET_NTOA)(IN_ADDR in);
 
 int _imp_listen(SOCKET s,int backlog);
 typedef int (WSAAPI * LPFN_LISTEN)(SOCKET s,int backlog);

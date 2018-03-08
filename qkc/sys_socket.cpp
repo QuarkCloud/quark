@@ -9,7 +9,10 @@ int socket(int domain , int type , int protocol)
 {
     SOCKET handle = _imp_socket(domain , type , protocol) ;
     if(handle == INVALID_SOCKET)
+    {
+        DWORD error_code = ::GetLastError() ;
         return -1 ;
+    }
 
     return wobj_set(WOBJ_SOCK , (HANDLE)handle , NULL) ;
 }

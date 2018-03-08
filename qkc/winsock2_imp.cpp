@@ -86,6 +86,9 @@ bool socket_library_load()
     
     DECLARE_SOCKET_PFN(WSACleanup ,         LPFN_WSACLEANUP);
 
+    WSADATA data ;
+    __socket_pfns__.lpfn_WSAStartup(WINSOCK_VERSION , &data) ;
+
     return  true ;
 }
 
@@ -193,7 +196,7 @@ unsigned long _imp_inet_addr( const char FAR * cp)
     return __socket_pfns__.lpfn_inet_addr(cp) ;
 }
 
-char FAR * _imp_inet_ntoa(struct in_addr in)
+char FAR * _imp_inet_ntoa(IN_ADDR in)
 {
     if(socket_library_init() == false)
         return NULL ;

@@ -1,15 +1,6 @@
 
 #include <utime.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-QUARK_LINKAGE int _utime64(const char * file , struct utimbuf * file_times) ;
-
-#ifdef __cplusplus
-}
-#endif
+#include <wintf/wcrt.h>
 
 int utime (const char * file, const struct utimbuf * file_times)
 {

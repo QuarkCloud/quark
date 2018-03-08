@@ -1,29 +1,6 @@
 
 #include <unistd.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-QUARK_LINKAGE off_t _lseek(int fd , off_t offset , int whence) ;
-QUARK_LINKAGE off64_t _lseeki64(int fd , off64_t offset , int whence) ;
-QUARK_LINKAGE int _close(int fd) ;
-QUARK_LINKAGE ssize_t _read(int fd , void * buf , size_t nbytes) ;
-QUARK_LINKAGE ssize_t _write(int fd , const void * buf , size_t n) ;
-QUARK_LINKAGE void _sleep(unsigned int seconds) ;
-QUARK_LINKAGE int _chdir(const char * path) ;
-QUARK_LINKAGE int _chsize(int fd ,long size);
-QUARK_LINKAGE int _chsize_s(int fd ,__int64 size);
-QUARK_LINKAGE char *_getcwd(char * buf , size_t size) ;
-QUARK_LINKAGE int _dup(int fd) ;
-QUARK_LINKAGE int _dup2(int fd , int fd2) ;
-QUARK_LINKAGE pid_t _getpid(void) ;
-QUARK_LINKAGE int _rmdir(const char * path) ;
-QUARK_LINKAGE int _locking(int fd , int cmd , off_t len) ;
-
-#ifdef __cplusplus
-}
-#endif
+#include <wintf/wcrt.h>
 
 off_t lseek(int fd , off_t offset , int whence)
 {
