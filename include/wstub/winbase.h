@@ -2027,6 +2027,16 @@ GetSystemTimes(
     __out_opt LPFILETIME lpUserTime
     );
 
+
+
+WINBASEAPI LONG WINAPI InterlockedIncrement(LONG volatile *lpAddend);
+WINBASEAPI LONG WINAPI InterlockedDecrement(LONG volatile *lpAddend);
+WINBASEAPI LONG WINAPI InterlockedExchange(LONG volatile *Target, LONG Value);
+WINBASEAPI LONG WINAPI InterlockedExchangeAdd(LONG volatile *Addend , LONG Value);
+WINBASEAPI LONG WINAPI InterlockedCompareExchange(LONG volatile *Destination, LONG Exchange, LONG Comperand);
+WINBASEAPI LONGLONG WINAPI InterlockedCompareExchange64(LONGLONG volatile *Destination,LONGLONG Exchange, LONGLONG Comperand);
+
+
 #ifdef __cplusplus
 }
 #endif
