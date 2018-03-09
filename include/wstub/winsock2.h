@@ -2,9 +2,7 @@
 #ifndef __QUARK_WSTUB_WINSOCK2_H
 #define __QUARK_WSTUB_WINSOCK2_H 1
 
-#include <windef.h>
-#include <winerror.h>
-#include <winnt.h>
+#include <windows.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,6 +54,9 @@ typedef struct WSAData {
 #ifndef WINSOCK_VERSION
 #define WINSOCK_VERSION MAKEWORD(2,2)
 #endif
+
+typedef struct _OVERLAPPED *    LPWSAOVERLAPPED;
+#define WSAEVENT                HANDLE
 
 
 
@@ -147,11 +148,169 @@ typedef struct protoent FAR * (WSAAPI * LPFN_GETPROTOBYNUMBER)(int number);
 struct protoent FAR * _imp_getprotobyname(const char FAR * name);
 typedef struct protoent FAR * (WSAAPI * LPFN_GETPROTOBYNAME)( const char FAR * name);
 
-int _imp_WSAStartup(WORD wVersionRequested, LPWSADATA lpWSAData);
-typedef int (WSAAPI * LPFN_WSASTARTUP)(WORD wVersionRequested, LPWSADATA lpWSAData);
+int WSAStartup(WORD version, LPWSADATA data);
+typedef int (WSAAPI * LPFN_WSASTARTUP)(WORD version, LPWSADATA data);
 
-int _imp_WSACleanup(void);
+int WSACleanup(void);
 typedef int (WSAAPI * LPFN_WSACLEANUP)(void);
+
+
+typedef struct _WSABUF {
+    ULONG len;     /* the length of the buffer */
+    CHAR FAR *buf; /* the pointer to the buffer */
+} WSABUF, FAR * LPWSABUF;
+typedef void(CALLBACK * LPWSAOVERLAPPED_COMPLETION_ROUTINE)(DWORD dwError , DWORD cbTransferred , LPWSAOVERLAPPED lpOverlapped , DWORD dwFlags);
+#define SIO_NSP_NOTIFY_CHANGE         _WSAIOW(IOC_WS2 , 25)
+typedef enum _WSACOMPLETIONTYPE {
+    NSP_NOTIFY_IMMEDIATELY = 0 , 
+    NSP_NOTIFY_HWND , 
+    NSP_NOTIFY_EVENT , 
+    NSP_NOTIFY_PORT , 
+    NSP_NOTIFY_APC , 
+} WSACOMPLETIONTYPE , *PWSACOMPLETIONTYPE , FAR * LPWSACOMPLETIONTYPE;
+typedef struct _WSACOMPLETION {
+    WSACOMPLETIONTYPE Type;
+    union {
+        struct {
+            LPWSAOVERLAPPED lpOverlapped;
+        } Event;
+        struct {
+            LPWSAOVERLAPPED lpOverlapped;
+            LPWSAOVERLAPPED_COMPLETION_ROUTINE lpfnCompletionProc;
+        } Apc;
+        struct {
+            LPWSAOVERLAPPED lpOverlapped;
+            HANDLE hPort;
+            ULONG_PTR Key;
+        } Port;
+    } Parameters;
+} WSACOMPLETION , *PWSACOMPLETION , FAR *LPWSACOMPLETION;
+
+void _imp_WSASetLastError(int error);
+typedef void(WSAAPI * LPFN_WSASETLASTERROR)(int error);
+
+int _imp_WSAGetLastError(void);
+typedef int(WSAAPI * LPFN_WSAGETLASTERROR)(void);
+
+BOOL _imp_WSACloseEvent(WSAEVENT evt);
+typedef BOOL(WSAAPI * LPFN_WSACLOSEEVENT)(WSAEVENT evt);
+
+WSAEVENT _imp_WSACreateEvent(void);
+typedef WSAEVENT(WSAAPI * LPFN_WSACREATEEVENT)(void);
+
+int _imp_WSAEventSelect(SOCKET s , WSAEVENT evto , long nevt);
+typedef int(WSAAPI * LPFN_WSAEVENTSELECT)(SOCKET s , WSAEVENT evto , long nevt);
+
+BOOL _imp_WSAGetOverlappedResult(SOCKET s , LPWSAOVERLAPPED ov , LPDWORD transfer , BOOL wait , LPDWORD flag);
+typedef BOOL(WSAAPI * LPFN_WSAGETOVERLAPPEDRESULT)(SOCKET s , LPWSAOVERLAPPED ov , LPDWORD transfer , BOOL wait , LPDWORD flag);
+
+int _imp_WSAIoctl(SOCKET s , DWORD code , LPVOID inbuf , DWORD inbytes , LPVOID outbuf , DWORD outbytes , LPDWORD retbytes , 
+                  LPWSAOVERLAPPED ov , LPWSAOVERLAPPED_COMPLETION_ROUTINE routine);
+typedef int(WSAAPI * LPFN_WSAIOCTL)(SOCKET s , DWORD code , LPVOID inbuf , DWORD inbytes , LPVOID outbuf , DWORD outbytes , 
+                  LPDWORD retbytes , LPWSAOVERLAPPED ov , LPWSAOVERLAPPED_COMPLETION_ROUTINE routine);
+
+int _imp_WSARecv(SOCKET s , LPWSABUF buf , DWORD bufsize , LPDWORD recvbytes , LPDWORD flag , LPWSAOVERLAPPED ov ,
+                LPWSAOVERLAPPED_COMPLETION_ROUTINE routine);
+typedef int(WSAAPI * LPFN_WSARECV)(SOCKET s , LPWSABUF buf , DWORD bufsize , LPDWORD recvbytes , LPDWORD flag , 
+                LPWSAOVERLAPPED ov , LPWSAOVERLAPPED_COMPLETION_ROUTINE routine);
+
+int _imp_WSARecvFrom(SOCKET s , LPWSABUF buf , DWORD bufsize , LPDWORD recvbytes , LPDWORD flag , struct sockaddr FAR * from , 
+                LPINT from_len , LPWSAOVERLAPPED ov , LPWSAOVERLAPPED_COMPLETION_ROUTINE routine);
+typedef int(WSAAPI * LPFN_WSARECVFROM)(SOCKET s , LPWSABUF buf , DWORD bufsize , LPDWORD recvbytes , LPDWORD flag , struct sockaddr FAR * from , 
+                LPINT from_len , LPWSAOVERLAPPED ov , LPWSAOVERLAPPED_COMPLETION_ROUTINE routine);
+
+BOOL _imp_WSAResetEvent(WSAEVENT evt);
+typedef BOOL(WSAAPI * LPFN_WSARESETEVENT)(WSAEVENT evt);
+
+int _imp_WSASend(SOCKET s , LPWSABUF buf , DWORD bufsize , LPDWORD sentbytes , DWORD flag , LPWSAOVERLAPPED ov , 
+                 LPWSAOVERLAPPED_COMPLETION_ROUTINE routine);
+typedef int(WSAAPI * LPFN_WSASEND)(SOCKET s , LPWSABUF buf , DWORD bufsize , LPDWORD sentbytes , DWORD flag , 
+                LPWSAOVERLAPPED ov , LPWSAOVERLAPPED_COMPLETION_ROUTINE routine);
+
+int _imp_WSASendTo(SOCKET s , LPWSABUF buf , DWORD bufsize , LPDWORD sentbytes , DWORD flag , const struct sockaddr FAR * to , 
+                int to_len , LPWSAOVERLAPPED ov , LPWSAOVERLAPPED_COMPLETION_ROUTINE routine);
+typedef int(WSAAPI * LPFN_WSASENDTO)(SOCKET s , LPWSABUF buf , DWORD bufsize , LPDWORD sentbytes , DWORD flag , 
+                const struct sockaddr FAR * to , int to_len , LPWSAOVERLAPPED ov , LPWSAOVERLAPPED_COMPLETION_ROUTINE routine);
+
+BOOL _imp_WSASetEvent(WSAEVENT evt);
+typedef BOOL(WSAAPI * LPFN_WSASETEVENT)(WSAEVENT evt);
+
+
+#define MAX_PROTOCOL_CHAIN 7
+
+#define BASE_PROTOCOL      1
+#define LAYERED_PROTOCOL   0
+
+typedef struct _WSAPROTOCOLCHAIN {
+    int ChainLen;                                 /* the length of the chain,     */
+                                                  /* length = 0 means layered protocol, */
+                                                  /* length = 1 means base protocol, */
+                                                  /* length > 1 means protocol chain */
+    DWORD ChainEntries[MAX_PROTOCOL_CHAIN];       /* a list of dwCatalogEntryIds */
+} WSAPROTOCOLCHAIN, FAR * LPWSAPROTOCOLCHAIN;
+
+#define WSAPROTOCOL_LEN  255
+
+typedef struct _GUID {
+    unsigned long  Data1;
+    unsigned short Data2;
+    unsigned short Data3;
+    unsigned char  Data4[ 8 ];
+} GUID;
+
+typedef struct _WSAPROTOCOL_INFOA {
+    DWORD dwServiceFlags1;
+    DWORD dwServiceFlags2;
+    DWORD dwServiceFlags3;
+    DWORD dwServiceFlags4;
+    DWORD dwProviderFlags;
+    GUID ProviderId;
+    DWORD dwCatalogEntryId;
+    WSAPROTOCOLCHAIN ProtocolChain;
+    int iVersion;
+    int iAddressFamily;
+    int iMaxSockAddr;
+    int iMinSockAddr;
+    int iSocketType;
+    int iProtocol;
+    int iProtocolMaxOffset;
+    int iNetworkByteOrder;
+    int iSecurityScheme;
+    DWORD dwMessageSize;
+    DWORD dwProviderReserved;
+    CHAR   szProtocol[WSAPROTOCOL_LEN+1];
+} WSAPROTOCOL_INFOA, FAR * LPWSAPROTOCOL_INFOA;
+typedef struct _WSAPROTOCOL_INFOW {
+    DWORD dwServiceFlags1;
+    DWORD dwServiceFlags2;
+    DWORD dwServiceFlags3;
+    DWORD dwServiceFlags4;
+    DWORD dwProviderFlags;
+    GUID ProviderId;
+    DWORD dwCatalogEntryId;
+    WSAPROTOCOLCHAIN ProtocolChain;
+    int iVersion;
+    int iAddressFamily;
+    int iMaxSockAddr;
+    int iMinSockAddr;
+    int iSocketType;
+    int iProtocol;
+    int iProtocolMaxOffset;
+    int iNetworkByteOrder;
+    int iSecurityScheme;
+    DWORD dwMessageSize;
+    DWORD dwProviderReserved;
+    WCHAR  szProtocol[WSAPROTOCOL_LEN+1];
+} WSAPROTOCOL_INFOW, FAR * LPWSAPROTOCOL_INFOW;
+
+typedef unsigned int             GROUP;
+
+SOCKET  _imp_WSASocket(int af , int type , int protocol , LPWSAPROTOCOL_INFOA info , GROUP g , DWORD flag);
+typedef  SOCKET (WSAAPI * LPFN_WSASOCKET)(int af , int type , int protocol , LPWSAPROTOCOL_INFOA info , GROUP g , DWORD flag);
+
+DWORD _imp_WSAWaitForMultipleEvents(DWORD evt_count , const WSAEVENT FAR * evts , BOOL wait_all , DWORD timeout , BOOL alertable);
+typedef DWORD(WSAAPI * LPFN_WSAWAITFORMULTIPLEEVENTS)(DWORD evt_count , const WSAEVENT FAR * evts , BOOL wait_all , 
+            DWORD timeout , BOOL alertable);
 
 #ifdef __cplusplus
 }

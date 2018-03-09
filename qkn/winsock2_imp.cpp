@@ -34,6 +34,24 @@ typedef struct __st_lpfn_socket{
     LPFN_GETPROTOBYNAME     lpfn_getprotobyname ;
     LPFN_WSASTARTUP         lpfn_WSAStartup ;
     LPFN_WSACLEANUP         lpfn_WSACleanup ;
+    
+    LPFN_WSASETLASTERROR                  lpfn_WSASetLastError ;       
+    LPFN_WSAGETLASTERROR                  lpfn_WSAGetLastError ;       
+    LPFN_WSACLOSEEVENT                    lpfn_WSACloseEvent ;         
+    LPFN_WSACREATEEVENT                   lpfn_WSACreateEvent ;        
+    LPFN_WSAEVENTSELECT                   lpfn_WSAEventSelect ;        
+                                                                                        
+    LPFN_WSAGETOVERLAPPEDRESULT           lpfn_WSAGetOverlappedResult ;
+    LPFN_WSAIOCTL                         lpfn_WSAIoctl ;              
+    LPFN_WSARECV                          lpfn_WSARecv ;               
+    LPFN_WSARECVFROM                      lpfn_WSARecvFrom ;           
+    LPFN_WSARESETEVENT                    lpfn_WSAResetEvent ;         
+                                                                                        
+    LPFN_WSASEND                          lpfn_WSASend ;               
+    LPFN_WSASENDTO                        lpfn_WSASendTo ;             
+    LPFN_WSASETEVENT                      lpfn_WSASetEvent ;           
+    LPFN_WSASOCKET                        lpfn_WSASocketA ;
+    LPFN_WSAWAITFORMULTIPLEEVENTS         lpfn_WSAWaitForMultipleEvents ;    
 } lpfn_socket_t ;
 
 SRWLOCK __socket_inner_rwlock__ =  SRWLOCK_INIT ;
@@ -86,6 +104,27 @@ bool socket_library_load()
     
     DECLARE_SOCKET_PFN(WSACleanup ,         LPFN_WSACLEANUP);
 
+    DECLARE_SOCKET_PFN(WSASetLastError ,    LPFN_WSASETLASTERROR);
+    DECLARE_SOCKET_PFN(WSAGetLastError ,    LPFN_WSAGETLASTERROR);
+    DECLARE_SOCKET_PFN(WSACloseEvent ,      LPFN_WSACLOSEEVENT);
+    DECLARE_SOCKET_PFN(WSACreateEvent ,     LPFN_WSACREATEEVENT);
+    DECLARE_SOCKET_PFN(WSAEventSelect ,     LPFN_WSAEVENTSELECT);
+
+    DECLARE_SOCKET_PFN(WSAGetOverlappedResult ,LPFN_WSAGETOVERLAPPEDRESULT);
+    DECLARE_SOCKET_PFN(WSAIoctl ,           LPFN_WSAIOCTL);
+    DECLARE_SOCKET_PFN(WSARecv ,            LPFN_WSARECV);
+    DECLARE_SOCKET_PFN(WSARecvFrom ,        LPFN_WSARECVFROM);
+    DECLARE_SOCKET_PFN(WSAResetEvent ,      LPFN_WSARESETEVENT);
+    
+    DECLARE_SOCKET_PFN(WSASend ,            LPFN_WSASEND);
+    DECLARE_SOCKET_PFN(WSASendTo ,          LPFN_WSASENDTO);
+    DECLARE_SOCKET_PFN(WSASetEvent ,        LPFN_WSASETEVENT);
+    DECLARE_SOCKET_PFN(WSASocketA ,         LPFN_WSASOCKET);
+    DECLARE_SOCKET_PFN(WSAWaitForMultipleEvents ,   LPFN_WSAWAITFORMULTIPLEEVENTS);
+
+
+    WSADATA data ;
+    WSAStartup(WINSOCK_VERSION , &data) ;
     return  true ;
 }
 
@@ -337,7 +376,7 @@ struct protoent FAR * _imp_getprotobyname(const char FAR * name)
     return __socket_pfns__.lpfn_getprotobyname(name) ;
 }
 
-int _imp_WSAStartup(WORD wVersionRequested, LPWSADATA lpWSAData)
+int WSAStartup(WORD wVersionRequested, LPWSADATA lpWSAData)
 {
     if(socket_library_init() == false)
         return SOCKET_ERROR ;
@@ -345,10 +384,146 @@ int _imp_WSAStartup(WORD wVersionRequested, LPWSADATA lpWSAData)
     return __socket_pfns__.lpfn_WSAStartup(wVersionRequested , lpWSAData) ;
 }
 
-int _imp_WSACleanup(void)
+int WSACleanup(void)
 {
     if(socket_library_init() == false)
         return SOCKET_ERROR ;
 
     return __socket_pfns__.lpfn_WSACleanup() ;
 }
+
+void _imp_WSASetLastError(int error)
+{
+    if(socket_library_init() == false)
+        return ;
+
+    return __socket_pfns__.lpfn_WSASetLastError(error) ;
+}
+
+
+int _imp_WSAGetLastError(void)
+{
+    if(socket_library_init() == false)
+        return SOCKET_ERROR ;
+
+    return __socket_pfns__.lpfn_WSAGetLastError() ;
+}
+
+
+BOOL _imp_WSACloseEvent(WSAEVENT evt)
+{
+    if(socket_library_init() == false)
+        return FALSE ;
+
+    return __socket_pfns__.lpfn_WSACloseEvent(evt) ;
+}
+
+
+WSAEVENT _imp_WSACreateEvent(void)
+{
+    if(socket_library_init() == false)
+        return NULL ;
+
+    return __socket_pfns__.lpfn_WSACreateEvent() ;
+}
+
+
+int _imp_WSAEventSelect(SOCKET s , WSAEVENT evto , long nevt)
+{
+    if(socket_library_init() == false)
+        return SOCKET_ERROR ;
+
+    return __socket_pfns__.lpfn_WSAEventSelect(s , evto , nevt) ;
+}
+
+
+BOOL _imp_WSAGetOverlappedResult(SOCKET s , LPWSAOVERLAPPED ov , LPDWORD transfer , BOOL wait , LPDWORD flag)
+{
+    if(socket_library_init() == false)
+        return FALSE ;
+
+    return __socket_pfns__.lpfn_WSAGetOverlappedResult(s , ov , transfer , wait , flag) ;
+}
+
+
+int _imp_WSAIoctl(SOCKET s , DWORD code , LPVOID inbuf , DWORD inbytes , LPVOID outbuf , DWORD outbytes , LPDWORD retbytes , LPWSAOVERLAPPED ov , LPWSAOVERLAPPED_COMPLETION_ROUTINE routine)
+{
+    if(socket_library_init() == false)
+        return SOCKET_ERROR ;
+
+    return __socket_pfns__.lpfn_WSAIoctl(s , code , inbuf , inbytes , outbuf , outbytes , retbytes , ov , routine) ;
+}
+
+
+int _imp_WSARecv(SOCKET s , LPWSABUF buf , DWORD bufsize , LPDWORD recvbytes , LPDWORD flag , LPWSAOVERLAPPED ov ,LPWSAOVERLAPPED_COMPLETION_ROUTINE routine)
+{
+    if(socket_library_init() == false)
+        return SOCKET_ERROR ;
+
+    return __socket_pfns__.lpfn_WSARecv(s , buf , bufsize , recvbytes , flag , ov , routine) ;
+}
+
+
+int _imp_WSARecvFrom(SOCKET s , LPWSABUF buf , DWORD bufsize , LPDWORD recvbytes , LPDWORD flag , struct sockaddr FAR * from , LPINT from_len , LPWSAOVERLAPPED ov , LPWSAOVERLAPPED_COMPLETION_ROUTINE routine)
+{
+    if(socket_library_init() == false)
+        return SOCKET_ERROR ;
+
+    return __socket_pfns__.lpfn_WSARecvFrom(s , buf , bufsize , recvbytes , flag , from , from_len , ov , routine) ;
+}
+
+
+BOOL _imp_WSAResetEvent(WSAEVENT evt)
+{
+    if(socket_library_init() == false)
+        return FALSE ;
+
+    return __socket_pfns__.lpfn_WSAResetEvent(evt) ;
+}
+
+
+int _imp_WSASend(SOCKET s , LPWSABUF buf , DWORD bufsize , LPDWORD sentbytes , DWORD flag , LPWSAOVERLAPPED ov , LPWSAOVERLAPPED_COMPLETION_ROUTINE routine)
+{
+    if(socket_library_init() == false)
+        return SOCKET_ERROR ;
+
+    return __socket_pfns__.lpfn_WSASend(s , buf , bufsize , sentbytes , flag , ov , routine) ;
+}
+
+int _imp_WSASendTo(SOCKET s , LPWSABUF buf , DWORD bufsize , LPDWORD sentbytes , DWORD flag , const struct sockaddr FAR * to , int to_len , LPWSAOVERLAPPED ov , LPWSAOVERLAPPED_COMPLETION_ROUTINE routine)
+{
+    if(socket_library_init() == false)
+        return SOCKET_ERROR ;
+
+    return __socket_pfns__.lpfn_WSASendTo(s , buf , bufsize , sentbytes , flag , to , to_len , ov , routine) ;
+}
+
+
+BOOL _imp_WSASetEvent(WSAEVENT evt)
+{
+    if(socket_library_init() == false)
+        return FALSE ;
+
+    return __socket_pfns__.lpfn_WSASetEvent(evt) ;
+}
+
+
+SOCKET  _imp_WSASocket(int af , int type , int protocol , LPWSAPROTOCOL_INFOA info , GROUP g , DWORD flag)
+{
+    if(socket_library_init() == false)
+        return INVALID_SOCKET ;
+
+    return __socket_pfns__.lpfn_WSASocketA(af , type , protocol , info , g , flag) ;
+}
+
+
+DWORD _imp_WSAWaitForMultipleEvents(DWORD evt_count , const WSAEVENT FAR * evts , BOOL wait_all , DWORD timeout , BOOL alertable)
+{
+    if(socket_library_init() == false)
+        return SOCKET_ERROR ;
+
+    return __socket_pfns__.lpfn_WSAWaitForMultipleEvents(evt_count , evts , wait_all , timeout , alertable) ;
+}
+
+
+
