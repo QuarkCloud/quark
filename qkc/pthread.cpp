@@ -114,31 +114,82 @@ int pthread_once(pthread_once_t *once_control , init_routine routine)
         return -1 ;
 }
 
+typedef struct __st_pthread_mutex_data{
+    HANDLE handle ;
+    LPCRITICAL_SECTION handle_critical_section ;
+} pthread_mutex_data;
 
 int pthread_mutex_init(pthread_mutex_t *mutex , const pthread_mutexattr_t *mutexattr) 
 {
-    LPCRITICAL_SECTION cs = NULL ;
-    InitializeCriticalSection(&cs) ;
-    mutex->handle = (uintptr_t) cs ;
+    HANDLE handle = ::CreateMutex(NULL , FALSE , NULL) ;
+    if(handle == INVALID_HANDLE_VALUE)
+        return -1 ;
+
+    pthread_mutex_data * data = (pthread_mutex_data *)::malloc(sizeof(pthread_mutex_data)) ;
+    data->handle = handle ;
+    data->handle_critical_section = NULL ;
+
+    int wid = wobj_set(WOBJ_MUTEX , handle , data) ;
+    *mutex = wid ;
     return 0 ;
 }
 
 int pthread_mutex_destroy(pthread_mutex_t *mutex)
 {
-    LPCRITICAL_SECTION cs = (LPCRITICAL_SECTION)mutex->handle ;
-    ::DeleteCriticalSection(cs) ;
-    mutex->handle = 0 ;
+    int wid = *mutex ;
+    wobj_t *obj = wobj_get(wid) ;
+    if(obj == NULL || obj->type != WOBJ_MUTEX)
+        return -1 ;
+
+    pthread_mutex_data * data = (pthread_mutex_data *)obj->addition ;
+    if(data == NULL)
+        return -1 ;
+
+    HANDLE handle = data->handle ;
+    LPCRITICAL_SECTION cs = data->handle_critical_section ;
+    if(handle != INVALID_HANDLE_VALUE)
+    {
+        if(::WaitForSingleObject(handle , INFINITE) == WAIT_OBJECT_0)
+        {
+            if(cs != NULL)
+            {
+                ::DeleteCriticalSection(cs) ;
+            }
+            ::CloseHandle(handle) ;
+        }
+
+        data->handle_critical_section = NULL ;
+        data->handle = INVALID_HANDLE_VALUE ;
+    }
+
+    ::wobj_del(wid) ;
     return 0 ;
 }
 
 int pthread_mutex_trylock(pthread_mutex_t *mutex) 
 {
-    
+    int wid = *mutex ;
+    wobj_t * obj = wobj_get(wid) ;
+    if(obj == NULL || obj->type != WOBJ_MUTEX)
+        return -1 ;
+
+    if(::WaitForSingleObject(obj->handle , 0) == WAIT_OBJECT_0)
+        return 0 ;
+    else
+        return -1 ;
 }
 
 int pthread_mutex_lock(pthread_mutex_t *mutex) 
 {
+    int wid = *mutex ;
+    wobj_t * obj = wobj_get(wid) ;
+    if(obj == NULL || obj->type != WOBJ_MUTEX)
+        return -1 ;
 
+    if(::WaitForSingleObject(obj->handle , INFINITE) == WAIT_OBJECT_0)
+        return 0 ;
+    else
+        return -1 ;
 }
 
 int pthread_mutex_timedlock(pthread_mutex_t * mutex , const struct timespec * abstime) 

@@ -24,10 +24,8 @@ typedef int pthread_t;
 typedef struct __st_pthread_once{void * ptr ;} pthread_once_t ;
 #define PTHREAD_ONCE_INIT {NULL}
 
-typedef struct __st_pthread_mutex{
-    uintptr_t handle ;              //因为条件变量的关系，使用CS作为互斥
-} pthread_mutex_t ;
-#define PTHREAD_MUTEX_INITIALIZER {0}
+typedef int pthread_mutex_t ;
+#define PTHREAD_MUTEX_INITIALIZER 0
 
 typedef struct __st_pthread_rwlock{} pthread_rwlock_t ;
 typedef struct __st_pthread_cond{} pthread_cond_t ;

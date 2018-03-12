@@ -26,7 +26,6 @@ typedef enum __wobj_type__{
     WOBJ_FILE ,
     WOBJ_MODU ,
     WOBJ_MUTEX ,
-    WOBJ_CS ,       //ÁÙ½çÇø
     WOBJ_SEMA ,
     WOBJ_EVENT ,
     WOBJ_SOCK ,
