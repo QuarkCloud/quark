@@ -2037,6 +2037,22 @@ WINBASEAPI LONG WINAPI InterlockedCompareExchange(LONG volatile *Destination, LO
 WINBASEAPI LONGLONG WINAPI InterlockedCompareExchange64(LONGLONG volatile *Destination,LONGLONG Exchange, LONGLONG Comperand);
 
 
+#pragma warning( push )
+#pragma warning( disable : 4793 )
+__forceinline VOID MemoryBarrier (VOID)
+{
+    LONG Barrier;
+    __asm {
+        xchg Barrier, eax
+    }
+}
+#pragma warning( pop )
+
+WINBASEAPI VOID WINAPI ExitThread(DWORD dwExitCode);
+WINBASEAPI BOOL WINAPI TerminateThread(HANDLE hThread, DWORD dwExitCode);
+WINBASEAPI BOOL WINAPI GetExitCodeThread(HANDLE hThread,LPDWORD lpExitCode);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -26,7 +26,7 @@ QKCAPI bool wthr_thread_attach() ;
 
 QKCAPI bool wthr_thread_detach() ;
 
-QKCAPI wthr_info_t * whtr_info_get() ;
+QKCAPI wthr_info_t * wthr_info_get() ;
 
 QKCAPI void wthr_info_init(wthr_info_t * info) ;
 

@@ -21,13 +21,22 @@ typedef struct __st_pthread_cond_attr{} pthread_condattr_t;
 
 
 typedef int pthread_t;
-typedef INIT_ONCE pthread_once_t ;
+typedef struct __st_pthread_once{void * ptr ;} pthread_once_t ;
+#define PTHREAD_ONCE_INIT {NULL}
 
-typedef struct __st_pthread_mutex{} pthread_mutex_t ;
+typedef struct __st_pthread_mutex{
+    uintptr_t handle ;              //因为条件变量的关系，使用CS作为互斥
+} pthread_mutex_t ;
+#define PTHREAD_MUTEX_INITIALIZER {0}
+
 typedef struct __st_pthread_rwlock{} pthread_rwlock_t ;
 typedef struct __st_pthread_cond{} pthread_cond_t ;
 
-typedef volatile int pthread_spinlock_t;
+typedef struct st_pthread_spinlock{
+    volatile long token ;
+    long allow ;
+    pid_t owner ;
+} pthread_spinlock_t;
 
 typedef int pthread_key_t;
 
@@ -40,8 +49,8 @@ QKCAPI pthread_t pthread_self(void) ;
 QKCAPI int pthread_equal(pthread_t thread1 , pthread_t thread2) ;
 QKCAPI int pthread_yield(void) ;
 
-QKCAPI int pthread_once(pthread_once_t *once_control , void(*init_routine)(void)) ;
-
+typedef void (*init_routine)() ;
+QKCAPI int pthread_once(pthread_once_t *once_control , init_routine) ;
 
 QKCAPI int pthread_mutex_init(pthread_mutex_t *mutex , const pthread_mutexattr_t *mutexattr) ;
 QKCAPI int pthread_mutex_destroy(pthread_mutex_t *mutex);

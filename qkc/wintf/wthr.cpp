@@ -2,6 +2,7 @@
 #include <wintf/wthr.h>
 #include <wintf/wobj.h>
 #include <windows.h>
+#include <string.h>
 
 SRWLOCK __default_tlsidx_rwlock__ =  SRWLOCK_INIT ;
 static bool __default_tlsidx_inited__ = false ;
@@ -58,7 +59,7 @@ wthr_info_t * wthr_info_get()
 
 void wthr_info_init(wthr_info_t * info)
 {
-
+    ::memset(info , 0 , sizeof(wthr_info_t)) ;
 }
 
 void whtr_info_free(wthr_info_t * info)

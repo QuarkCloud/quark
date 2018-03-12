@@ -213,6 +213,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pthread.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\qkc_init.cpp"
 				>
 			</File>
