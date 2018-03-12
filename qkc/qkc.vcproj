@@ -558,11 +558,19 @@
 				Name="inner"
 				>
 				<File
+					RelativePath=".\inner\rbtree.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\inner\rbtree.h"
 					>
 				</File>
 				<File
 					RelativePath=".\inner\rlist.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inner\rxtree.cpp"
 					>
 				</File>
 				<File

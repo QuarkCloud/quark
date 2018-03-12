@@ -4,9 +4,11 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <errno.h>
-#include <inner/rlist.h>
+#include "inner/rlist.h"
+#include "inner/rbtree.h"
 
 typedef struct _st_epoll{
+    rb_root_t nodes ;
     
 
 } epoll_t;
@@ -30,7 +32,7 @@ int epoll_ctl (int epfd, int op, int fd, struct epoll_event * ev)
         return -1 ;
     
     
-
+    return 0 ;
 }
 
 int epoll_wait (int epfd, struct epoll_event * evs ,  int maxevents, int timeout)

@@ -7,6 +7,12 @@
 #include <sched.h>
 #include <sys/types.h>
 
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+
 /* pthread attrs暂不实现 ，用得不多*/
 typedef struct __st_pthread_attr{} pthread_attr_t;
 typedef struct __st_pthread_mutex_attr{} pthread_mutexattr_t;
@@ -24,11 +30,6 @@ typedef struct __st_pthread_cond{} pthread_cond_t ;
 typedef volatile int pthread_spinlock_t;
 
 typedef int pthread_key_t;
-
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
 
 //1、线程本身，直接使用windows的线程
 QKCAPI int pthread_create(pthread_t * newthread , const pthread_attr_t * attr , void *(*start_routine)(void *) , void * arg) ;
