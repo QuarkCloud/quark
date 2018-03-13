@@ -25,11 +25,6 @@ QKCAPI DWORD_PTR GetActiveProcessorMask(void) ;
 QKCAPI DWORD GetNumberOfProcessors(void) ;
 QKCAPI DWORD GetAllocationGranularity(void) ;
 
-/**
-    从1970年01月01日，精度100纳秒
-*/
-QKCAPI uint64_t GetWinHrTime() ;
-
 #ifdef	__cplusplus
 }
 #endif

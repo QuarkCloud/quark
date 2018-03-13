@@ -2,7 +2,7 @@
 #include <sys/time.h>
 #include <stdint.h>
 #include <windows.h>
-#include <wintf/wcap.h>
+#include <wintf/wtime.h>
 
 
 //╬╚╤хн╙100дицК

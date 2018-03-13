@@ -2,7 +2,7 @@
 #include <pthread.h>
 #include <wintf/wobj.h>
 #include <wintf/wthr.h>
-#include <wintf/wcap.h>
+#include <wintf/wtime.h>
 #include <windows.h>
 #include <errno.h>
 #include <unistd.h>
@@ -231,56 +231,119 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex)
         return -1 ;
 }
 
-
 int pthread_cond_init(pthread_cond_t * cond , const pthread_condattr_t * cond_attr) 
 {
-
+    cond->flag = 1 ;
+    cond->pad = 0 ;
+    ::InitializeConditionVariable((PCONDITION_VARIABLE)cond->locker) ;
+    return 0 ;
 }
 
 int pthread_cond_destroy(pthread_cond_t *cond) 
 {
-
+    if(cond->flag == 1)
+    {
+        ::WakeAllConditionVariable((PCONDITION_VARIABLE)cond->locker) ;
+        cond->flag = 0 ;        
+        cond->locker = 0 ;
+        return 0 ;
+    }
+    else
+        return -1 ;
 }
 
 int pthread_cond_signal(pthread_cond_t *cond) 
 {
-
+    if(cond->flag == 1)
+    {
+        ::WakeConditionVariable((PCONDITION_VARIABLE)cond->locker) ;
+        return 0 ;
+    }
+    else
+        return -1 ;
 }
 
 int pthread_cond_broadcast(pthread_cond_t *cond) 
 {
-
+    if(cond->flag == 1)
+    {
+        ::WakeAllConditionVariable((PCONDITION_VARIABLE)cond->locker) ;
+        return 0 ;
+    }
+    else
+        return -1 ;
 }
 
 int pthread_cond_wait(pthread_cond_t * cond , pthread_mutex_t * mutex) 
 {
+    int widx = mutex->index ;
+    wobj_t * obj = wobj_get(widx) ;
+    if(obj == NULL || obj->type != WOBJ_MUTEX || obj->addition == NULL)
+        return -1 ;
 
+    pthread_mutex_data * data = (pthread_mutex_data *)obj->addition ;
+    if(data->handle_critical_section == NULL)
+    {
+        LPCRITICAL_SECTION cs = (LPCRITICAL_SECTION)::malloc(sizeof(CRITICAL_SECTION)) ;
+        ::InitializeCriticalSection(cs) ;
+        data->handle_critical_section = cs ;
+    }
+    ::EnterCriticalSection(data->handle_critical_section) ;
+    ::ReleaseMutex(obj->handle) ;
+
+
+    BOOL result = ::SleepConditionVariableCS((PCONDITION_VARIABLE)cond->locker , data->handle_critical_section , INFINITE) ;
+
+    ::WaitForSingleObject(obj->handle , INFINITE) ;
+    ::LeaveCriticalSection(data->handle_critical_section) ;
+
+    return (result?0:-1) ;
 }
-
 
 int pthread_cond_timedwait(pthread_cond_t * cond , pthread_mutex_t * mutex , const struct timespec * abstime) 
 {
+    int widx = mutex->index ;
+    wobj_t * obj = wobj_get(widx) ;
+    if(obj == NULL || obj->type != WOBJ_MUTEX || obj->addition == NULL)
+        return -1 ;
 
+    pthread_mutex_data * data = (pthread_mutex_data *)obj->addition ;
+    if(data->handle_critical_section == NULL)
+    {
+        LPCRITICAL_SECTION cs = (LPCRITICAL_SECTION)::malloc(sizeof(CRITICAL_SECTION)) ;
+        ::InitializeCriticalSection(cs) ;
+        data->handle_critical_section = cs ;
+    }
+    ::EnterCriticalSection(data->handle_critical_section) ;
+    ::ReleaseMutex(obj->handle) ;
+
+    uint64_t timeout = ElapseToMSec(abstime) ;
+    BOOL result = ::SleepConditionVariableCS((PCONDITION_VARIABLE)cond->locker , data->handle_critical_section , (DWORD)timeout) ;
+
+    ::WaitForSingleObject(obj->handle , INFINITE) ;
+    ::LeaveCriticalSection(data->handle_critical_section) ;
+
+    return (result?0:-1) ;
 }
 
 int pthread_condattr_init(pthread_condattr_t *attr) 
 {
-
+    return 0 ;
 }
 
 int pthread_condattr_destroy(pthread_condattr_t *attr) 
 {
-
+    return 0 ;
 }
 
 int pthread_condattr_getpshared(const pthread_condattr_t * attr , int * pshared) 
 {
-
+    return 0 ;
 }
 
 int pthread_condattr_setpshared(pthread_condattr_t *attr , int pshared) 
 {
-
+    return 0 ;
 }
 
 

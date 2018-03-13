@@ -31,10 +31,17 @@ typedef struct __st_pthread_mutex{int index ;} pthread_mutex_t ;
     系统原生的读写锁，不支持超时和try所以自行实现。
     暂时比较粗糙，能完成功能即可，等待后续优化。
 */
-typedef struct __st_pthread_rwlock{int index ;} pthread_rwlock_t ;
-#define PTHREAD_RWLOCK_INITIALIZER {0}
+typedef struct __st_pthread_rwlock{void * locker ;} pthread_rwlock_t ;
+#define PTHREAD_RWLOCK_INITIALIZER {NULL}
 
-typedef struct __st_pthread_cond{} pthread_cond_t ;
+#define PTHREAD_COND_SIZE 16 
+typedef struct __st_pthread_cond{
+    int flag ;
+    int pad ;
+    uintptr_t locker ;
+} pthread_cond_t ;
+
+#define PTHREAD_COND_INITIALIZER {0 , 0}
 
 typedef struct st_pthread_spinlock{
     volatile long token ;

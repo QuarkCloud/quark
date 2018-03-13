@@ -331,6 +331,10 @@
 					RelativePath=".\wintf\wthr.cpp"
 					>
 				</File>
+				<File
+					RelativePath=".\wintf\wtime.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -535,6 +539,10 @@
 				</File>
 				<File
 					RelativePath="..\include\wintf\wthr.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\wintf\wtime.h"
 					>
 				</File>
 			</Filter>
