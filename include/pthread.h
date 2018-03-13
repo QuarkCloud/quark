@@ -21,18 +21,24 @@ typedef struct __st_pthread_cond_attr{} pthread_condattr_t;
 
 
 typedef int pthread_t;
-typedef struct __st_pthread_once{void * ptr ;} pthread_once_t ;
+typedef struct __st_pthread_once{
+    void * ptr ;
+} pthread_once_t ;
 #define PTHREAD_ONCE_INIT {NULL}
 
-typedef struct __st_pthread_mutex{int index ;} pthread_mutex_t ;
+typedef struct __st_pthread_mutex{
+    int index ;
+} pthread_mutex_t ;
 #define PTHREAD_MUTEX_INITIALIZER {0} 
 
 /**
     系统原生的读写锁，不支持超时和try所以自行实现。
     暂时比较粗糙，能完成功能即可，等待后续优化。
 */
-typedef struct __st_pthread_rwlock{void * locker ;} pthread_rwlock_t ;
-#define PTHREAD_RWLOCK_INITIALIZER {NULL}
+typedef struct __st_pthread_rwlock{
+    uintptr_t locker ;
+} pthread_rwlock_t ;
+#define PTHREAD_RWLOCK_INITIALIZER {0}
 
 #define PTHREAD_COND_SIZE 16 
 typedef struct __st_pthread_cond{
@@ -40,8 +46,7 @@ typedef struct __st_pthread_cond{
     int pad ;
     uintptr_t locker ;
 } pthread_cond_t ;
-
-#define PTHREAD_COND_INITIALIZER {0 , 0}
+#define PTHREAD_COND_INITIALIZER {0 , 0 , 0}
 
 typedef struct st_pthread_spinlock{
     volatile long token ;

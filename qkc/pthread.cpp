@@ -121,6 +121,20 @@ typedef struct __st_pthread_mutex_data{
     LPCRITICAL_SECTION handle_critical_section ;
 } pthread_mutex_data;
 
+static SRWLOCK __pthread_mutex_anonymous__ = SRWLOCK_INIT ;
+bool pthread_mutex_anonymous_init(pthread_mutex_t *mutex)
+{
+    bool result = true ;
+    if(mutex->index == 0)
+    {
+        ::AcquireSRWLockExclusive(&__pthread_mutex_anonymous__) ;
+        result = (pthread_mutex_init(mutex , NULL) == 0) ;
+        ::ReleaseSRWLockExclusive(&__pthread_mutex_anonymous__) ;
+    }
+
+    return result ;
+}
+
 int pthread_mutex_init(pthread_mutex_t *mutex , const pthread_mutexattr_t *mutexattr) 
 {
     HANDLE handle = ::CreateMutex(NULL , FALSE , NULL) ;
@@ -180,6 +194,9 @@ static inline HANDLE mutex_handle(pthread_mutex_t * mutex)
 
 int pthread_mutex_trylock(pthread_mutex_t *mutex) 
 {
+    if(pthread_mutex_anonymous_init(mutex) == false)
+        return -1 ;
+
     HANDLE handle = mutex_handle(mutex) ;
     if(::WaitForSingleObject(handle , 0) == WAIT_OBJECT_0)
         return 0 ;
@@ -189,6 +206,9 @@ int pthread_mutex_trylock(pthread_mutex_t *mutex)
 
 int pthread_mutex_lock(pthread_mutex_t *mutex) 
 {
+    if(pthread_mutex_anonymous_init(mutex) == false)
+        return -1 ;
+
     HANDLE handle = mutex_handle(mutex) ;
     if(::WaitForSingleObject(handle , INFINITE) == WAIT_OBJECT_0)
         return 0 ;
@@ -198,12 +218,11 @@ int pthread_mutex_lock(pthread_mutex_t *mutex)
 
 int pthread_mutex_timedlock(pthread_mutex_t * mutex , const struct timespec * abstime) 
 {
-    uint64_t now_time = GetWinHrTime() / 10000;
+    if(pthread_mutex_anonymous_init(mutex) == false)
+        return -1 ;
 
-    uint64_t rtime = abstime->tv_sec ;
-    rtime = rtime * 1000 + abstime->tv_nsec / 1000000 ; //×ª»»³ÉºÁÃë
-
-    if(now_time >= rtime)
+    DWORD elapse = (DWORD)ElapseToMSec(abstime) ;
+    if(elapse == 0)
     {
          if(pthread_mutex_trylock(mutex) == 0)
              return 0 ;
@@ -211,8 +230,6 @@ int pthread_mutex_timedlock(pthread_mutex_t * mutex , const struct timespec * ab
          errno = ETIMEDOUT ;
          return -1 ;
     }
-
-    DWORD elapse = (DWORD)(rtime - now_time) ;
 
     HANDLE handle = mutex_handle(mutex) ;
     if(::WaitForSingleObject(handle , elapse) == WAIT_OBJECT_0)
@@ -224,11 +241,91 @@ int pthread_mutex_timedlock(pthread_mutex_t * mutex , const struct timespec * ab
 
 int pthread_mutex_unlock(pthread_mutex_t *mutex) 
 {
+    if(pthread_mutex_anonymous_init(mutex) == false)
+        return -1 ;
+
     HANDLE handle = mutex_handle(mutex) ;
     if(::ReleaseMutex(handle) == TRUE)
         return 0 ;
     else
         return -1 ;
+}
+
+
+static SRWLOCK __pthread_rwlock_anonymous__ = SRWLOCK_INIT ;
+bool pthread_rwlock_anonymous_init(pthread_rwlock_t *rwlock)
+{
+    bool result = true ;
+    /**
+        ::AcquireSRWLockExclusive(&__pthread_rwlock_anonymous__) ;
+
+        ::ReleaseSRWLockExclusive(&__pthread_rwlock_anonymous__) ;
+
+    */
+
+    return result ;
+}
+
+
+int pthread_rwlock_init(pthread_rwlock_t * rwlock , const pthread_rwlockattr_t * attr) 
+{
+    return 0 ;
+}
+
+int pthread_rwlock_destroy(pthread_rwlock_t *rwlock) 
+{
+    return 0 ;
+}
+
+int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock) 
+{
+    return 0 ;
+}
+
+int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock) 
+{
+    return 0 ;
+}
+
+int pthread_rwlock_timedrdlock(pthread_rwlock_t * rwlock , const struct timespec * abstime) 
+{
+    return 0 ;
+}
+
+int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock) 
+{
+    return 0 ;
+}
+
+int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock)
+{
+    return 0 ;
+}
+
+int pthread_rwlock_timedwrlock(pthread_rwlock_t * rwlock , const struct timespec * abstime) 
+{
+    return 0 ;
+}
+
+int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) 
+{
+    return 0 ;
+}
+
+
+static SRWLOCK __pthread_cond_anonymous__ = SRWLOCK_INIT ;
+bool pthread_cond_anonymous_init(pthread_cond_t *cond)
+{
+    bool result = true ;
+    if(cond->flag != 1)
+    {
+        ::AcquireSRWLockExclusive(&__pthread_cond_anonymous__) ;
+        if(cond->flag != 1)
+            result = (pthread_cond_init(cond , NULL) == 0) ;
+        ::ReleaseSRWLockExclusive(&__pthread_cond_anonymous__) ;
+    }
+
+    return result ;
 }
 
 int pthread_cond_init(pthread_cond_t * cond , const pthread_condattr_t * cond_attr) 
@@ -254,6 +351,9 @@ int pthread_cond_destroy(pthread_cond_t *cond)
 
 int pthread_cond_signal(pthread_cond_t *cond) 
 {
+    if(pthread_cond_anonymous_init(cond) == false)
+        return -1 ;
+
     if(cond->flag == 1)
     {
         ::WakeConditionVariable((PCONDITION_VARIABLE)cond->locker) ;
@@ -265,6 +365,9 @@ int pthread_cond_signal(pthread_cond_t *cond)
 
 int pthread_cond_broadcast(pthread_cond_t *cond) 
 {
+    if(pthread_cond_anonymous_init(cond) == false)
+        return -1 ;
+
     if(cond->flag == 1)
     {
         ::WakeAllConditionVariable((PCONDITION_VARIABLE)cond->locker) ;
@@ -276,6 +379,9 @@ int pthread_cond_broadcast(pthread_cond_t *cond)
 
 int pthread_cond_wait(pthread_cond_t * cond , pthread_mutex_t * mutex) 
 {
+    if(pthread_cond_anonymous_init(cond) == false)
+        return -1 ;
+
     int widx = mutex->index ;
     wobj_t * obj = wobj_get(widx) ;
     if(obj == NULL || obj->type != WOBJ_MUTEX || obj->addition == NULL)
@@ -302,6 +408,9 @@ int pthread_cond_wait(pthread_cond_t * cond , pthread_mutex_t * mutex)
 
 int pthread_cond_timedwait(pthread_cond_t * cond , pthread_mutex_t * mutex , const struct timespec * abstime) 
 {
+    if(pthread_cond_anonymous_init(cond) == false)
+        return -1 ;
+
     int widx = mutex->index ;
     wobj_t * obj = wobj_get(widx) ;
     if(obj == NULL || obj->type != WOBJ_MUTEX || obj->addition == NULL)
