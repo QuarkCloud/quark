@@ -30,7 +30,7 @@ int close(int fd)
     wobj_type type = wobj->type ;
 
     if(type == WOBJ_OTHR || type == WOBJ_PROC || type == WOBJ_THRD || 
-        type == WOBJ_MUTEX || type == WOBJ_CS || type == WOBJ_SEMA || type == WOBJ_EVENT || 
+        type == WOBJ_MUTEX || type == WOBJ_SEMA || type == WOBJ_EVENT || 
         type == WOBJ_IOCP)
     {
         ::CloseHandle(wobj->handle) ;

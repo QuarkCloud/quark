@@ -2,10 +2,12 @@
 #include <pthread.h>
 #include <wintf/wobj.h>
 #include <wintf/wthr.h>
+#include <wintf/wcap.h>
 #include <windows.h>
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 
 typedef struct _st_wthr_start_data
 {
@@ -130,13 +132,13 @@ int pthread_mutex_init(pthread_mutex_t *mutex , const pthread_mutexattr_t *mutex
     data->handle_critical_section = NULL ;
 
     int wid = wobj_set(WOBJ_MUTEX , handle , data) ;
-    *mutex = wid ;
+    mutex->index = wid ;
     return 0 ;
 }
 
 int pthread_mutex_destroy(pthread_mutex_t *mutex)
 {
-    int wid = *mutex ;
+    int wid = mutex->index ;
     wobj_t *obj = wobj_get(wid) ;
     if(obj == NULL || obj->type != WOBJ_MUTEX)
         return -1 ;
@@ -154,6 +156,7 @@ int pthread_mutex_destroy(pthread_mutex_t *mutex)
             if(cs != NULL)
             {
                 ::DeleteCriticalSection(cs) ;
+                ::free(cs) ;
             }
             ::CloseHandle(handle) ;
         }
@@ -166,14 +169,19 @@ int pthread_mutex_destroy(pthread_mutex_t *mutex)
     return 0 ;
 }
 
+static inline HANDLE mutex_handle(pthread_mutex_t * mutex)
+{
+    wobj_t * obj = wobj_get(mutex->index) ;
+    if(obj == NULL || obj->type != WOBJ_MUTEX)
+        return INVALID_HANDLE_VALUE ;
+    else
+        return obj->handle ;
+}
+
 int pthread_mutex_trylock(pthread_mutex_t *mutex) 
 {
-    int wid = *mutex ;
-    wobj_t * obj = wobj_get(wid) ;
-    if(obj == NULL || obj->type != WOBJ_MUTEX)
-        return -1 ;
-
-    if(::WaitForSingleObject(obj->handle , 0) == WAIT_OBJECT_0)
+    HANDLE handle = mutex_handle(mutex) ;
+    if(::WaitForSingleObject(handle , 0) == WAIT_OBJECT_0)
         return 0 ;
     else
         return -1 ;
@@ -181,12 +189,8 @@ int pthread_mutex_trylock(pthread_mutex_t *mutex)
 
 int pthread_mutex_lock(pthread_mutex_t *mutex) 
 {
-    int wid = *mutex ;
-    wobj_t * obj = wobj_get(wid) ;
-    if(obj == NULL || obj->type != WOBJ_MUTEX)
-        return -1 ;
-
-    if(::WaitForSingleObject(obj->handle , INFINITE) == WAIT_OBJECT_0)
+    HANDLE handle = mutex_handle(mutex) ;
+    if(::WaitForSingleObject(handle , INFINITE) == WAIT_OBJECT_0)
         return 0 ;
     else
         return -1 ;
@@ -194,60 +198,38 @@ int pthread_mutex_lock(pthread_mutex_t *mutex)
 
 int pthread_mutex_timedlock(pthread_mutex_t * mutex , const struct timespec * abstime) 
 {
+    uint64_t now_time = GetWinHrTime() / 10000;
 
+    uint64_t rtime = abstime->tv_sec ;
+    rtime = rtime * 1000 + abstime->tv_nsec / 1000000 ; //×ª»»³ÉºÁÃë
+
+    if(now_time >= rtime)
+    {
+         if(pthread_mutex_trylock(mutex) == 0)
+             return 0 ;
+
+         errno = ETIMEDOUT ;
+         return -1 ;
+    }
+
+    DWORD elapse = (DWORD)(rtime - now_time) ;
+
+    HANDLE handle = mutex_handle(mutex) ;
+    if(::WaitForSingleObject(handle , elapse) == WAIT_OBJECT_0)
+        return 0 ;
+
+    errno = ETIMEDOUT ;
+    return -1 ;
 }
 
 int pthread_mutex_unlock(pthread_mutex_t *mutex) 
 {
-
+    HANDLE handle = mutex_handle(mutex) ;
+    if(::ReleaseMutex(handle) == TRUE)
+        return 0 ;
+    else
+        return -1 ;
 }
-
-
-int pthread_rwlock_init(pthread_rwlock_t * rwlock , const pthread_rwlockattr_t * attr) 
-{
-
-}
-
-int pthread_rwlock_destroy(pthread_rwlock_t *rwlock) 
-{
-
-}
-
-int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock) 
-{
-
-}
-
-int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock) 
-{
-
-}
-
-int pthread_rwlock_timedrdlock(pthread_rwlock_t * rwlock , const struct timespec * abstime) 
-{
-
-}
-
-int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock) 
-{
-
-}
-
-int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock)
-{
-
-}
-
-int pthread_rwlock_timedwrlock(pthread_rwlock_t * rwlock , const struct timespec * abstime) 
-{
-
-}
-
-int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) 
-{
-
-}
-
 
 
 int pthread_cond_init(pthread_cond_t * cond , const pthread_condattr_t * cond_attr) 

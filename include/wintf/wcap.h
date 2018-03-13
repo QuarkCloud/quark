@@ -4,6 +4,7 @@
 
 #include <quark_compile.h>
 #include <windows.h>
+#include <stdint.h>
 
 #ifdef	__cplusplus
 extern "C" {
@@ -23,6 +24,11 @@ QKCAPI DWORD GetPageSize(void) ;
 QKCAPI DWORD_PTR GetActiveProcessorMask(void) ;
 QKCAPI DWORD GetNumberOfProcessors(void) ;
 QKCAPI DWORD GetAllocationGranularity(void) ;
+
+/**
+    从1970年01月01日，精度100纳秒
+*/
+QKCAPI uint64_t GetWinHrTime() ;
 
 #ifdef	__cplusplus
 }

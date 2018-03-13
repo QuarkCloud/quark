@@ -1935,7 +1935,6 @@ GlobalMemoryStatusEx(
     );
 
 
-
 typedef struct _SYSTEM_INFO {
     union {
         DWORD dwOemId;          // Obsolete field...do not use
@@ -2052,6 +2051,131 @@ WINBASEAPI VOID WINAPI ExitThread(DWORD dwExitCode);
 WINBASEAPI BOOL WINAPI TerminateThread(HANDLE hThread, DWORD dwExitCode);
 WINBASEAPI BOOL WINAPI GetExitCodeThread(HANDLE hThread,LPDWORD lpExitCode);
 
+
+WINBASEAPI
+HANDLE
+WINAPI
+CreateMutexA(
+    __in_opt LPSECURITY_ATTRIBUTES lpMutexAttributes,
+    __in     BOOL bInitialOwner,
+    __in_opt LPCSTR lpName
+);
+
+WINBASEAPI
+HANDLE
+WINAPI
+CreateMutexW(
+    __in_opt LPSECURITY_ATTRIBUTES lpMutexAttributes,
+    __in     BOOL bInitialOwner,
+    __in_opt LPCWSTR lpName
+);
+#define CreateMutex DECLEAR_FUNC_AW(CreateMutex)
+
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+OpenMutexA(
+    __in DWORD dwDesiredAccess,
+    __in BOOL bInheritHandle,
+    __in LPCSTR lpName
+    );
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+OpenMutexW(
+    __in DWORD dwDesiredAccess,
+    __in BOOL bInheritHandle,
+    __in LPCWSTR lpName
+    );
+#define OpenMutex DECLEAR_FUNC_AW(OpenMutex)
+
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+CreateEventA(
+    __in_opt LPSECURITY_ATTRIBUTES lpEventAttributes,
+    __in     BOOL bManualReset,
+    __in     BOOL bInitialState,
+    __in_opt LPCSTR lpName
+    );
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+CreateEventW(
+    __in_opt LPSECURITY_ATTRIBUTES lpEventAttributes,
+    __in     BOOL bManualReset,
+    __in     BOOL bInitialState,
+    __in_opt LPCWSTR lpName
+    );
+#define CreateEvent DECLEAR_FUNC_AW(CreateEvent)
+
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+OpenEventA(
+    __in DWORD dwDesiredAccess,
+    __in BOOL bInheritHandle,
+    __in LPCSTR lpName
+    );
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+OpenEventW(
+    __in DWORD dwDesiredAccess,
+    __in BOOL bInheritHandle,
+    __in LPCWSTR lpName
+    );
+#define OpenEvent DECLEAR_FUNC_AW(OpenEvent)
+
+
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+CreateSemaphoreA(
+    __in_opt LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,
+    __in     LONG lInitialCount,
+    __in     LONG lMaximumCount,
+    __in_opt LPCSTR lpName
+    );
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+CreateSemaphoreW(
+    __in_opt LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,
+    __in     LONG lInitialCount,
+    __in     LONG lMaximumCount,
+    __in_opt LPCWSTR lpName
+    );
+#define CreateSemaphore DECLEAR_FUNC_AW(CreateSemaphore)
+
+
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+OpenSemaphoreA(
+    __in DWORD dwDesiredAccess,
+    __in BOOL bInheritHandle,
+    __in LPCSTR lpName
+    );
+WINBASEAPI
+__out_opt
+HANDLE
+WINAPI
+OpenSemaphoreW(
+    __in DWORD dwDesiredAccess,
+    __in BOOL bInheritHandle,
+    __in LPCWSTR lpName
+    );
+#define OpenSemaphore DECLEAR_FUNC_AW(OpenSemaphore)
 
 #ifdef __cplusplus
 }

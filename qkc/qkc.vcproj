@@ -217,6 +217,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pthread_rwlock.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\qkc_init.cpp"
 				>
 			</File>
