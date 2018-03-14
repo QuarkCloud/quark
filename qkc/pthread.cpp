@@ -251,64 +251,290 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex)
         return -1 ;
 }
 
+typedef struct __st_pthread_rwlock_data{
+    HANDLE mutex ;
+    SRWLOCK locker ;
+    int writers ;
+    int readers ;
+}  pthread_rwlock_data_t ;
+
 
 static SRWLOCK __pthread_rwlock_anonymous__ = SRWLOCK_INIT ;
 bool pthread_rwlock_anonymous_init(pthread_rwlock_t *rwlock)
 {
     bool result = true ;
-    /**
+    if(rwlock->index == 0)
+    {
         ::AcquireSRWLockExclusive(&__pthread_rwlock_anonymous__) ;
-
+        if(rwlock->index == 0)
+            result = (pthread_rwlock_init(rwlock , NULL) == 0) ;
         ::ReleaseSRWLockExclusive(&__pthread_rwlock_anonymous__) ;
-
-    */
+    }
 
     return result ;
+}
+
+bool rwlock_handle(pthread_rwlock_t *rwlock , HANDLE * handle , pthread_rwlock_data_t ** data)
+{
+    int widx = rwlock->index ;
+    wobj_t * obj = wobj_get(widx) ;
+    if(obj == NULL || obj->type != WOBJ_RWLOCK || obj->handle == NULL || obj->addition == NULL)
+        return false ;
+
+    *handle = obj->handle ;
+    *data = (pthread_rwlock_data_t *)obj->addition ;
+    return true ;
 }
 
 
 int pthread_rwlock_init(pthread_rwlock_t * rwlock , const pthread_rwlockattr_t * attr) 
 {
+    HANDLE handle = ::CreateMutex(NULL , TRUE , NULL) ;
+    size_t data_size = sizeof(pthread_rwlock_data_t) ;
+    pthread_rwlock_data_t * data = (pthread_rwlock_data_t *)::malloc(data_size) ;
+    if(data != NULL)        
+    {
+        ::memset(data , 0 , data_size) ;
+        data->mutex = handle ;
+        ::InitializeSRWLock(&data->locker) ;
+
+        int wid = wobj_set(WOBJ_RWLOCK , handle , data) ;
+        rwlock->index = wid ;
+        ::ReleaseMutex(handle) ;
+    }
+    else
+    {
+        ::ReleaseMutex(handle) ;
+        ::CloseHandle(handle) ;
+        return -1 ;
+    }
+    
     return 0 ;
 }
 
 int pthread_rwlock_destroy(pthread_rwlock_t *rwlock) 
 {
+    int widx = rwlock->index ;
+    wobj_t * obj = wobj_get(widx) ;
+    if(obj == NULL || obj->type != WOBJ_RWLOCK || obj->handle == NULL)
+        return -1 ;
+
+    HANDLE handle = obj->handle ;
+    if(::WaitForSingleObject(handle , INFINITE) == WAIT_OBJECT_0)
+    {
+        obj->handle = NULL ;
+        pthread_rwlock_data_t * data = (pthread_rwlock_data_t *)obj->addition ;
+        if(data != NULL)
+        {
+            obj->addition = NULL;
+            ::free(data) ;
+        }
+
+        ::ReleaseMutex(handle) ;
+        ::CloseHandle(handle) ;
+        wobj_del(widx) ;
+    }
+
     return 0 ;
 }
 
 int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock) 
 {
-    return 0 ;
+    if(pthread_rwlock_anonymous_init(rwlock) == false)
+        return -1 ;
+
+    HANDLE handle = NULL ;
+    pthread_rwlock_data_t * data = NULL ;
+    if(rwlock_handle(rwlock , &handle , &data) == false)
+        return -1;
+
+    bool owner = false ;
+    while(::WaitForSingleObject(handle , INFINITE) == WAIT_OBJECT_0)
+    {
+        if(data->writers == 0)
+        {
+            data->readers++ ;
+            owner = true ;
+            ::ReleaseMutex(handle) ;
+            break ;
+        }
+
+        ::ReleaseMutex(handle) ;
+    }
+
+    if(owner == true)
+        ::AcquireSRWLockShared(&data->locker) ;
+
+    return (owner?0:-1) ;
 }
 
 int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock) 
 {
-    return 0 ;
+    if(pthread_rwlock_anonymous_init(rwlock) == false)
+        return -1 ;
+
+    HANDLE handle = NULL ;
+    pthread_rwlock_data_t * data = NULL ;
+    if(rwlock_handle(rwlock , &handle , &data) == false)
+        return -1;
+
+    if(::WaitForSingleObject(handle , 0) != WAIT_OBJECT_0)
+        return -1 ;
+
+    bool owner = false ;
+    if(data != NULL)
+    {
+        if(data->writers == 0)
+        {
+            data->readers++ ;
+            owner = true ;
+        }
+    }
+
+    if(owner == true)
+        ::AcquireSRWLockShared(&data->locker) ;
+
+    ::ReleaseMutex(handle) ;
+    return (owner?0:-1) ;
 }
 
 int pthread_rwlock_timedrdlock(pthread_rwlock_t * rwlock , const struct timespec * abstime) 
 {
-    return 0 ;
+    if(pthread_rwlock_anonymous_init(rwlock) == false)
+        return -1 ;
+
+    HANDLE handle = NULL ;
+    pthread_rwlock_data_t * data = NULL ;
+    if(rwlock_handle(rwlock , &handle , &data) == false)
+        return -1;
+
+    uint64_t elapse = ElapseToMSec(abstime) ;
+    if(::WaitForSingleObject(handle , (DWORD)elapse) != WAIT_OBJECT_0)
+        return -1 ;
+
+    bool owner = false ;
+    if(data != NULL)
+    {
+        if(data->writers == 0)
+        {
+            data->readers++ ;
+            owner = true ;
+        }
+    }
+
+    if(owner == true)
+        ::AcquireSRWLockShared(&data->locker) ;
+
+    ::ReleaseMutex(handle) ;
+    return (owner?0:-1) ;
 }
 
 int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock) 
 {
-    return 0 ;
+    if(pthread_rwlock_anonymous_init(rwlock) == false)
+        return -1 ;
+
+    HANDLE handle = NULL ;
+    pthread_rwlock_data_t * data = NULL ;
+    if(rwlock_handle(rwlock , &handle , &data) == false)
+        return -1;
+
+    bool owner = false ;
+    while(::WaitForSingleObject(handle , INFINITE) == WAIT_OBJECT_0)
+    {
+        if(data->readers == 0)
+        {
+            data->writers++ ;
+            owner = true ;
+            ::ReleaseMutex(handle) ;
+            break ;
+        }
+    }
+
+    if(owner == true)
+        ::AcquireSRWLockExclusive(&data->locker) ;
+
+    return (owner?0:-1) ;
 }
 
 int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock)
 {
-    return 0 ;
+    if(pthread_rwlock_anonymous_init(rwlock) == false)
+        return -1 ;
+
+    HANDLE handle = NULL ;
+    pthread_rwlock_data_t * data = NULL ;
+    if(rwlock_handle(rwlock , &handle , &data) == false)
+        return -1;
+
+    if(::WaitForSingleObject(handle , 0) != WAIT_OBJECT_0)
+        return -1 ;
+
+    bool owner = false ;
+    if(data->readers == 0)
+    {
+        data->writers++ ;
+        owner = true ;
+        ::AcquireSRWLockExclusive(&data->locker) ;
+    }        
+
+    ::ReleaseMutex(handle) ;
+    return (owner?0:-1) ;
 }
 
 int pthread_rwlock_timedwrlock(pthread_rwlock_t * rwlock , const struct timespec * abstime) 
 {
-    return 0 ;
+    if(pthread_rwlock_anonymous_init(rwlock) == false)
+        return -1 ;
+
+    HANDLE handle = NULL ;
+    pthread_rwlock_data_t * data = NULL ;
+    if(rwlock_handle(rwlock , &handle , &data) == false)
+        return -1;
+
+    uint64_t elapse = ElapseToMSec(abstime) ;
+    bool owner = false ;
+    if(::WaitForSingleObject(handle , (DWORD)elapse) != WAIT_OBJECT_0)
+        return -1 ;
+
+    if(data->readers == 0)
+    {
+        data->writers++ ;
+        owner = true ;
+    }
+    ::ReleaseMutex(handle) ;
+
+    if(owner == true)
+        ::AcquireSRWLockExclusive(&data->locker) ;
+
+    return (owner?0:-1) ;
 }
 
 int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) 
 {
+    if(rwlock->index == 0)
+        return -1 ;
+
+    HANDLE handle = NULL ;
+    pthread_rwlock_data_t * data = NULL ;
+    if(rwlock_handle(rwlock , &handle , &data) == false)
+        return -1;
+
+    if(::WaitForSingleObject(handle , INFINITE) != WAIT_OBJECT_0)
+        return -1 ;
+
+    if(data->readers != 0)
+    {
+        data->readers-- ;
+        ::ReleaseSRWLockShared(&data->locker) ;
+    }
+    else if(data->writers != 0)
+    {
+        data->writers-- ;
+        ::ReleaseSRWLockExclusive(&data->locker) ;
+    }
+
+    ::ReleaseMutex(handle) ;
     return 0 ;
 }
 
