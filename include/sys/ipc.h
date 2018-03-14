@@ -40,8 +40,11 @@ struct ipc_perm
 extern "C" {
 #endif
 
-//未实现
-QKCAPI key_t ftok (const char *pathname, int proj_id) ;
+/**
+    cygwin实现ftok基本遵循linux的约定，但key_t仅仅只是需要一个全局唯一的，
+    因此我用windows的Atom来替代。
+*/
+QKCAPI key_t ftok (const char *pathname , int proj_id) ;
 
 #ifdef __cplusplus
 }

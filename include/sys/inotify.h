@@ -60,9 +60,12 @@ struct inotify_event
 extern "C" {
 #endif
 
-//未实现
 QKCAPI int inotify_init (void) ;
 
+/**
+    windows下的事件通知和linux下有所不同，此间的映射关系需要费时间去研究。
+    暂时先搁置，默认全部。
+*/
 QKCAPI int inotify_add_watch (int fd, const char *name, uint32_t mask) ;
 
 QKCAPI int inotify_rm_watch (int fd, uint32_t wd) ;

@@ -2177,6 +2177,19 @@ OpenSemaphoreW(
     );
 #define OpenSemaphore DECLEAR_FUNC_AW(OpenSemaphore)
 
+WINBASEAPI ATOM WINAPI GlobalAddAtomA(LPCSTR lpString);
+WINBASEAPI ATOM WINAPI GlobalAddAtomW(LPCWSTR lpString);
+#define GlobalAddAtom DECLEAR_FUNC_AW(GlobalAddAtom)
+
+WINBASEAPI ATOM WINAPI GlobalFindAtomA(LPCSTR lpString);
+WINBASEAPI ATOM WINAPI GlobalFindAtomW(LPCWSTR lpString);
+#define GlobalFindAtom DECLEAR_FUNC_AW(GlobalFindAtom)
+
+WINBASEAPI UINT WINAPI GlobalGetAtomNameA(ATOM nAtom,LPSTR lpBuffer,int nSize);
+WINBASEAPI UINT WINAPI GlobalGetAtomNameW(ATOM nAtom,LPWSTR lpBuffer,int nSize);
+#define GlobalGetAtomName DECLEAR_FUNC_AW(GlobalGetAtomName)
+
+
 #ifdef __cplusplus
 }
 #endif
