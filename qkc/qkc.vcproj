@@ -328,6 +328,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\wintf\wipc.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\wintf\wobj.cpp"
 					>
 				</File>
@@ -547,6 +551,10 @@
 				</File>
 				<File
 					RelativePath="..\include\wintf\wcrt.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\wintf\wipc.h"
 					>
 				</File>
 				<File

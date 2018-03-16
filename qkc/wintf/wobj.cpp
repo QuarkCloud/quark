@@ -119,3 +119,25 @@ HANDLE default_heap_get()
 	return __global_process_heap__ ;
 }
 
+static SRWLOCK __global_rwlock__ =  SRWLOCK_INIT ;
+
+void global_wrlock()
+{
+    ::AcquireSRWLockExclusive(&__global_rwlock__) ;
+}
+
+void global_wrunlock()
+{
+    ::ReleaseSRWLockExclusive(&__global_rwlock__) ;
+}
+
+void global_rdlock()
+{
+    ::AcquireSRWLockShared(&__global_rwlock__) ;
+}
+
+void global_rdunlock()
+{
+    ::ReleaseSRWLockShared(&__global_rwlock__) ;
+}
+

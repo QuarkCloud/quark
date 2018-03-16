@@ -55,6 +55,14 @@ QKCAPI bool wobj_del(int wid) ;
 
 QKCAPI HANDLE default_heap_get() ;
 
+QKCAPI void global_wrlock() ;
+
+QKCAPI void global_wrunlock() ;
+
+QKCAPI void global_rdlock() ;
+
+QKCAPI void global_rdunlock() ;
+
 #ifdef	__cplusplus
 }
 #endif
