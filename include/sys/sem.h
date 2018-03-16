@@ -24,30 +24,16 @@
 /* Data structure describing a set of semaphores.  */
 struct semid_ds
 {
-  struct ipc_perm sem_perm;		/* operation permission struct */
-  time_t sem_otime;			/* last semop() time */
-  unsigned long int __unused1;
-  time_t sem_ctime;			/* last time changed by semctl() */
-  unsigned long int __unused2;
-  unsigned long int sem_nsems;		/* number of semaphores in set */
-  unsigned long int __unused3;
-  unsigned long int __unused4;
+    struct ipc_perm sem_perm;		/* operation permission struct */
+    time_t sem_otime;			/* last semop() time */
+    unsigned long int __unused1;
+    time_t sem_ctime;			/* last time changed by semctl() */
+    unsigned long int __unused2;
+    unsigned long int sem_nsems;		/* number of semaphores in set */
+    unsigned long int __unused3;
+    unsigned long int __unused4;
 };
 
-/* The user should define a union like the following to use it for arguments
-   for `semctl'.
-
-   union semun
-   {
-     int val;				<= value for SETVAL
-     struct semid_ds *buf;		<= buffer for IPC_STAT & IPC_SET
-     unsigned short int *array;		<= array for GETALL & SETALL
-     struct seminfo *__buf;		<= buffer for IPC_INFO
-   };
-
-   Previous versions of this file used to define this union but this is
-   incorrect.  One can test the macro _SEM_SEMUN_UNDEFINED to see whether
-   one must define the union or not.  */
 #define _SEM_SEMUN_UNDEFINED	1
 
 /* ipcs ctl cmds */
@@ -56,23 +42,23 @@ struct semid_ds
 
 struct  seminfo
 {
-  int semmap;
-  int semmni;
-  int semmns;
-  int semmnu;
-  int semmsl;
-  int semopm;
-  int semume;
-  int semusz;
-  int semvmx;
-  int semaem;
+  int semmap;   /* # of entries in semaphore map */
+  int semmni;   /* Maximum number of unique semaphore sets, system wide. */
+  int semmns;   /* Maximum number of semaphores,system wide. */
+  int semmnu;   /* Maximum number of undo structures, system wide. */
+  int semmsl;   /* Maximum number of semaphores persemaphore set. */
+  int semopm;   /* Maximum number of operations persemop call. */
+  int semume;   /* Maximum number of undo entries per undo structure. */
+  int semusz;   /* size in bytes of undo structure */
+  int semvmx;   /* Maximum semaphore value. */
+  int semaem;   /* Maximum adjust-on-exit value. */
 };
 
 struct sembuf
 {
-  unsigned short int sem_num;	/* semaphore number */
-  short int sem_op;		/* semaphore operation */
-  short int sem_flg;		/* operation flag */
+    unsigned short int sem_num;	/* semaphore number */
+    short int sem_op;		/* semaphore operation */
+    short int sem_flg;		/* operation flag */
 };
 
 
@@ -80,14 +66,19 @@ struct sembuf
 extern "C" {
 #endif
 
-//Î´ÊµÏÖ
-QKCAPI int semctl (int semid, int semnum, int cmd, ...) ;
+union semun
+{
+    int                     val;
+    struct semid_ds *       buf;	
+    unsigned short int *    all;
+    struct seminfo *        info;
+};
 
-QKCAPI int semget (key_t key, int nsems, int semflg) ;
+QKCAPI int semctl(int semid, int semnum, int cmd, ...) ;
 
-QKCAPI int semop (int semid, struct sembuf * sops, size_t nsops) ;
+QKCAPI int semget(key_t key, int nsems, int semflg) ;
 
-QKCAPI int semtimedop (int semid, struct sembuf *sops , size_t nsops , const struct timespec * timeout) ;
+QKCAPI int semop(int semid, struct sembuf * sops, size_t nsops) ;
 
 #ifdef __cplusplus
 }

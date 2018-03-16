@@ -225,10 +225,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\sem.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\semaphore.cpp"
 				>
 			</File>
@@ -262,6 +258,14 @@
 			</File>
 			<File
 				RelativePath=".\sys_mman.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sys_sem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sys_sendfile.cpp"
 				>
 			</File>
 			<File
