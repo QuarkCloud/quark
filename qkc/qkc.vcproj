@@ -348,6 +348,10 @@
 				Name="inner"
 				>
 				<File
+					RelativePath=".\inner\hash.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\inner\rbtree.cpp"
 					>
 				</File>
@@ -597,6 +601,10 @@
 			<Filter
 				Name="inner"
 				>
+				<File
+					RelativePath=".\inner\hash.h"
+					>
+				</File>
 				<File
 					RelativePath=".\inner\rbtree.h"
 					>

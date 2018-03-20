@@ -15,6 +15,9 @@ extern "C" {
     cygwin通过一个service来处理进程之间的通讯，qkc由于是动态库，所以使用windows
     原生共享内存处理。事先创建一个全局的进程间共享内存来管理IPC，部分借鉴了boost的
     IPC解决方案，但更贴近原生解决方案，降低实现的代价。
+
+    2018-03-20
+    WIPC在空间利用上浪费颇多，等待继续完善。
 */
 #define IPC_ITEM_SIZE       128 
 #define IPC_ITEM_COUNT      512
@@ -46,13 +49,14 @@ typedef struct __st_ipc_item_head{
     uint32_t    hash ;                 //用于校验名字
 } ipc_item_head_t ;
 
-#define IPC_HEAD_MAGIC {'q' , 'k' , 'c' , '\0'}
+static const char * IPC_HEAD_MAGIC = "qkc" ;
 
 typedef struct __st_ipc_section_head{
     uint8_t     magic[4] ;
     int32_t     start ;
     int32_t     count ;
     int32_t     last_id ;
+    uint8_t     bitmap[8] ;
 } ipc_section_head_t;
 
 typedef struct __st_ipc_shm_item{
@@ -85,13 +89,23 @@ typedef struct __st_ipc_section{
     ipc_item_t          items[IPC_ITEM_COUNT] ;
 } ipc_section_t ;
 
+QKCAPI const char * ipc_name() ;
+QKCAPI const char * ipc_glmtx_name() ;
+QKCAPI const char * ipc_glshm_name() ;
+
+QKCAPI ipc_section_t * ipc_section_init() ;
+
+QKCAPI ipc_section_t * ipc_section_get() ;
+
+QKCAPI void ipc_section_final() ;
+
 QKCAPI int ipc_item_get_type(const ipc_item_head_t * head) ;
 
 QKCAPI bool ipc_item_set_type(ipc_item_head_t * head , int type) ;
 
-QKCAPI ipc_section_t * ipc_section_init() ;
+QKCAPI ipc_item_t * ipc_item_alloc(int type , const char * name) ;
 
-QKCAPI void ipc_section_final(ipc_section_t * section) ;
+QKCAPI bool ipc_item_free(const ipc_item_t * item) ;
 
 #ifdef	__cplusplus
 }
