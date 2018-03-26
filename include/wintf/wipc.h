@@ -56,7 +56,7 @@ typedef struct __st_ipc_section_head{
     int32_t     start ;
     int32_t     count ;
     int32_t     last_id ;
-    uint8_t     bitmap[8] ;
+    uint8_t     bitmap[8] ; //由于要先确定是否已经存在，貌似位图也没有啥用
 } ipc_section_head_t;
 
 typedef struct __st_ipc_shm_item{
@@ -71,11 +71,12 @@ typedef struct __st_ipc_shm_item{
 
 typedef struct __st_ipc_sem_item{
     ipc_item_head_t     head ;
+    int32_t             key ;
     int32_t             semid ;
     int                 perms ;
     uint32_t            nsems ;
-    uint32_t            hash ;
-    char                name[8] ;
+    uint32_t            nattch ;
+    char                name[4] ;
 } ipc_sem_item_t ;
 
 typedef struct __st_ipc_bulk_item{
@@ -105,7 +106,11 @@ QKCAPI bool ipc_item_set_type(ipc_item_head_t * head , int type) ;
 
 QKCAPI ipc_item_t * ipc_item_alloc(int type , const char * name) ;
 
-QKCAPI bool ipc_item_free(const ipc_item_t * item) ;
+QKCAPI bool ipc_item_free(ipc_item_t * item) ;
+
+QKCAPI bool ipc_item_attach(ipc_item_t * item) ;
+
+QKCAPI bool ipc_item_detach(ipc_item_t * item) ;
 
 #ifdef	__cplusplus
 }

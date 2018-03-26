@@ -3,6 +3,8 @@
 #include <wintf/wobj.h>
 #include <windows.h>
 #include <string.h>
+#include "../inner/hash.h"
+#include <sys/ipc.h>
 
 static const char * __wipc_name__ = "Global\\qkc.ipc" ;
 static const char * __wipc_glmtx_name__ = "Global\\qkc.ipc.glmtx" ;
@@ -125,4 +127,124 @@ void ipc_section_final()
     ::CloseHandle(handle) ;
     global_wrunlock() ;
 }
+
+ipc_item_t * ipc_item_alloc(int type , const char * name)
+{
+    if(type != IPC_TYPE_SHM && type != IPC_TYPE_SEM)
+        return NULL ;
+
+    uint32_t hash_value = 0 ;
+    hash_value = hash_time33(name , -1 , hash_value) ;
+
+    ipc_section_t * ipc = ipc_section_init()  ;
+
+    ipc_item_t * item = NULL ;
+    if(::WaitForSingleObject(__global_ipc_section_mutex__ , INFINITE) != WAIT_OBJECT_0)
+        return NULL ;
+
+    ipc_section_head_t * section = (ipc_section_head_t *)ipc->items ;
+
+    for(int idx = 1 ; idx < IPC_ITEM_COUNT ; ++idx)
+    {        
+        ipc_item_head_t * head = (ipc_item_head_t *)(ipc->items + idx) ;
+        int item_type = ipc_item_get_type(head) ;
+        if(item_type == type && head->hash == hash_value)
+        {
+            //已经存在
+            item = ipc->items + idx ;
+            break ;
+        }
+
+        if(item_type != IPC_TYPE_UNK)
+            continue ;
+
+        //这是为空的，可以分配
+        ::ipc_item_set_type(head , type) ;
+        if(type == IPC_TYPE_SHM)
+        {
+            ipc_shm_item_t * shm = (ipc_shm_item_t *)head ;
+            shm->key = ::ftok(name , 0) ;
+            shm->shmid = ++section->last_id ;
+            section->count++ ;
+
+            size_t nsize = ::strlen(name) + 1 ;
+            ::memcpy(shm->name , name , nsize) ;        //溢出，暂时不管
+        }
+        else if(type == IPC_TYPE_SEM)
+        {
+            ipc_sem_item_t * sem = (ipc_sem_item_t *)head ;
+            sem->key = ::ftok(name , 0) ;
+            sem->semid = ++section->last_id ;
+            section->count++ ;
+
+            size_t nsize = ::strlen(name) + 1 ;
+            ::memcpy(sem->name , name , nsize) ;            
+        }
+
+        item = ipc->items + idx ;
+        break ;
+    }
+
+    ::ReleaseMutex(__global_ipc_section_mutex__) ;
+
+    return item ;
+}
+
+bool ipc_item_free(ipc_item_t * item)
+{
+    if(::WaitForSingleObject(__global_ipc_section_mutex__ , INFINITE) != WAIT_OBJECT_0)
+        return false ;
+    ::memset(item , 0 , IPC_ITEM_SIZE) ;
+
+    ipc_section_head_t * head = (ipc_section_head_t *)__global_ipc_section__->items ;
+    --head->count ;
+
+    ::ReleaseMutex(__global_ipc_section_mutex__) ;
+    return true ;
+}
+
+bool ipc_item_attach(ipc_item_t * item)
+{
+    if(::WaitForSingleObject(__global_ipc_section_mutex__ , INFINITE) != WAIT_OBJECT_0)
+        return false ;
+
+    ipc_item_head_t * head = (ipc_item_head_t *)item ;
+    int type = ipc_item_get_type(head) ;
+    if(type == IPC_TYPE_SHM)
+    {
+        ipc_shm_item_t * shm = (ipc_shm_item_t *)item ;
+        ++shm->nattch ;
+    }
+    else if(type == IPC_TYPE_SEM)
+    {
+        ipc_sem_item_t * sem = (ipc_sem_item_t *)item ;
+        ++sem->nattch ;
+    }
+
+    ::ReleaseMutex(__global_ipc_section_mutex__) ;
+    return true ;
+}
+
+bool ipc_item_detach(ipc_item_t * item)
+{
+    if(::WaitForSingleObject(__global_ipc_section_mutex__ , INFINITE) != WAIT_OBJECT_0)
+        return false ;
+
+    ipc_item_head_t * head = (ipc_item_head_t *)item ;
+    int type = ipc_item_get_type(head) ;
+    if(type == IPC_TYPE_SHM)
+    {
+        ipc_shm_item_t * shm = (ipc_shm_item_t *)item ;
+        --shm->nattch ;
+    }
+    else if(type == IPC_TYPE_SEM)
+    {
+        ipc_sem_item_t * sem = (ipc_sem_item_t *)item ;
+        --sem->nattch ;
+    }
+
+    ::ReleaseMutex(__global_ipc_section_mutex__) ;
+    return true ;
+}
+
 

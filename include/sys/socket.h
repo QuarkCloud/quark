@@ -170,8 +170,6 @@ enum
 extern "C" {
 #endif
 
-//Œ¥ µœ÷
-
 QKCAPI int socket(int domain , int type , int protocol) ;
 
 QKCAPI int bind(int fd , const struct sockaddr * addr , socklen_t len);

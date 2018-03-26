@@ -42,7 +42,10 @@ extern "C" {
 
 /**
     cygwin实现ftok基本遵循linux的约定，但key_t仅仅只是需要一个全局唯一的，
-    因此我用windows的Atom来替代。
+    因此可以用windows的Atom来替代。
+
+    2018-03-26
+    Atom不能自动删除，还要显式删除，可能会消耗操作系统的资源，换成哈希函数
 */
 QKCAPI key_t ftok (const char *pathname , int proj_id) ;
 
