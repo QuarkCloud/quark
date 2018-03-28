@@ -54,8 +54,6 @@ struct epoll_event
 }  ;
 
 
-//н╢й╣ож
-
 #ifdef __cplusplus
 extern "C" {
 #endif
