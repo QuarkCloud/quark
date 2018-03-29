@@ -6,12 +6,14 @@
 #include <errno.h>
 #include "inner/rlist.h"
 #include "inner/rbtree.h"
-
+#include "inner/fsocket.h"
+/**
 typedef struct _st_epoll{
     rb_root_t nodes ;
     
 
 } epoll_t;
+*/
 
 int epoll_create (int size)
 {
@@ -62,7 +64,7 @@ bool iocp_add(HANDLE iocp , SOCKET fd , struct epoll_event * ev)
 
 bool iocp_del(HANDLE iocp , SOCKET fd)
 {
-    return false ;
+    return true ;
 }
 
 bool iocp_mod(HANDLE iocp , SOCKET fd , struct epoll_event * ev)

@@ -348,6 +348,10 @@
 				Name="inner"
 				>
 				<File
+					RelativePath=".\inner\fsocket.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\inner\hash.cpp"
 					>
 				</File>
@@ -601,6 +605,10 @@
 			<Filter
 				Name="inner"
 				>
+				<File
+					RelativePath=".\inner\fsocket.h"
+					>
+				</File>
 				<File
 					RelativePath=".\inner\hash.h"
 					>

@@ -1,7 +1,10 @@
 
+#include <stdlib.h>
+#include <string.h>
 #include <winsock2.h>
 #include <sys/socket.h>
 #include <wintf/wobj.h>
+#include "inner/fsocket.h"
 
 static inline SOCKET wobj_to_socket(int fd) {return (SOCKET)wobj_get(fd) ;}
 
@@ -14,7 +17,10 @@ int socket(int domain , int type , int protocol)
         return -1 ;
     }
 
-    return wobj_set(WOBJ_SOCK , (HANDLE)handle , NULL) ;
+    socket_data_t * data = (socket_data_t *)::malloc(sizeof(socket_data_t)) ;
+    ::memset(data , 0 , sizeof(socket_data_t)) ;
+
+    return wobj_set(WOBJ_SOCK , (HANDLE)handle , data) ;
 }
 
 int bind(int fd , const struct sockaddr * addr , socklen_t len)
@@ -55,11 +61,46 @@ int getpeername(int fd , struct sockaddr * addr , socklen_t * len)
 
 ssize_t send(int fd , const void * buf , size_t n , int flags)
 {
-    SOCKET handle = wobj_to_socket(fd) ;
-    if(handle == NULL)
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->type != WOBJ_SOCK || obj->handle == NULL || obj->addition == NULL)
         return -1 ;
 
-    return ::_imp_send(handle , (const char *)buf , n , flags) ;
+    if((flags & MSG_NOSIGNAL) == 0)
+        flags |= MSG_NOSIGNAL ;
+
+    socket_data_t * data = (socket_data_t *)obj->addition ;
+    if(data->noblock == false)
+        return ::_imp_send((SOCKET)obj->handle , (const char *)buf , n , flags) ;
+
+    socket_channel_t * out = &data->out ;
+    if(out->data.buf == NULL)
+    {
+        socket_channel_init(out , 4096) ;
+        out->data.buf = out->buffer ;
+    }
+
+    size_t offset = (size_t)(out->data.buf - out->buffer) ;
+    size_t left = out->bufsize - offset - out->data.len ;
+    if(left >= n)
+        left = n ;
+    else
+        n = left ;
+    ::memcpy(out->data.buf + out->data.len , buf , left) ;
+    out->data.len += left ;
+
+    DWORD sent_bytes = 0;
+    int status = ::_imp_WSASend((SOCKET)obj->handle , &out->data , 1 , &sent_bytes , 0 , &out->ovld , NULL) ;
+    if(status != 0)
+    {
+        int error = _imp_WSAGetLastError() ;
+        //if(error != WSA_IO_PENDING)
+        {
+            out->status = error ;
+            return -1 ;
+        }
+    }
+
+    return 0 ;
 }
 
 ssize_t recv(int fd , void *buf , size_t n , int flags)
@@ -67,6 +108,9 @@ ssize_t recv(int fd , void *buf , size_t n , int flags)
     SOCKET handle = wobj_to_socket(fd) ;
     if(handle == NULL)
         return -1 ;
+
+    if((flags & MSG_NOSIGNAL) == 0)
+        flags |= MSG_NOSIGNAL ;
 
     return ::_imp_recv(handle , (char *)buf , n , flags) ;
 }
