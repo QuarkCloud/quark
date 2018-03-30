@@ -93,7 +93,7 @@ ssize_t send(int fd , const void * buf , size_t n , int flags)
     if(status != 0)
     {
         int error = _imp_WSAGetLastError() ;
-        //if(error != WSA_IO_PENDING)
+        if(error != WSAEWOULDBLOCK)
         {
             out->status = error ;
             return -1 ;
@@ -105,6 +105,49 @@ ssize_t send(int fd , const void * buf , size_t n , int flags)
 
 ssize_t recv(int fd , void *buf , size_t n , int flags)
 {
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->type != WOBJ_SOCK || obj->handle == NULL || obj->addition == NULL)
+        return -1 ;
+
+    if((flags & MSG_NOSIGNAL) == 0)
+        flags |= MSG_NOSIGNAL ;
+
+    socket_data_t * data = (socket_data_t *)obj->addition ;
+    if(data->noblock == false)
+        return ::_imp_recv((SOCKET)obj->handle , (char *)buf , n , flags) ;
+
+    socket_channel_t * out = &data->out ;
+    if(out->data.buf == NULL)
+    {
+        socket_channel_init(out , 4096) ;
+        out->data.buf = out->buffer ;
+    }
+
+    size_t offset = (size_t)(out->data.buf - out->buffer) ;
+    size_t left = out->bufsize - offset - out->data.len ;
+    if(left >= n)
+        left = n ;
+    else
+        n = left ;
+    ::memcpy(out->data.buf + out->data.len , buf , left) ;
+    out->data.len += left ;
+
+    DWORD sent_bytes = 0;
+    int status = ::_imp_WSASend((SOCKET)obj->handle , &out->data , 1 , &sent_bytes , 0 , &out->ovld , NULL) ;
+    if(status != 0)
+    {
+        int error = _imp_WSAGetLastError() ;
+        if(error != WSAEWOULDBLOCK)
+        {
+            out->status = error ;
+            return -1 ;
+        }
+    }
+
+    return 0 ;
+}
+/**
+{
     SOCKET handle = wobj_to_socket(fd) ;
     if(handle == NULL)
         return -1 ;
@@ -114,6 +157,7 @@ ssize_t recv(int fd , void *buf , size_t n , int flags)
 
     return ::_imp_recv(handle , (char *)buf , n , flags) ;
 }
+*/
 
 ssize_t sendto(int fd , const void *buf , size_t n , int flags , const struct sockaddr * addr , socklen_t addr_len)
 {
