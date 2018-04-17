@@ -312,6 +312,31 @@ DWORD _imp_WSAWaitForMultipleEvents(DWORD evt_count , const WSAEVENT FAR * evts 
 typedef DWORD(WSAAPI * LPFN_WSAWAITFORMULTIPLEEVENTS)(DWORD evt_count , const WSAEVENT FAR * evts , BOOL wait_all , 
             DWORD timeout , BOOL alertable);
 
+//拷贝至MSWSock.h，主要用于AcceptEx相关。
+#define WSAID_ACCEPTEX \
+        {0xb5367df1,0xcbac,0x11cf,{0x95,0xca,0x00,0x80,0x5f,0x48,0xa1,0x92}}
+
+typedef BOOL (* LPFN_ACCEPTEX)(SOCKET sListenSocket,SOCKET sAcceptSocket,PVOID lpOutputBuffer,DWORD dwReceiveDataLength,
+    DWORD dwLocalAddressLength,DWORD dwRemoteAddressLength,LPDWORD lpdwBytesReceived,LPOVERLAPPED lpOverlapped);
+
+#define SO_UPDATE_ACCEPT_CONTEXT    0x700B
+#define SO_UPDATE_CONNECT_CONTEXT   0x7010
+
+#define IOC_VOID        0x20000000      /* no parameters */
+#define IOC_OUT         0x40000000      /* copy out parameters */
+#define IOC_IN          0x80000000      /* copy in parameters */
+#define IOC_INOUT       (IOC_IN|IOC_OUT)
+
+#define IOC_WS2                       0x08000000
+
+#define _WSAIO(x,y)                   (IOC_VOID|(x)|(y))
+#define _WSAIOR(x,y)                  (IOC_OUT|(x)|(y))
+#define _WSAIOW(x,y)                  (IOC_IN|(x)|(y))
+#define _WSAIORW(x,y)                 (IOC_INOUT|(x)|(y))
+
+#define SIO_GET_BROADCAST_ADDRESS     _WSAIOR(IOC_WS2,5)
+#define SIO_GET_EXTENSION_FUNCTION_POINTER  _WSAIORW(IOC_WS2,6)
+
 #ifdef __cplusplus
 }
 #endif

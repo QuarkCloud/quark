@@ -51,7 +51,7 @@ typedef struct __st_lpfn_socket{
     LPFN_WSASENDTO                        lpfn_WSASendTo ;             
     LPFN_WSASETEVENT                      lpfn_WSASetEvent ;           
     LPFN_WSASOCKET                        lpfn_WSASocketA ;
-    LPFN_WSAWAITFORMULTIPLEEVENTS         lpfn_WSAWaitForMultipleEvents ;    
+    LPFN_WSAWAITFORMULTIPLEEVENTS         lpfn_WSAWaitForMultipleEvents ;   
 } lpfn_socket_t ;
 
 SRWLOCK __socket_inner_rwlock__ =  SRWLOCK_INIT ;
@@ -120,8 +120,7 @@ bool socket_library_load()
     DECLARE_SOCKET_PFN(WSASendTo ,          LPFN_WSASENDTO);
     DECLARE_SOCKET_PFN(WSASetEvent ,        LPFN_WSASETEVENT);
     DECLARE_SOCKET_PFN(WSASocketA ,         LPFN_WSASOCKET);
-    DECLARE_SOCKET_PFN(WSAWaitForMultipleEvents ,   LPFN_WSAWAITFORMULTIPLEEVENTS);
-
+    DECLARE_SOCKET_PFN(WSAWaitForMultipleEvents ,   LPFN_WSAWAITFORMULTIPLEEVENTS);   
 
     WSADATA data ;
     WSAStartup(WINSOCK_VERSION , &data) ;
@@ -524,6 +523,5 @@ DWORD _imp_WSAWaitForMultipleEvents(DWORD evt_count , const WSAEVENT FAR * evts 
 
     return __socket_pfns__.lpfn_WSAWaitForMultipleEvents(evt_count , evts , wait_all , timeout , alertable) ;
 }
-
 
 

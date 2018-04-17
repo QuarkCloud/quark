@@ -146,18 +146,6 @@ ssize_t recv(int fd , void *buf , size_t n , int flags)
 
     return 0 ;
 }
-/**
-{
-    SOCKET handle = wobj_to_socket(fd) ;
-    if(handle == NULL)
-        return -1 ;
-
-    if((flags & MSG_NOSIGNAL) == 0)
-        flags |= MSG_NOSIGNAL ;
-
-    return ::_imp_recv(handle , (char *)buf , n , flags) ;
-}
-*/
 
 ssize_t sendto(int fd , const void *buf , size_t n , int flags , const struct sockaddr * addr , socklen_t addr_len)
 {
