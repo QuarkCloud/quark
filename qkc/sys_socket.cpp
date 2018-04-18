@@ -1,12 +1,11 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <winsock2.h>
 #include <sys/socket.h>
 #include <wintf/wobj.h>
 #include "inner/fsocket.h"
-
-static inline SOCKET wobj_to_socket(int fd) {return (SOCKET)wobj_get(fd) ;}
 
 int socket(int domain , int type , int protocol)
 {
@@ -17,46 +16,63 @@ int socket(int domain , int type , int protocol)
         return -1 ;
     }
 
-    socket_data_t * data = (socket_data_t *)::malloc(sizeof(socket_data_t)) ;
-    ::memset(data , 0 , sizeof(socket_data_t)) ;
+    socket_t * data = (socket_t *)::malloc(sizeof(socket_t)) ;
+    ::memset(data , 0 , sizeof(socket_t)) ;
+
+    data->socket = handle ;
+    data->type = type ;
 
     return wobj_set(WOBJ_SOCK , (HANDLE)handle , data) ;
 }
 
 int bind(int fd , const struct sockaddr * addr , socklen_t len)
 {
-    SOCKET handle = wobj_to_socket(fd) ;
-    if(handle == NULL)
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->handle == NULL)
         return -1 ;
 
-    return ::_imp_bind(handle , addr , len) ;
+    socket_t * s = (socket_t *)obj->addition ;
+    if(s == NULL)
+        return -1 ;
+    if(s->stage != SOCKET_STAGE_VOID)
+        return -1 ;
+    s->stage = SOCKET_STAGE_BIND ;
+
+    return ::_imp_bind(s->socket , addr , len) ;
 }
 
 int getsockname(int fd , struct sockaddr * addr , socklen_t * len)
 {
-    SOCKET handle = wobj_to_socket(fd) ;
-    if(handle == NULL)
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->handle == NULL)
         return -1 ;
 
-    return ::_imp_getsockname(handle , addr , (int *)len) ;
+    return ::_imp_getsockname((SOCKET)obj->handle , addr , (int *)len) ;
 }
 
 int connect(int fd , const struct sockaddr * addr , socklen_t len)
 {
-    SOCKET handle = wobj_to_socket(fd) ;
-    if(handle == NULL)
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->handle == NULL)
         return -1 ;
 
-    return ::_imp_connect(handle , addr , (int)len) ;
+    socket_t * s = (socket_t *)obj->addition ;
+    if(s == NULL)
+        return -1 ;
+    if(s->stage != SOCKET_STAGE_VOID)
+        return -1 ;
+    s->stage = SOCKET_STAGE_CONNECT ;
+
+    return ::_imp_connect(s->socket , addr , (int)len) ;
 }
 
 int getpeername(int fd , struct sockaddr * addr , socklen_t * len)
 {
-    SOCKET handle = wobj_to_socket(fd) ;
-    if(handle == NULL)
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->handle == NULL)
         return -1 ;
 
-    return ::_imp_getpeername(handle , addr , (int *)len) ;
+    return ::_imp_getpeername((SOCKET)obj->handle , addr , (int *)len) ;
 }
 
 ssize_t send(int fd , const void * buf , size_t n , int flags)
@@ -65,29 +81,63 @@ ssize_t send(int fd , const void * buf , size_t n , int flags)
     if(obj == NULL || obj->type != WOBJ_SOCK || obj->handle == NULL || obj->addition == NULL)
         return -1 ;
 
-    if((flags & MSG_NOSIGNAL) == 0)
-        flags |= MSG_NOSIGNAL ;
-
-    socket_data_t * data = (socket_data_t *)obj->addition ;
-    if(data->noblock == false)
+    socket_t * data = (socket_t *)obj->addition ;
+    if(data->noblock == 0)
         return ::_imp_send((SOCKET)obj->handle , (const char *)buf , n , flags) ;
 
-    socket_channel_t * out = &data->out ;
-    if(out->data.buf == NULL)
+    if(data->sender == NULL)
     {
-        socket_channel_init(out , 4096) ;
-        out->data.buf = out->buffer ;
+        send_result_t * sender = (send_result_t *)::malloc(sizeof(send_result_t)) ;
+        ::memset(sender , 0 , sizeof(send_result_t)) ;
+
+        int bufsize = 0 ;
+        if(sockopt_get_send_buffer_size(data->socket , bufsize) == false)
+            bufsize = 4096 ;
+
+        sender->bufsize = bufsize ;
+        sender->link.type = OVLP_OUTPUT ;
+        sender->link.owner = data ;
+        data->sender = sender ;
     }
 
-    size_t offset = (size_t)(out->data.buf - out->buffer) ;
-    size_t left = out->bufsize - offset - out->data.len ;
-    if(left >= n)
-        left = n ;
-    else
-        n = left ;
-    ::memcpy(out->data.buf + out->data.len , buf , left) ;
-    out->data.len += left ;
+    send_result_t * sender = data->sender ;
+    if(sender->sending_bytes != 0)
+    {
+        //前面还没有发送完
+        errno = EAGAIN ;
+        return -1 ;
+    }
 
+    //计算可以发送字节数，这是一个很关键的算法
+    int inbufsize = (int)(sender->to_bytes - sender->completed_bytes) ;
+    int availabe_bytes = sender->bufsize - inbufsize ;
+    if(availabe_bytes >= n)
+        availabe_bytes = n ;
+    sender->sending_bytes = availabe_bytes ;
+    sender->to_bytes += availabe_bytes ;
+
+    ::memset(&sender->link.ovlp , 0 , sizeof(sender->link.ovlp)) ;
+    sender->data.buf = (char *)buf ;
+    sender->data.len = availabe_bytes ;
+
+    DWORD sent_bytes = 0 ;
+    int status == ::_imp_WSASend(data->socket , &sender->data , 1 , &sent_bytes , 0 , &sender->link.ovlp , NULL) ;
+    if(status != 0)
+    {
+        int error = ::_imp_WSAGetLastError() ;
+        if(error != WSAEWOULDBLOCK)
+        {
+            sender->link.status = error ;
+            return -1 ;
+        }
+
+        //触发EWOULDBLOCK，
+
+        DWORD transfered_bytes = 0 , flag = 0 ;
+        ::_imp_WSAGetOverlappedResult(data->socket , &sender->link.ovlp , &transfered_bytes , TRUE , &flag) ;
+    }
+
+    /**
     DWORD sent_bytes = 0;
     int status = ::_imp_WSASend((SOCKET)obj->handle , &out->data , 1 , &sent_bytes , 0 , &out->ovld , NULL) ;
     if(status != 0)
@@ -101,6 +151,7 @@ ssize_t send(int fd , const void * buf , size_t n , int flags)
     }
 
     return 0 ;
+    */
 }
 
 ssize_t recv(int fd , void *buf , size_t n , int flags)

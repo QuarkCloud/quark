@@ -524,4 +524,93 @@ DWORD _imp_WSAWaitForMultipleEvents(DWORD evt_count , const WSAEVENT FAR * evts 
     return __socket_pfns__.lpfn_WSAWaitForMultipleEvents(evt_count , evts , wait_all , timeout , alertable) ;
 }
 
+BOOL PASCAL TransmitFile(SOCKET hSocket,HANDLE hFile,DWORD nNumberOfBytesToWrite,DWORD nNumberOfBytesPerSend,
+    LPOVERLAPPED lpOverlapped,LPTRANSMIT_FILE_BUFFERS lpTransmitBuffers,DWORD dwReserved)
+{
+    static LPFN_TRANSMITFILE lpfnTransmitFile = NULL ;
+
+    if(lpfnTransmitFile == NULL)
+    {
+        GUID guidTransmitFile = WSAID_TRANSMITFILE ;
+        DWORD bytes = 0 ;
+        LPFN_TRANSMITFILE lpfn = NULL ;
+
+        ::_imp_WSAIoctl(hSocket , SIO_GET_EXTENSION_FUNCTION_POINTER ,&guidTransmitFile,sizeof(guidTransmitFile),
+            &lpfn , sizeof(lpfn) , &bytes , NULL , NULL) ;
+
+        if(lpfn != NULL)
+            lpfnTransmitFile = lpfn ;
+    }
+
+    if(lpfnTransmitFile == NULL)
+        return FALSE ;
+
+    return lpfnTransmitFile(hSocket , hFile , nNumberOfBytesToWrite , nNumberOfBytesPerSend , lpOverlapped , lpTransmitBuffers ,dwReserved) ; 
+}
+
+static LPFN_ACCEPTEX lpfnAcceptEx = NULL ;
+static LPFN_GETACCEPTEXSOCKADDRS lpfnGetAcceptExSockaddrs = NULL ;
+
+LPFN_ACCEPTEX LookUpAcceptEx(SOCKET& s)
+{
+    if(lpfnAcceptEx == NULL)
+    {
+        GUID guidAcceptEx = WSAID_ACCEPTEX ;
+        DWORD bytes = 0 ;
+        LPFN_ACCEPTEX lpfn = NULL ;
+
+        ::_imp_WSAIoctl(s , SIO_GET_EXTENSION_FUNCTION_POINTER ,&guidAcceptEx,sizeof(guidAcceptEx),
+            &lpfn , sizeof(lpfn) , &bytes , NULL , NULL) ;
+
+        if(lpfn != NULL)
+            lpfnAcceptEx = lpfn ;
+    }
+
+    return lpfnAcceptEx ;
+}
+
+LPFN_GETACCEPTEXSOCKADDRS LookUpGetAcceptExSockaddres(SOCKET& s)
+{
+    if(lpfnGetAcceptExSockaddrs == NULL)
+    {
+        GUID guidGetAcceptExSockaddrs = WSAID_GETACCEPTEXSOCKADDRS ;
+        DWORD bytes = 0 ;
+        LPFN_GETACCEPTEXSOCKADDRS lpfn = NULL ;
+
+        ::_imp_WSAIoctl(s , SIO_GET_EXTENSION_FUNCTION_POINTER ,&guidGetAcceptExSockaddrs,sizeof(guidGetAcceptExSockaddrs),
+            &lpfn , sizeof(lpfn) , &bytes , NULL , NULL) ;
+
+        lpfnGetAcceptExSockaddrs = lpfn ;
+    }
+
+    return lpfnGetAcceptExSockaddrs ;
+}
+
+bool AcceptExInit(SOCKET&s)
+{
+    if(LookUpAcceptEx(s) != NULL && LookUpGetAcceptExSockaddres(s) != NULL)
+        return true ;
+    else
+        return false ;    
+}
+
+BOOL PASCAL AcceptEx (SOCKET sListenSocket,SOCKET sAcceptSocket,PVOID lpOutputBuffer,DWORD dwReceiveDataLength,
+    DWORD dwLocalAddressLength,DWORD dwRemoteAddressLength,LPDWORD lpdwBytesReceived,LPOVERLAPPED lpOverlapped)
+{
+    if(AcceptExInit(sListenSocket) == false)
+        return FALSE ;
+    return lpfnAcceptEx(sListenSocket , sAcceptSocket , lpOutputBuffer , dwReceiveDataLength , 
+        dwLocalAddressLength , dwRemoteAddressLength , lpdwBytesReceived , lpOverlapped) ;
+}
+
+VOID PASCAL GetAcceptExSockaddrs(PVOID lpOutputBuffer,DWORD dwReceiveDataLength,DWORD dwLocalAddressLength,
+    DWORD dwRemoteAddressLength,struct sockaddr **LocalSockaddr,LPINT LocalSockaddrLength,
+    struct sockaddr **RemoteSockaddr,LPINT RemoteSockaddrLength)
+{
+    if(lpfnGetAcceptExSockaddrs == NULL)
+        return ;    
+
+    lpfnGetAcceptExSockaddrs(lpOutputBuffer , dwReceiveDataLength , dwLocalAddressLength , dwRemoteAddressLength ,
+        LocalSockaddr , LocalSockaddrLength , RemoteSockaddr , RemoteSockaddrLength) ;
+}
 

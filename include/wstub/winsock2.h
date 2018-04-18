@@ -312,12 +312,48 @@ DWORD _imp_WSAWaitForMultipleEvents(DWORD evt_count , const WSAEVENT FAR * evts 
 typedef DWORD(WSAAPI * LPFN_WSAWAITFORMULTIPLEEVENTS)(DWORD evt_count , const WSAEVENT FAR * evts , BOOL wait_all , 
             DWORD timeout , BOOL alertable);
 
-//拷贝至MSWSock.h，主要用于AcceptEx相关。
-#define WSAID_ACCEPTEX \
-        {0xb5367df1,0xcbac,0x11cf,{0x95,0xca,0x00,0x80,0x5f,0x48,0xa1,0x92}}
+//从MSWSock.h拷贝，主要用于AcceptEx相关。
+#define WSAID_ACCEPTEX {0xb5367df1,0xcbac,0x11cf,{0x95,0xca,0x00,0x80,0x5f,0x48,0xa1,0x92}}
 
-typedef BOOL (* LPFN_ACCEPTEX)(SOCKET sListenSocket,SOCKET sAcceptSocket,PVOID lpOutputBuffer,DWORD dwReceiveDataLength,
+typedef BOOL (PASCAL * LPFN_ACCEPTEX)(SOCKET sListenSocket,SOCKET sAcceptSocket,PVOID lpOutputBuffer,DWORD dwReceiveDataLength,
     DWORD dwLocalAddressLength,DWORD dwRemoteAddressLength,LPDWORD lpdwBytesReceived,LPOVERLAPPED lpOverlapped);
+
+typedef VOID (PASCAL * LPFN_GETACCEPTEXSOCKADDRS)(PVOID lpOutputBuffer,DWORD dwReceiveDataLength,DWORD dwLocalAddressLength,
+    DWORD dwRemoteAddressLength,struct sockaddr **LocalSockaddr,LPINT LocalSockaddrLength,struct sockaddr **RemoteSockaddr,
+    OUT LPINT RemoteSockaddrLength);
+
+#define WSAID_GETACCEPTEXSOCKADDRS {0xb5367df2,0xcbac,0x11cf,{0x95,0xca,0x00,0x80,0x5f,0x48,0xa1,0x92}}
+
+
+typedef struct _TRANSMIT_FILE_BUFFERS {
+    LPVOID Head;
+    DWORD HeadLength;
+    LPVOID Tail;
+    DWORD TailLength;
+} TRANSMIT_FILE_BUFFERS, *PTRANSMIT_FILE_BUFFERS, *LPTRANSMIT_FILE_BUFFERS;
+
+#define TF_DISCONNECT           0x01
+#define TF_REUSE_SOCKET         0x02
+#define TF_WRITE_BEHIND         0x04
+#define TF_USE_DEFAULT_WORKER   0x00
+#define TF_USE_SYSTEM_THREAD    0x10
+#define TF_USE_KERNEL_APC       0x20
+
+typedef BOOL (PASCAL * LPFN_TRANSMITFILE)(SOCKET hSocket,HANDLE hFile,DWORD nNumberOfBytesToWrite,DWORD nNumberOfBytesPerSend,
+    LPOVERLAPPED lpOverlapped,LPTRANSMIT_FILE_BUFFERS lpTransmitBuffers,DWORD dwReserved);
+
+#define WSAID_TRANSMITFILE {0xb5367df0,0xcbac,0x11cf,{0x95,0xca,0x00,0x80,0x5f,0x48,0xa1,0x92}}
+
+BOOL PASCAL TransmitFile(SOCKET hSocket,HANDLE hFile,DWORD nNumberOfBytesToWrite,DWORD nNumberOfBytesPerSend,
+    LPOVERLAPPED lpOverlapped,LPTRANSMIT_FILE_BUFFERS lpTransmitBuffers,DWORD dwReserved);
+
+BOOL PASCAL AcceptEx (SOCKET sListenSocket,SOCKET sAcceptSocket,PVOID lpOutputBuffer,DWORD dwReceiveDataLength,
+    DWORD dwLocalAddressLength,DWORD dwRemoteAddressLength,LPDWORD lpdwBytesReceived,LPOVERLAPPED lpOverlapped);
+
+VOID PASCAL GetAcceptExSockaddrs(PVOID lpOutputBuffer,DWORD dwReceiveDataLength,DWORD dwLocalAddressLength,
+    DWORD dwRemoteAddressLength,struct sockaddr **LocalSockaddr,LPINT LocalSockaddrLength,
+    struct sockaddr **RemoteSockaddr,LPINT RemoteSockaddrLength);
+
 
 #define SO_UPDATE_ACCEPT_CONTEXT    0x700B
 #define SO_UPDATE_CONNECT_CONTEXT   0x7010
@@ -336,6 +372,63 @@ typedef BOOL (* LPFN_ACCEPTEX)(SOCKET sListenSocket,SOCKET sAcceptSocket,PVOID l
 
 #define SIO_GET_BROADCAST_ADDRESS     _WSAIOR(IOC_WS2,5)
 #define SIO_GET_EXTENSION_FUNCTION_POINTER  _WSAIORW(IOC_WS2,6)
+
+//setsockopt相关
+
+/*
+ * Structure used for manipulating linger option.
+ */
+struct  linger {
+        u_short l_onoff;                /* option on/off */
+        u_short l_linger;               /* linger time */
+};
+
+/*
+ * Level number for (get/set)sockopt() to apply to socket itself.
+ */
+#define SOL_SOCKET      0xffff          /* options for socket level */
+
+/*
+ * Option flags per-socket.
+ */
+#define SO_DEBUG        0x0001          /* turn on debugging info recording */
+#define SO_ACCEPTCONN   0x0002          /* socket has had listen() */
+#define SO_REUSEADDR    0x0004          /* allow local address reuse */
+#define SO_KEEPALIVE    0x0008          /* keep connections alive */
+#define SO_DONTROUTE    0x0010          /* just use interface addresses */
+#define SO_BROADCAST    0x0020          /* permit sending of broadcast msgs */
+#define SO_USELOOPBACK  0x0040          /* bypass hardware when possible */
+#define SO_LINGER       0x0080          /* linger on close if data present */
+#define SO_OOBINLINE    0x0100          /* leave received OOB data in line */
+
+#define SO_DONTLINGER   (int)(~SO_LINGER)
+#define SO_EXCLUSIVEADDRUSE ((int)(~SO_REUSEADDR)) /* disallow local address reuse */
+
+/*
+ * Additional options.
+ */
+#define SO_SNDBUF       0x1001          /* send buffer size */
+#define SO_RCVBUF       0x1002          /* receive buffer size */
+#define SO_SNDLOWAT     0x1003          /* send low-water mark */
+#define SO_RCVLOWAT     0x1004          /* receive low-water mark */
+#define SO_SNDTIMEO     0x1005          /* send timeout */
+#define SO_RCVTIMEO     0x1006          /* receive timeout */
+#define SO_ERROR        0x1007          /* get error status and clear */
+#define SO_TYPE         0x1008          /* get socket type */
+
+/*
+ * WinSock 2 extension -- new options
+ */
+#define SO_GROUP_ID       0x2001      /* ID of a socket group */
+#define SO_GROUP_PRIORITY 0x2002      /* the relative priority within a group*/
+#define SO_MAX_MSG_SIZE   0x2003      /* maximum message size */
+#define SO_PROTOCOL_INFOA 0x2004      /* WSAPROTOCOL_INFOA structure */
+#define SO_PROTOCOL_INFOW 0x2005      /* WSAPROTOCOL_INFOW structure */
+#define PVD_CONFIG        0x3001       /* configuration info for service provider */
+#define SO_CONDITIONAL_ACCEPT 0x3002   /* enable true conditional accept: */
+                                       /*  connection is not ack-ed to the */
+                                       /*  other side until conditional */
+                                       /*  function returns CF_ACCEPT */
 
 #ifdef __cplusplus
 }
