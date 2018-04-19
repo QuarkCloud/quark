@@ -95,3 +95,37 @@ bool sockopt_set_send_timeout(SOCKET& s , DWORD optval)
 {
     return (::_imp_setsockopt(s , SOL_SOCKET , SO_SNDTIMEO , (const char *)&optval , sizeof(optval)) == 0) ;
 }
+
+bool socket_init(socket_t *& s) 
+{
+    socket_t * data = (socket_t *)::malloc(sizeof(socket_t)) ;
+    if(data == NULL)
+        return false ;
+
+    ::memset(data , 0 , sizeof(socket_t)) ;
+
+    data->locker = ::CreateMutex(NULL , FALSE , NULL) ;
+    s = data ;
+    return true ;
+}
+
+bool send_result_init(send_result_t *& result) 
+{
+    send_result_t * sender = (send_result_t *)::malloc(sizeof(send_result_t)) ;
+    if(sender == NULL)
+    {
+        errno = ENOMEM ;
+        return false ;
+    }
+    ::memset(sender , 0 , sizeof(send_result_t)) ;
+
+    if(ring_buffer_init(&sender->ring_buffer , SNDBUFSIZE) == false)
+    {
+        ::free(sender) ;
+        errno = ENOMEN ;
+        return false ;
+    }  
+    sender->link.type = OVLP_OUTPUT ;
+
+    return true ;
+}

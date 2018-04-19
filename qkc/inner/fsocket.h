@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <windows.h>
 #include <winsock2.h>
+#include "inner/ring_buffer.h"
 
 #ifdef	__cplusplus
 extern "C" {
@@ -31,6 +32,7 @@ typedef struct __st_socket{
     int8_t stage ;  
     int8_t noblock :1;            //默认阻塞，是一个很重要的标识!!!，其他貌似没有必要。
 
+    HANDLE            locker ;    //创建销毁保护
     accept_result_t * acceptor ;
     send_result_t   * sender ;
     recv_result_t   * receiver ;
@@ -49,16 +51,25 @@ struct __st_socket_ovlp
     int                 status ;
     ovlp_type_t         type ;
     socket_t    *       owner ;
+    volatile LONG       counter ;
 } ;
 
+/**
+    2018-04-19
+    将iocp的preactor模式转换成epoll的actor难度比较大。主要体现在send时，不知道可以发送最大的字节数。
+    send的可发字节数同时【记住是同时！！！】受收发双方的缓冲区大小限制，而不是单纯地由本地发送缓冲区决定。
+    immediately返回的字节数只能做参考用，不是最终完成的字节数。当请求发送的字节数，不能马上返回时，
+    缓冲区就会被锁定，造成阻塞，降低效率。因此，需要外挂一个缓冲区，来确保字节数是可控的。但因为拷贝会
+    导致性能下降。相较于阻塞来说，应该反而会好一点。
+    如果通过TCP将同一块数据同时向多个连接发送，那么性能损失会因为拷贝而下降更加严重。
+*/
+#define SNDBUFSIZE      8192
 struct __st_send_result{
     socket_ovlp_t   link ;
 
-    WSABUF data ;
-    int bufsize ;               //套接字本身缓冲区的大小
-    int sending_bytes ;         //本次正在发送中的字节数
-    size_t to_bytes ;           //请求发送的总字节数
-    size_t completed_bytes ;    //完成发送的总字节数
+    WSABUF          data ;
+    ring_buffer_t   ring_buffer ;
+    volatile LONG   sending ;
 };
 
 struct __st_recv_result{
@@ -93,6 +104,9 @@ bool sockopt_set_recv_timeout(SOCKET& s , DWORD optval) ;
 
 bool sockopt_get_send_timeout(SOCKET& s , DWORD& optval) ;
 bool sockopt_set_send_timeout(SOCKET& s , DWORD optval) ;
+
+bool socket_init(socket_t *& s) ;
+bool send_result_init(send_result_t *& result) ;
 
 #ifdef	__cplusplus
 }

@@ -16,13 +16,18 @@ int socket(int domain , int type , int protocol)
         return -1 ;
     }
 
-    socket_t * data = (socket_t *)::malloc(sizeof(socket_t)) ;
-    ::memset(data , 0 , sizeof(socket_t)) ;
+    socket_t * s = NULL ;
+    if(socket_init(s) == false)
+    {
+        ::_imp_closesocket(handle) ;
+        errno = ENOMEM ;
+        return -1 ;
+    }
 
-    data->socket = handle ;
-    data->type = type ;
+    s->socket = handle ;
+    s->type = type ;
 
-    return wobj_set(WOBJ_SOCK , (HANDLE)handle , data) ;
+    return wobj_set(WOBJ_SOCK , (HANDLE)handle , s) ;
 }
 
 int bind(int fd , const struct sockaddr * addr , socklen_t len)
@@ -85,56 +90,28 @@ ssize_t send(int fd , const void * buf , size_t n , int flags)
     if(data->noblock == 0)
         return ::_imp_send((SOCKET)obj->handle , (const char *)buf , n , flags) ;
 
-    if(data->sender == NULL)
+    send_result_t * sender = data->sender ;
+    if(sender == NULL)
     {
-        send_result_t * sender = (send_result_t *)::malloc(sizeof(send_result_t)) ;
-        ::memset(sender , 0 , sizeof(send_result_t)) ;
+        if(send_result_init(sender) == false)
+            return -1 ;
 
-        int bufsize = 0 ;
-        if(sockopt_get_send_buffer_size(data->socket , bufsize) == false)
-            bufsize = 4096 ;
-
-        sender->bufsize = bufsize ;
-        sender->link.type = OVLP_OUTPUT ;
         sender->link.owner = data ;
         data->sender = sender ;
     }
 
-    send_result_t * sender = data->sender ;
-    if(sender->sending_bytes != 0)
+    //1、先行拷贝到环形缓冲区中
+    size_t copy_size = ring_buffer_write(&sender->ring_buffer , buf , size) ;
+
+    //2、因为数据已经准备好了，所以只需要判断下，是否在发送中
+    DWORD transfer_bytes = 0 , flags = 0;
+    if(::_imp_WSAGetOverlappedResult((SOCKET)obj->handle , &sender->link.ovlp , &transfer_bytes , FALSE , &flags) == TRUE)
     {
-        //前面还没有发送完
-        errno = EAGAIN ;
-        return -1 ;
-    }
-
-    //计算可以发送字节数，这是一个很关键的算法
-    int inbufsize = (int)(sender->to_bytes - sender->completed_bytes) ;
-    int availabe_bytes = sender->bufsize - inbufsize ;
-    if(availabe_bytes >= n)
-        availabe_bytes = n ;
-    sender->sending_bytes = availabe_bytes ;
-    sender->to_bytes += availabe_bytes ;
-
-    ::memset(&sender->link.ovlp , 0 , sizeof(sender->link.ovlp)) ;
-    sender->data.buf = (char *)buf ;
-    sender->data.len = availabe_bytes ;
-
-    DWORD sent_bytes = 0 ;
-    int status == ::_imp_WSASend(data->socket , &sender->data , 1 , &sent_bytes , 0 , &sender->link.ovlp , NULL) ;
-    if(status != 0)
-    {
-        int error = ::_imp_WSAGetLastError() ;
-        if(error != WSAEWOULDBLOCK)
+        //已经发送完了，需要重新启动，判断标识是否为空
+        if(::InterlockedCompareExchange(&sender->sending , 1 , 0) == 1)
         {
-            sender->link.status = error ;
-            return -1 ;
-        }
-
-        //触发EWOULDBLOCK，
-
-        DWORD transfered_bytes = 0 , flag = 0 ;
-        ::_imp_WSAGetOverlappedResult(data->socket , &sender->link.ovlp , &transfered_bytes , TRUE , &flag) ;
+        
+        }    
     }
 
     /**

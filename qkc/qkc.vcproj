@@ -360,6 +360,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\inner\ring_buffer.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\inner\rxtree.cpp"
 					>
 				</File>
@@ -615,6 +619,10 @@
 				</File>
 				<File
 					RelativePath=".\inner\rbtree.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inner\ring_buffer.h"
 					>
 				</File>
 				<File
