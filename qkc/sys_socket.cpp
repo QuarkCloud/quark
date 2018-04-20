@@ -101,34 +101,12 @@ ssize_t send(int fd , const void * buf , size_t n , int flags)
     }
 
     //1、先行拷贝到环形缓冲区中
-    size_t copy_size = ring_buffer_write(&sender->ring_buffer , buf , size) ;
+    size_t copy_size = ring_buffer_write_stream(&sender->ring_buffer , buf , size) ;
 
-    //2、因为数据已经准备好了，所以只需要判断下，是否在发送中
-    DWORD transfer_bytes = 0 , flags = 0;
-    if(::_imp_WSAGetOverlappedResult((SOCKET)obj->handle , &sender->link.ovlp , &transfer_bytes , FALSE , &flags) == TRUE)
-    {
-        //已经发送完了，需要重新启动，判断标识是否为空
-        if(::InterlockedCompareExchange(&sender->sending , 1 , 0) == 1)
-        {
-        
-        }    
-    }
+    //2、因为数据已经准备好了，准备发送
+    socket_send(&sender , flags) ;
 
-    /**
-    DWORD sent_bytes = 0;
-    int status = ::_imp_WSASend((SOCKET)obj->handle , &out->data , 1 , &sent_bytes , 0 , &out->ovld , NULL) ;
-    if(status != 0)
-    {
-        int error = _imp_WSAGetLastError() ;
-        if(error != WSAEWOULDBLOCK)
-        {
-            out->status = error ;
-            return -1 ;
-        }
-    }
-
-    return 0 ;
-    */
+    return copy_size ;
 }
 
 ssize_t recv(int fd , void *buf , size_t n , int flags)
@@ -137,51 +115,59 @@ ssize_t recv(int fd , void *buf , size_t n , int flags)
     if(obj == NULL || obj->type != WOBJ_SOCK || obj->handle == NULL || obj->addition == NULL)
         return -1 ;
 
-    if((flags & MSG_NOSIGNAL) == 0)
-        flags |= MSG_NOSIGNAL ;
+    socket_t * data = (socket_t *)obj->addition ;  
+    int recv_size ::_imp_recv((SOCKET)obj->handle , (char *)buf , n , flags) ;
+    if(data->noblock == 0)
+        return recv_size ;
 
-    socket_data_t * data = (socket_data_t *)obj->addition ;
-    if(data->noblock == false)
-        return ::_imp_recv((SOCKET)obj->handle , (char *)buf , n , flags) ;
-
-    socket_channel_t * out = &data->out ;
-    if(out->data.buf == NULL)
+    recv_result_t * receiver = data->receiver ;
+    if(receiver == NULL)
     {
-        socket_channel_init(out , 4096) ;
-        out->data.buf = out->buffer ;
-    }
-
-    size_t offset = (size_t)(out->data.buf - out->buffer) ;
-    size_t left = out->bufsize - offset - out->data.len ;
-    if(left >= n)
-        left = n ;
-    else
-        n = left ;
-    ::memcpy(out->data.buf + out->data.len , buf , left) ;
-    out->data.len += left ;
-
-    DWORD sent_bytes = 0;
-    int status = ::_imp_WSASend((SOCKET)obj->handle , &out->data , 1 , &sent_bytes , 0 , &out->ovld , NULL) ;
-    if(status != 0)
-    {
-        int error = _imp_WSAGetLastError() ;
-        if(error != WSAEWOULDBLOCK)
-        {
-            out->status = error ;
+        if(recv_result_init(&receiver) == false || receiver == NULL)
             return -1 ;
-        }
+        receiver->link.owner = data ;
+        data->receiver = receiver ;
     }
 
-    return 0 ;
+    socket_start_recv(receiver) ;
+    return recv_size ;
 }
 
 ssize_t sendto(int fd , const void *buf , size_t n , int flags , const struct sockaddr * addr , socklen_t addr_len)
 {
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->type != WOBJ_SOCK || obj->handle == NULL || obj->addition == NULL)
+        return -1 ;
+
+    socket_t * data = (socket_t *)obj->addition ;
+    if(data->noblock == 0)
+        return ::_imp_send((SOCKET)obj->handle , (const char *)buf , n , flags) ;
+
+    send_result_t * sender = data->sender ;
+    if(sender == NULL)
+    {
+        if(send_result_init(sender) == false)
+            return -1 ;
+
+        sender->link.owner = data ;
+        data->sender = sender ;
+    }
+
+    //1、先行拷贝到环形缓冲区中
+    size_t copy_size = ring_buffer_write_message(&sender->ring_buffer , buf , size) ;
+
+    //2、因为数据已经准备好了，准备发送
+    socket_send(&sender , flags) ;
+
+    return copy_size ;
+
+    /**
     SOCKET handle = wobj_to_socket(fd) ;
     if(handle == NULL)
         return -1 ;
 
     return ::_imp_sendto(handle , (const char *)buf , n , flags , addr , addr_len) ;
+    */
 }
 
 ssize_t recvfrom(int fd , void * buf , size_t n , int flags , struct sockaddr * addr , socklen_t * addr_len)

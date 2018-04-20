@@ -1,28 +1,19 @@
 
-#include "ring_buffer.cpp"
+#include "ring_buffer.h"
 #include <errno.h>
 
-bool ring_buffer_init(ring_buffer_t *& ring , size_t size)
+bool ring_buffer_init(ring_buffer_t * ring , size_t size)
 {
-    ring_buffer_t * rbuf = (ring_buffer_t *)::malloc(sizeof(ring_buffer_t)) ;
-    if(rbuf == NULL)
-    {
-        errno = ENOMEN ;
-        return false ;    
-    }
-    ::memset(rbuf , 0 , sizeof(ring_buffer_t)) ;
-
+    ::memset(ring , 0 , sizeof(ring_buffer_t)) ;
     char * buffer = (char *)::malloc(size) ;
     if(buffer == NULL)
     {
-        ::free(rbuf) ;
         errno = ENOMEM ;
         return false ;
     }
 
-    rbuf->buffer = buffer ;
-    rbuf->bufsize = size ;
-    ring = rbuf ;
+    ring->buffer = buffer ;
+    ring->bufsize = size ;
     return true ;
 }
 
@@ -39,7 +30,7 @@ bool ring_buffer_final(ring_buffer_t * ring)
     return true ;
 }
 
-size_t ring_buffer_write(ring_buffer_t * ring , const void * buf , size_t size)
+size_t ring_buffer_write_stream(ring_buffer_t * ring , const void * buf , size_t size)
 {
     size_t head = ring->head , tail = ring->tail , bufsize = ring->bufsize;
     size_t left_size = 0 ;
@@ -59,14 +50,14 @@ size_t ring_buffer_write(ring_buffer_t * ring , const void * buf , size_t size)
     else
     {
         //分段拷贝
-        size_t cont_size = SNDBUFSIZE - tail ;
+        size_t cont_size = bufsize - tail ;
         if(cont_size > copy_size)
             cont_size = copy_size ;
         ::memcpy(ring->buffer + tail , buf , cont_size) ;
         size_t broken_size = copy_size - cont_size ;
         if(broken_size > 0)
         {
-            ::memcpy(ring->buffer , buf + cont_size , broken_size) ;
+            ::memcpy(ring->buffer , (const char *)buf + cont_size , broken_size) ;
             ring->tail = broken_size ;
         }
         else
@@ -78,7 +69,7 @@ size_t ring_buffer_write(ring_buffer_t * ring , const void * buf , size_t size)
     return copy_size ;
 }
 
-bool ring_buffer_data(ring_buffer_t * ring , char *&buf , size_t& size)
+bool ring_buffer_refer_stream(ring_buffer_t * ring , char *&buf , size_t& size)
 {
     if(ring->head <= ring->tail)
     {
@@ -89,6 +80,91 @@ bool ring_buffer_data(ring_buffer_t * ring , char *&buf , size_t& size)
 
     size = ring->bufsize - ring->head ;
     buf = ring->buffer + ring->head ;
+    return true ;
+}
+
+size_t ring_buffer_write_message(ring_buffer_t * ring , const void * buf , size_t size)
+{    
+    if(buf == NULL || size == 0 || size >= 0xFFFF)
+        return -1 ;
+
+    size_t head = ring->head , tail = ring->tail , bufsize = ring->bufsize;
+    size_t left_size = bufsize - tail ;
+    if(left_size < size + 4)
+    {
+        //剩余空间不足，不尝试回绕，否则容易出问题。
+        //只有在所有的消息都发送出去后，重置偏移量
+        if(head != tail)
+            return -1 ;
+        head = tail = 0 ;
+        left_size = ring->bufsize ;
+    }
+
+    char * buffer = ring->buffer + tail ;
+    buffer[0] = 0x55 ;
+    buffer[1] = 0x55 ;
+    ::memcpy(buffer + 2 , &size , 2) ;
+    ::memcpy(buffer + 4 , buf , size) ;
+
+    size_t copy_size = size + 4 ;
+    ring->tail += copy_size ;
+    return copy_size ;
+}
+
+bool ring_buffer_refer_message(ring_buffer_t * ring , char *&buf , size_t& size)
+{
+    size_t head = ring->head , tail = ring->tail , bufsize = ring->bufsize ;
+    if(head == tail)
+    {
+        //空的
+        buf = NULL ;
+        size = 0 ;
+        return true ;
+    }
+
+    char * buffer = ring->buffer;
+    size_t magic_size = 0 , idx = head;
+
+    for(; idx < tail ; ++idx)
+    {
+        char ch = buffer[idx] ;
+        if(ch == 0x55)
+            ++magic_size ;
+        else if(magic_size != 0)
+            magic_size = 0 ;
+
+        if(magic_size == 2)
+            break ;
+    }
+    if(magic_size != 2)
+    {
+        ring->head = tail ;
+        return false ;
+    }
+
+    size_t msg_size = 0 ;
+    ::memcpy(&msg_size , buffer + idx , 2) ;
+    if((idx + 2 + msg_size) > tail)
+    {
+        ring->head = idx ;  //略过魔数，则这个消息将被抛弃
+        idx -= 2 ;
+        buffer[idx] = -1 ;    //清除魔数，避免后续重新被定位
+        buffer[idx+1] = -1 ;
+        return false ;
+    }
+
+    buf = buffer + idx + 2 ;
+    size = msg_size ;   
+    return true ;
+}
+
+bool ring_buffer_move_size(ring_buffer_t * ring , size_t size)
+{
+    size_t head = ring->head + size ;
+    if(head >= ring->bufsize)
+        head -= ring->bufsize ;
+
+    ring->head = head ;
     return true ;
 }
 

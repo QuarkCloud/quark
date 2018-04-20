@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <windows.h>
 #include <winsock2.h>
-#include "inner/ring_buffer.h"
+#include "ring_buffer.h"
 
 #ifdef	__cplusplus
 extern "C" {
@@ -69,15 +69,11 @@ struct __st_send_result{
 
     WSABUF          data ;
     ring_buffer_t   ring_buffer ;
-    volatile LONG   sending ;
 };
 
 struct __st_recv_result{
     socket_ovlp_t   link ;
-
     WSABUF data ;
-    size_t from_bytes ;
-    size_t complete_bytes ;
 };
 
 #define ACCEPT_ADDRESS_SIZE 256
@@ -86,6 +82,7 @@ struct __st_accept_result{
 
     SOCKET insocket ;           //接收到客户端连接请求的套接字   
     char address[ACCEPT_ADDRESS_SIZE] ;
+    size_t bytes ;
 };
 
 void update_contex_acceptex(SOCKET& new_socket , SOCKET& listen_socket) ;
@@ -106,7 +103,17 @@ bool sockopt_get_send_timeout(SOCKET& s , DWORD& optval) ;
 bool sockopt_set_send_timeout(SOCKET& s , DWORD optval) ;
 
 bool socket_init(socket_t *& s) ;
+
 bool send_result_init(send_result_t *& result) ;
+bool socket_send(send_result_t * result , int flags) ;
+bool socket_sendto(send_result_t * result , int flags , const struct sockaddr * addr , socklen_t addr_len) ;
+
+bool recv_result_init(recv_result_t *& result) ;
+bool socket_start_recv(recv_result_t * result) ;
+bool socket_start_recvfrom(recv_result_t * result , int flags , const struct sockaddr * addr , socklen_t addr_len) ;
+
+bool socket_ovlp_lock(socket_ovlp_t * ovlp) ;
+bool socket_ovlp_unlock(socket_ovlp_t * ovlp) ;
 
 #ifdef	__cplusplus
 }
