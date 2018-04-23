@@ -84,7 +84,7 @@ enum tcp_ca_state
   TCP_CA_Recovery = 3,
   TCP_CA_Loss = 4
 };
-
+/**
 struct tcp_info
 {
   u_int8_t	tcpi_state;
@@ -106,13 +106,13 @@ struct tcp_info
   u_int32_t	tcpi_retrans;
   u_int32_t	tcpi_fackets;
 
-  /* Times. */
+  // Times. 
   u_int32_t	tcpi_last_data_sent;
-  u_int32_t	tcpi_last_ack_sent;	/* Not remembered, sorry.  */
+  u_int32_t	tcpi_last_ack_sent;	//Not remembered, sorry.  
   u_int32_t	tcpi_last_data_recv;
   u_int32_t	tcpi_last_ack_recv;
 
-  /* Metrics. */
+  //Metrics.
   u_int32_t	tcpi_pmtu;
   u_int32_t	tcpi_rcv_ssthresh;
   u_int32_t	tcpi_rtt;
@@ -122,6 +122,7 @@ struct tcp_info
   u_int32_t	tcpi_advmss;
   u_int32_t	tcpi_reordering;
 };
+*/
 
 #ifdef __cplusplus
 }

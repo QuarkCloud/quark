@@ -358,10 +358,20 @@ VOID PASCAL GetAcceptExSockaddrs(PVOID lpOutputBuffer,DWORD dwReceiveDataLength,
 #define SO_UPDATE_ACCEPT_CONTEXT    0x700B
 #define SO_UPDATE_CONNECT_CONTEXT   0x7010
 
+#define IOCPARM_MASK    0x7f            /* parameters must be < 128 bytes */
 #define IOC_VOID        0x20000000      /* no parameters */
 #define IOC_OUT         0x40000000      /* copy out parameters */
 #define IOC_IN          0x80000000      /* copy in parameters */
 #define IOC_INOUT       (IOC_IN|IOC_OUT)
+
+#define _IO(x,y)        (IOC_VOID|((x)<<8)|(y))
+#define _IOR(x,y,t)     (IOC_OUT|(((long)sizeof(t)&IOCPARM_MASK)<<16)|((x)<<8)|(y))
+#define _IOW(x,y,t)     (IOC_IN|(((long)sizeof(t)&IOCPARM_MASK)<<16)|((x)<<8)|(y))
+
+#define FIONREAD    _IOR('f', 127, u_long) /* get # bytes to read */
+#define FIONBIO     _IOW('f', 126, u_long) /* set/clear non-blocking i/o */
+#define FIOASYNC    _IOW('f', 125, u_long) /* set/clear async i/o */
+
 
 #define IOC_WS2                       0x08000000
 

@@ -18,7 +18,8 @@ extern "C" {
 #define SOCKET_STAGE_VOID       0 
 #define SOCKET_STAGE_BIND       1
 #define SOCKET_STAGE_LISTEN     2
-#define SOCKET_STAGE_CONNECT    3
+#define SOCKET_STAGE_ACCEPT     3
+#define SOCKET_STAGE_CONNECT    11
 #define SOCKET_STAGE_DESROTY    -1
 
 typedef struct __st_socket_ovlp     socket_ovlp_t ;
@@ -102,18 +103,29 @@ bool sockopt_set_recv_timeout(SOCKET& s , DWORD optval) ;
 bool sockopt_get_send_timeout(SOCKET& s , DWORD& optval) ;
 bool sockopt_set_send_timeout(SOCKET& s , DWORD optval) ;
 
+bool sockopt_get_nodelay(SOCKET&s , bool& optval) ;
+bool sockopt_set_nodelay(SOCKET&s , bool optval) ;
+
+bool socket_get_readable_size(SOCKET& s , DWORD& size) ;
+bool socket_set_nonblock(SOCKET& s , bool enable) ;
+
 bool socket_init(socket_t *& s) ;
 
 bool send_result_init(send_result_t *& result) ;
 bool socket_send(send_result_t * result , int flags) ;
-bool socket_sendto(send_result_t * result , int flags , const struct sockaddr * addr , socklen_t addr_len) ;
+bool socket_sendto(send_result_t * result , int flags , const struct sockaddr * addr , int addr_len) ;
 
 bool recv_result_init(recv_result_t *& result) ;
 bool socket_start_recv(recv_result_t * result) ;
-bool socket_start_recvfrom(recv_result_t * result , int flags , const struct sockaddr * addr , socklen_t addr_len) ;
+bool socket_start_recvfrom(recv_result_t * result , int flags , struct sockaddr * addr , int * addr_len) ;
 
 bool socket_ovlp_lock(socket_ovlp_t * ovlp) ;
 bool socket_ovlp_unlock(socket_ovlp_t * ovlp) ;
+
+//从accept缓冲区中，提取结果
+bool socket_accept(accept_result_t * result , SOCKET& new_socket , struct sockaddr * local , struct sockaddr * remote) ;
+bool socket_start_accept(accept_result_t * result) ;
+
 
 #ifdef	__cplusplus
 }

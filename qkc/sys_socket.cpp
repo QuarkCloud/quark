@@ -101,10 +101,10 @@ ssize_t send(int fd , const void * buf , size_t n , int flags)
     }
 
     //1、先行拷贝到环形缓冲区中
-    size_t copy_size = ring_buffer_write_stream(&sender->ring_buffer , buf , size) ;
+    size_t copy_size = ring_buffer_write_stream(&sender->ring_buffer , buf , n) ;
 
     //2、因为数据已经准备好了，准备发送
-    socket_send(&sender , flags) ;
+    socket_send(sender , flags) ;
 
     return copy_size ;
 }
@@ -116,14 +116,14 @@ ssize_t recv(int fd , void *buf , size_t n , int flags)
         return -1 ;
 
     socket_t * data = (socket_t *)obj->addition ;  
-    int recv_size ::_imp_recv((SOCKET)obj->handle , (char *)buf , n , flags) ;
+    int recv_size = ::_imp_recv((SOCKET)obj->handle , (char *)buf , n , flags) ;
     if(data->noblock == 0)
         return recv_size ;
 
     recv_result_t * receiver = data->receiver ;
     if(receiver == NULL)
     {
-        if(recv_result_init(&receiver) == false || receiver == NULL)
+        if(recv_result_init(receiver) == false || receiver == NULL)
             return -1 ;
         receiver->link.owner = data ;
         data->receiver = receiver ;
@@ -154,65 +154,110 @@ ssize_t sendto(int fd , const void *buf , size_t n , int flags , const struct so
     }
 
     //1、先行拷贝到环形缓冲区中
-    size_t copy_size = ring_buffer_write_message(&sender->ring_buffer , buf , size) ;
+    size_t copy_size = ring_buffer_write_message(&sender->ring_buffer , buf , n) ;
 
     //2、因为数据已经准备好了，准备发送
-    socket_send(&sender , flags) ;
+    socket_sendto(sender , flags , addr , addr_len) ;
 
     return copy_size ;
-
-    /**
-    SOCKET handle = wobj_to_socket(fd) ;
-    if(handle == NULL)
-        return -1 ;
-
-    return ::_imp_sendto(handle , (const char *)buf , n , flags , addr , addr_len) ;
-    */
 }
 
 ssize_t recvfrom(int fd , void * buf , size_t n , int flags , struct sockaddr * addr , socklen_t * addr_len)
 {
-    SOCKET handle = wobj_to_socket(fd) ;
-    if(handle == NULL)
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->type != WOBJ_SOCK || obj->handle == NULL || obj->addition == NULL)
         return -1 ;
 
-    return ::_imp_recvfrom(handle , (char *)buf , n , flags , addr , (int *)addr_len) ;
+    socket_t * data = (socket_t *)obj->addition ;  
+    int recv_size = ::_imp_recvfrom(data->socket , (char *)buf , n , flags , addr , (int *)addr_len) ;
+    if(data->noblock == 0)
+        return recv_size ;
+
+    recv_result_t * receiver = data->receiver ;
+    if(receiver == NULL)
+    {
+        if(recv_result_init(receiver) == false || receiver == NULL)
+            return -1 ;
+        receiver->link.owner = data ;
+        data->receiver = receiver ;
+    }
+
+    socket_start_recvfrom(receiver , flags , addr , (int *)addr_len) ;
+    return recv_size ;
 }
 
 int getsockopt(int fd , int level , int optname , void * optval , socklen_t * optlen)
 {
-    SOCKET handle = wobj_to_socket(fd) ;
-    if(handle == NULL)
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->type != WOBJ_SOCK || obj->handle == NULL || obj->addition == NULL)
         return -1 ;
 
-    return ::_imp_getsockopt(handle , level , optname , (char *)optval , (int *)optlen) ;
+    return ::_imp_getsockopt((SOCKET)obj->handle , level , optname , (char *)optval , (int *)optlen) ;
 }
 
 int setsockopt(int fd , int level , int optname , const void *optval , socklen_t optlen)
 {
-    SOCKET handle = wobj_to_socket(fd) ;
-    if(handle == NULL)
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->type != WOBJ_SOCK || obj->handle == NULL || obj->addition == NULL)
         return -1 ;
 
-    return ::_imp_setsockopt(handle , level , optname , (const char *)optval , (int)optlen) ;
+    return ::_imp_setsockopt((SOCKET)obj->handle , level , optname , (const char *)optval , (int)optlen) ;
 }
 
 int listen(int fd , int n)
 {
-    SOCKET handle = wobj_to_socket(fd) ;
-    if(handle == NULL)
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->type != WOBJ_SOCK || obj->handle == NULL || obj->addition == NULL)
         return -1 ;
 
-    return ::_imp_listen(handle , n) ;
+    socket_t * data = (socket_t *)obj->addition ;
+    if(data->stage != SOCKET_STAGE_BIND)
+        return -1 ;
+    data->stage = SOCKET_STAGE_LISTEN ;
+    return ::_imp_listen((SOCKET)obj->handle , n) ;
 }
 
 int accept(int fd , struct sockaddr * addr , socklen_t * addr_len)
 {
-    SOCKET handle = wobj_to_socket(fd) ;
-    if(handle == NULL)
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->type != WOBJ_SOCK || obj->handle == NULL || obj->addition == NULL)
         return -1 ;
 
-    return ::_imp_accept(handle , addr , (int *)addr_len) ;
+    socket_t * data = (socket_t *)obj->addition ;
+    if(data->noblock == 0)
+    {
+        SOCKET handle = ::_imp_accept(handle , addr , (int *)addr_len) ;
+        if(handle == INVALID_SOCKET)
+            return -1 ;
+
+        socket_t * s = NULL ;
+        if(socket_init(s) == false)
+        {
+            ::_imp_closesocket(handle) ;
+            errno = ENOMEM ;
+            return -1 ;
+        }
+
+        s->socket = handle ;
+        s->type = data->type ;
+        s->stage = SOCKET_STAGE_CONNECT ;
+        return wobj_set(WOBJ_SOCK , (HANDLE)handle , s) ;
+    }
+
+    //异步模式的话，需要更新状态，accept_result的状态，同时启动新的accept
+    accept_result_t * acceptor = data->acceptor ;
+    if(acceptor == NULL)
+        return -1 ;
+    //VOID PASCAL GetAcceptExSockaddrs(PVOID lpOutputBuffer,DWORD dwReceiveDataLength,DWORD dwLocalAddressLength,
+    //DWORD dwRemoteAddressLength,struct sockaddr **LocalSockaddr,LPINT LocalSockaddrLength,
+    //struct sockaddr **RemoteSockaddr,LPINT RemoteSockaddrLength);
+
+
+
+
+
+
+    GetAcceptExSockaddrs
 }
 
 int shutdown(int fd , int how)
