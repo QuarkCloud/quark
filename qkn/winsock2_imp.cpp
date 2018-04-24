@@ -524,7 +524,7 @@ DWORD _imp_WSAWaitForMultipleEvents(DWORD evt_count , const WSAEVENT FAR * evts 
     return __socket_pfns__.lpfn_WSAWaitForMultipleEvents(evt_count , evts , wait_all , timeout , alertable) ;
 }
 
-BOOL PASCAL TransmitFile(SOCKET hSocket,HANDLE hFile,DWORD nNumberOfBytesToWrite,DWORD nNumberOfBytesPerSend,
+BOOL _imp_TransmitFile(SOCKET hSocket,HANDLE hFile,DWORD nNumberOfBytesToWrite,DWORD nNumberOfBytesPerSend,
     LPOVERLAPPED lpOverlapped,LPTRANSMIT_FILE_BUFFERS lpTransmitBuffers,DWORD dwReserved)
 {
     static LPFN_TRANSMITFILE lpfnTransmitFile = NULL ;
@@ -594,7 +594,7 @@ bool AcceptExInit(SOCKET&s)
         return false ;    
 }
 
-BOOL PASCAL AcceptEx (SOCKET sListenSocket,SOCKET sAcceptSocket,PVOID lpOutputBuffer,DWORD dwReceiveDataLength,
+BOOL _imp_AcceptEx (SOCKET sListenSocket,SOCKET sAcceptSocket,PVOID lpOutputBuffer,DWORD dwReceiveDataLength,
     DWORD dwLocalAddressLength,DWORD dwRemoteAddressLength,LPDWORD lpdwBytesReceived,LPOVERLAPPED lpOverlapped)
 {
     if(AcceptExInit(sListenSocket) == false)
@@ -603,7 +603,7 @@ BOOL PASCAL AcceptEx (SOCKET sListenSocket,SOCKET sAcceptSocket,PVOID lpOutputBu
         dwLocalAddressLength , dwRemoteAddressLength , lpdwBytesReceived , lpOverlapped) ;
 }
 
-VOID PASCAL GetAcceptExSockaddrs(PVOID lpOutputBuffer,DWORD dwReceiveDataLength,DWORD dwLocalAddressLength,
+VOID _imp_GetAcceptExSockaddrs(PVOID lpOutputBuffer,DWORD dwReceiveDataLength,DWORD dwLocalAddressLength,
     DWORD dwRemoteAddressLength,struct sockaddr **LocalSockaddr,LPINT LocalSockaddrLength,
     struct sockaddr **RemoteSockaddr,LPINT RemoteSockaddrLength)
 {

@@ -109,18 +109,35 @@ bool sockopt_set_nodelay(SOCKET&s , bool optval) ;
 bool socket_get_readable_size(SOCKET& s , DWORD& size) ;
 bool socket_set_nonblock(SOCKET& s , bool enable) ;
 
-bool socket_init(socket_t *& s) ;
+socket_t * socket_new() ;
+bool socket_init(socket_t * s) ;
+void socket_free(socket_t * s) ;
+bool socket_final(socket_t * s) ;
 
-bool send_result_init(send_result_t *& result) ;
+send_result_t * send_result_new() ;
+void send_result_free(send_result_t * result) ;
+bool send_result_init(send_result_t * result) ;
+bool send_result_final(send_result_t * result) ;
+
 bool socket_send(send_result_t * result , int flags) ;
 bool socket_sendto(send_result_t * result , int flags , const struct sockaddr * addr , int addr_len) ;
 
-bool recv_result_init(recv_result_t *& result) ;
+recv_result_t * recv_result_new() ;
+void recv_result_free(recv_result_t * result) ;
+bool recv_result_init(recv_result_t * result) ;
+bool recv_result_final(recv_result_t * result) ;
+
 bool socket_start_recv(recv_result_t * result) ;
 bool socket_start_recvfrom(recv_result_t * result , int flags , struct sockaddr * addr , int * addr_len) ;
 
 bool socket_ovlp_lock(socket_ovlp_t * ovlp) ;
 bool socket_ovlp_unlock(socket_ovlp_t * ovlp) ;
+int socket_ovlp_counter(socket_ovlp_t * ovlp) ;
+
+accept_result_t * accept_result_new() ;
+void accept_result_free(accept_result_t * result) ;
+bool accept_result_init(accept_result_t * result) ;
+bool accept_result_final(accept_result_t * result) ;
 
 //从accept缓冲区中，提取结果
 bool socket_accept(accept_result_t * result , SOCKET& new_socket , struct sockaddr * local , struct sockaddr * remote) ;
