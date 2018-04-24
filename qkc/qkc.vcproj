@@ -348,6 +348,10 @@
 				Name="inner"
 				>
 				<File
+					RelativePath=".\inner\epoll_mgr.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\inner\fsocket.cpp"
 					>
 				</File>
@@ -609,6 +613,10 @@
 			<Filter
 				Name="inner"
 				>
+				<File
+					RelativePath=".\inner\epoll_mgr.h"
+					>
+				</File>
 				<File
 					RelativePath=".\inner\fsocket.h"
 					>

@@ -214,6 +214,13 @@ int listen(int fd , int n)
     if(data->stage != SOCKET_STAGE_BIND)
         return -1 ;
     data->stage = SOCKET_STAGE_LISTEN ;
+    accept_result_t * result = accept_result_new() ;
+    if(result != NULL)
+    {
+        result->link.owner = data ;
+        data->acceptor = result ;
+    }
+
     return ::_imp_listen((SOCKET)obj->handle , n) ;
 }
 
