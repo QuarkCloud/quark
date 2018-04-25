@@ -37,6 +37,8 @@ typedef struct __st_socket{
     accept_result_t * acceptor ;
     send_result_t   * sender ;
     recv_result_t   * receiver ;
+
+    void * addition ;               //附加的信息
 } socket_t;
 
 typedef enum{

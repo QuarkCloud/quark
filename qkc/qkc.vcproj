@@ -348,15 +348,15 @@
 				Name="inner"
 				>
 				<File
-					RelativePath=".\inner\epoll_mgr.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\inner\fsocket.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\inner\hash.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\inner\iocp_mgr.cpp"
 					>
 				</File>
 				<File
@@ -614,15 +614,15 @@
 				Name="inner"
 				>
 				<File
-					RelativePath=".\inner\epoll_mgr.h"
-					>
-				</File>
-				<File
 					RelativePath=".\inner\fsocket.h"
 					>
 				</File>
 				<File
 					RelativePath=".\inner\hash.h"
+					>
+				</File>
+				<File
+					RelativePath=".\inner\iocp_mgr.h"
 					>
 				</File>
 				<File

@@ -38,6 +38,8 @@ static inline void rlist_del(rlist_t * rlist , rlist_t * entry)
     rlist_init(entry) ;
 }
 
+static inline bool rlist_empty(rlist_t *rlist){return (rlist == rlist->prev && rlist == rlist->next) ;}
+
 #ifdef	__cplusplus
 }
 #endif
