@@ -2,6 +2,8 @@
 #include "iocp_mgr.h"
 #include <errno.h>
 #include <wintf/wobj.h>
+#include <windows.h>
+#include <sys/socket.h>
 
 int iocp_mgr_new()
 {
@@ -52,7 +54,7 @@ bool iocp_mgr_init(iocp_mgr_t * mgr)
     mgr->locker = ::CreateMutex(NULL , FALSE , NULL) ;
 
     rlist_init(&mgr->ready) ;
-    rlist_init(&mgr->monitored) ;
+    //rlist_init(&mgr->monitored) ;
 
     return true ;
 }
@@ -63,7 +65,7 @@ bool iocp_mgr_final(iocp_mgr_t * mgr)
         return false ;
    
     ::WaitForSingleObject(mgr->locker , INFINITE) ;
-    iocp_mgr_items_free(&mgr->monitored) ;
+    //iocp_mgr_items_free(&mgr->monitored) ;
     iocp_mgr_items_free(&mgr->ready) ;
 
     if(mgr->iocp != INVALID_HANDLE_VALUE)
@@ -121,23 +123,27 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
 
     s->addition = item ;
 
-    ::WaitForSingleObject(mgr->locker , INFINITE) ;
-    rlist_add_tail(&mgr->monitored , &item->link) ;
-    ::ReleaseMutex(mgr->locker) ;
+    //::WaitForSingleObject(mgr->locker , INFINITE) ;
+    //rlist_add_tail(&mgr->monitored , &item->link) ;
+    //::ReleaseMutex(mgr->locker) ;
 
     //绑定到iocp中
     if(::CreateIoCompletionPort((HANDLE)s->socket , mgr->iocp , 0 , 0) == NULL)
         return false ;
 
-    if
-
-    if(s->stage == SOCKET_STAGE_LISTEN)
+    if((ev->events & EPOLLIN) == EPOLLIN)
     {
-        //启动接收
-        socket_start_accept(s->acceptor) ;
+        if(s->stage == SOCKET_STAGE_LISTEN)
+            socket_start_accept(s->acceptor) ;
+        else if(s->stage == SOCKET_STAGE_CONNECT && s->type == SOCK_STREAM)
+            ::socket_start_recv(s->receiver) ;
+        else if(s->type == SOCK_DGRAM)
+        {
+            struct sockaddr addr ;
+            int addr_len = sizeof(struct sockaddr) ;
+            ::socket_start_recvfrom(s->receiver , 0 , &addr , &addr_len) ;
+        }
     }
-
-    if(s->type == SOCK_STREAM && s->stage == SOCKET_STAGE_CONNECT 
 
     return true ;
 }
@@ -154,7 +160,7 @@ bool iocp_mgr_mod(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
     ::WaitForSingleObject(mgr->locker , INFINITE) ;
     rlist_del(NULL , &item->link) ;
     ::memcpy(&item->data , ev , sizeof(struct epoll_event)) ;
-    rlist_add_tail(&mgr->monitored , &item->link) ;
+    //rlist_add_tail(&mgr->monitored , &item->link) ;
     ::ReleaseMutex(mgr->locker) ;
     
     return true ;
@@ -170,10 +176,71 @@ bool iocp_mgr_del(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
 
     ::WaitForSingleObject(mgr->locker , INFINITE) ;
     rlist_del(NULL , &item->link) ;
-    iocp_mgr_item_free(&item) ;
+    iocp_mgr_item_free(item) ;
     ::ReleaseMutex(mgr->locker) ;
 
     return true ;
 }
 
+int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout) 
+{
+    DWORD start_time = ::GetTickCount() ;
+    DWORD bytes_transferred = 0 ;
+    ULONG_PTR completion_key = 0 ;
+    LPOVERLAPPED overlapped = NULL ;
+    
+    ::InterlockedIncrement(&mgr->thread_counter) ;
+    BOOL result = ::GetQueuedCompletionStatus(mgr->iocp , &bytes_transferred , &completion_key , &overlapped , timeout) ;
+    LONG now_threads =  ::InterlockedDecrement(&mgr->thread_counter) ;
+    if(result == TRUE)
+    {
+        if(overlapped == NULL && completion_key == 1)
+        {
+            if(now_threads > 0)
+                ::PostQueuedCompletionStatus(mgr->iocp , 0 , completion_key , NULL) ;
+            return 0 ;
+        }
+
+        socket_ovlp_t * ovlp = (socket_ovlp_t *)overlapped ;
+        socket_t * owner = ovlp->owner ;
+        iocp_item_t * item = NULL ;
+        if(owner != NULL)
+            item = (iocp_item_t *)owner->addition ;
+
+        bool ready = false ;
+        ovlp_type_t type = ovlp->type ;
+        if(type == OVLP_INPUT)
+        {
+            recv_result_t * receiver = (recv_result_t *)ovlp ;
+            if((item->data.events & EPOLLIN) == EPOLLIN)
+            {
+                //标记可读
+                item->occur |= EPOLLIN ;
+                ready = true ;
+            }
+        }
+        else if(type == OVLP_OUTPUT)
+        {
+            send_result_t * sender = (send_result_t *)ovlp ;
+            if((item->data.events & EPOLLOUT) == EPOLLOUT)
+            {
+                //标记可写
+                item->occur |= EPOLLOUT ;
+                ready = true ;
+            }
+        }
+        else if(type == OVLP_ACCEPT)
+        {
+            accept_result_t * acceptor = (accept_result_t *)ovlp ;
+            if((item->data.events & EPOLLIN) == EPOLLIN)
+            {
+                item->occur |= EPOLLIN ;
+                ready = true ;
+            }
+        }
+
+    }
+
+    return 0 ;
+}
 

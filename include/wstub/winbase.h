@@ -2026,6 +2026,14 @@ GetSystemTimes(
     __out_opt LPFILETIME lpUserTime
     );
 
+WINBASEAPI
+DWORD
+WINAPI
+GetTickCount(
+    VOID
+    );
+
+
 
 
 WINBASEAPI LONG WINAPI InterlockedIncrement(LONG volatile *lpAddend);
