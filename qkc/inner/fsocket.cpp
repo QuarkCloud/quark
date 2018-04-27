@@ -6,6 +6,15 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
+void socket_callback(socket_t *s , int evt , int result) 
+{
+    if(s == NULL || s->callback == NULL)
+        return ;
+
+    socket_callback_t callback = s->callback ;
+    callback(s , evt , result) ;
+}
+
 
 void update_contex_acceptex(SOCKET& new_socket , SOCKET&listen_socket)
 {
@@ -173,6 +182,8 @@ bool socket_final(socket_t * s)
     if(s->locker == INVALID_HANDLE_VALUE)
         return false ;
 
+    socket_callback(s , kBeforeSocketClose , 0) ;
+
     if(::WaitForSingleObject(s->locker , INFINITE) != WAIT_OBJECT_0)
         return false ;
 
@@ -194,9 +205,12 @@ bool socket_final(socket_t * s)
         s->receiver = NULL ;
     }
 
+    ::_imp_shutdown(s->socket , SHUT_RDWR) ;
     ::_imp_closesocket(s->socket) ;
     s->socket = INVALID_SOCKET ;
     ::ReleaseMutex(s->locker) ;
+    ::CloseHandle(s->locker) ;
+    s->locker = INVALID_HANDLE_VALUE ;
 
     return true ;
 }
@@ -331,6 +345,7 @@ bool socket_send(send_result_t * result , int flags)
         {
             result->link.status = error ;
             socket_ovlp_unlock(&result->link) ;
+            socket_callback(result->link.owner , kSocketSend , error) ;
             return false ;
         }
     }
@@ -366,6 +381,7 @@ bool socket_sendto(send_result_t * result , int flags , const struct sockaddr * 
         {
             result->link.status = error ;
             socket_ovlp_unlock(&result->link) ;
+            socket_callback(result->link.owner , kSocketSendTo , error) ;
             return false ;
         }
     }
@@ -406,6 +422,7 @@ bool socket_start_recv(recv_result_t * result)
         {
             result->link.status = error ;
             socket_ovlp_unlock(&result->link) ;
+            socket_callback(result->link.owner , kSocketRecv , error) ;
             return false ;
         }    
     }
@@ -431,6 +448,7 @@ bool socket_start_recvfrom(recv_result_t * result , int flags , struct sockaddr 
         {
             result->link.status = error ;
             socket_ovlp_unlock(&result->link) ;
+            socket_callback(result->link.owner , kSocketRecvFrom , error) ;
             return false ;
         }    
     }

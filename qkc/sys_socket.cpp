@@ -68,7 +68,9 @@ int connect(int fd , const struct sockaddr * addr , socklen_t len)
         return -1 ;
     s->stage = SOCKET_STAGE_CONNECT ;
 
-    return ::_imp_connect(s->socket , addr , (int)len) ;
+    int result = ::_imp_connect(s->socket , addr , (int)len) ;
+    socket_callback(s , kSocketConnect , 0) ;
+    return result ;
 }
 
 int getpeername(int fd , struct sockaddr * addr , socklen_t * len)

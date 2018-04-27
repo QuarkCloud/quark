@@ -26,6 +26,18 @@ typedef struct __st_socket_ovlp     socket_ovlp_t ;
 typedef struct __st_send_result     send_result_t ;
 typedef struct __st_recv_result     recv_result_t ;
 typedef struct __st_accept_result   accept_result_t;
+typedef struct __st_socket          socket_t;
+
+typedef int (*socket_callback_t)(socket_t * s , int evt , int result) ;
+
+#define kBeforeSocketClose      1 
+#define kSocketConnect          2
+#define kSocketSend             3
+#define kSocketSendTo           4
+#define kSocketRecv             5
+#define kSocketRecvFrom         6
+
+void socket_callback(socket_t *s , int evt , int result) ;
 
 typedef struct __st_socket{
     SOCKET socket ;
@@ -39,6 +51,7 @@ typedef struct __st_socket{
     recv_result_t   * receiver ;
 
     void * addition ;               //附加的信息
+    socket_callback_t callback ;
 } socket_t;
 
 typedef enum{

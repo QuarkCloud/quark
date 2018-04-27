@@ -34,7 +34,6 @@ size_t ring_buffer_write_message(ring_buffer_t * ring , const void * buf , size_
 
 bool ring_buffer_refer_message(ring_buffer_t * ring , char *&buf , size_t& size) ;
 
-bool ring_buffer_move_size(ring_buffer_t * ring , size_t size) ;
 
 #ifdef	__cplusplus
 }

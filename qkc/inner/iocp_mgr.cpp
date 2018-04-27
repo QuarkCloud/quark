@@ -101,9 +101,41 @@ bool iocp_mgr_item_free(iocp_item_t * item)
     socket_t * s = item->socket ;
     item->socket = NULL ;
     s->addition = NULL ;
-    socket_free(s) ;
+    s->callback = NULL ;
+    
     free(item) ;
+    return true ;
+}
 
+bool iocp_mgr_item_ready(iocp_mgr_t * mgr , iocp_item_t * item) 
+{
+    if(mgr == NULL || item == NULL)
+        return false ;
+
+    ::WaitForSingleObject(mgr->locker , INFINITE) ;
+
+    if(rlist_empty(&item->link) == true && item->occur != 0)
+    {
+        rlist_add_tail(&mgr->ready , &item->link) ;
+    }
+
+    ::ReleaseMutex(mgr->locker) ;
+    return true ;
+}
+
+bool iocp_mgr_item_unready(iocp_mgr_t * mgr , iocp_item_t * item) 
+{
+    if(mgr == NULL || item == NULL)
+        return false ;
+
+    ::WaitForSingleObject(mgr->locker , INFINITE) ;
+
+    if(rlist_empty(&item->link) == false && item->occur == 0)
+    {
+        rlist_del(NULL , &item->link) ;
+    }
+
+    ::ReleaseMutex(mgr->locker) ;
     return true ;
 }
 
@@ -118,14 +150,12 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
     ::memset(item , 0 , sizeof(iocp_item_t)) ;
 
     item->socket = s ;
+    item->owner = mgr ;
     rlist_init(&item->link) ;
     ::memcpy(&item->data , ev , sizeof(struct epoll_event)) ;
 
     s->addition = item ;
-
-    //::WaitForSingleObject(mgr->locker , INFINITE) ;
-    //rlist_add_tail(&mgr->monitored , &item->link) ;
-    //::ReleaseMutex(mgr->locker) ;
+    s->callback = iocp_socket_callback ;
 
     //°ó¶¨µ½iocpÖÐ
     if(::CreateIoCompletionPort((HANDLE)s->socket , mgr->iocp , 0 , 0) == NULL)
@@ -160,7 +190,6 @@ bool iocp_mgr_mod(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
     ::WaitForSingleObject(mgr->locker , INFINITE) ;
     rlist_del(NULL , &item->link) ;
     ::memcpy(&item->data , ev , sizeof(struct epoll_event)) ;
-    //rlist_add_tail(&mgr->monitored , &item->link) ;
     ::ReleaseMutex(mgr->locker) ;
     
     return true ;
@@ -173,6 +202,8 @@ bool iocp_mgr_del(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
 
     iocp_item_t * item = (iocp_item_t *)s->addition ;
     s->addition = NULL ;
+    s->callback = NULL ;
+    item->socket = NULL ;
 
     ::WaitForSingleObject(mgr->locker , INFINITE) ;
     rlist_del(NULL , &item->link) ;
@@ -239,6 +270,40 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
             }
         }
 
+        if(ready == true)
+            iocp_mgr_item_ready(mgr , item) ;
+
+        socket_ovlp_unlock(ovlp) ;
+    }
+
+    return 0 ;
+}
+
+int iocp_socket_callback(socket_t * s , int evt , int result) 
+{
+    /**
+    #define kBeforeSocketClose      1 
+    #define kSocketConnect          2
+    #define kSocketSend             3
+    #define kSocketSendTo           4
+    #define kSocketRecv             5
+    #define kSocketRecvFrom         6
+    */
+    if(s == NULL || s->addition == NULL)
+        return 0 ;
+
+    bool ready = false ;
+    iocp_item_t * item = (iocp_item_t *)s->addition ;
+    uint32_t events = item->data.events ;
+    
+    if(evt == kSocketConnect || evt == kSocketSend || evt == kSocketSendTo ||
+        evt == kSocketRecv || evt == kSocketRecvFrom)
+    {
+        if(((events & EPOLLERR) == EPOLLERR) && (result != 0))
+        {
+            item->occur |= EPOLLERR ;
+            ready = true ;
+        }
     }
 
     return 0 ;
