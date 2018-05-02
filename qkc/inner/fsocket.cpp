@@ -424,7 +424,11 @@ bool socket_start_recv(recv_result_t * result)
             socket_ovlp_unlock(&result->link) ;
             socket_callback(result->link.owner , kSocketRecv , error) ;
             return false ;
-        }    
+        }
+        else
+        {
+            socket_callback(result->link.owner , kSocketRecv , WSAEWOULDBLOCK) ;
+        }
     }
 
     return true ;
@@ -450,7 +454,11 @@ bool socket_start_recvfrom(recv_result_t * result , int flags , struct sockaddr 
             socket_ovlp_unlock(&result->link) ;
             socket_callback(result->link.owner , kSocketRecvFrom , error) ;
             return false ;
-        }    
+        }
+        else
+        {
+            socket_callback(result->link.owner , kSocketRecvFrom , WSAEWOULDBLOCK) ;
+        }
     }
 
     return true ;

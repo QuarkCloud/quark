@@ -614,6 +614,10 @@
 				Name="inner"
 				>
 				<File
+					RelativePath=".\inner\bitop.h"
+					>
+				</File>
+				<File
 					RelativePath=".\inner\fsocket.h"
 					>
 				</File>

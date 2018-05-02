@@ -108,7 +108,14 @@ ssize_t send(int fd , const void * buf , size_t n , int flags)
     //2、因为数据已经准备好了，准备发送
     socket_send(sender , flags) ;
 
-    return copy_size ;
+    if(copy_size == 0)
+    {
+        errno = EAGAIN ;
+        socket_callback(sender->link.owner , kSocketSend , errno) ;
+        return -1 ;
+    }
+    else
+        return copy_size ;
 }
 
 ssize_t recv(int fd , void *buf , size_t n , int flags)
@@ -161,7 +168,14 @@ ssize_t sendto(int fd , const void *buf , size_t n , int flags , const struct so
     //2、因为数据已经准备好了，准备发送
     socket_sendto(sender , flags , addr , addr_len) ;
 
-    return copy_size ;
+    if(copy_size == 0)
+    {
+        errno = EAGAIN ;
+        socket_callback(sender->link.owner , kSocketSend , errno) ;
+        return -1 ;
+    }
+    else
+        return copy_size ;
 }
 
 ssize_t recvfrom(int fd , void * buf , size_t n , int flags , struct sockaddr * addr , socklen_t * addr_len)

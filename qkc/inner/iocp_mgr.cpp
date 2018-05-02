@@ -1,5 +1,6 @@
 
 #include "iocp_mgr.h"
+#include "bitop.h"
 #include <errno.h>
 #include <wintf/wobj.h>
 #include <windows.h>
@@ -117,7 +118,9 @@ bool iocp_mgr_item_ready(iocp_mgr_t * mgr , iocp_item_t * item)
     if(rlist_empty(&item->link) == true && item->occur != 0)
     {
         rlist_add_tail(&mgr->ready , &item->link) ;
+        mgr->ready_count++ ;
     }
+    
 
     ::ReleaseMutex(mgr->locker) ;
     return true ;
@@ -133,6 +136,7 @@ bool iocp_mgr_item_unready(iocp_mgr_t * mgr , iocp_item_t * item)
     if(rlist_empty(&item->link) == false && item->occur == 0)
     {
         rlist_del(NULL , &item->link) ;
+        mgr->ready_count-- ;
     }
 
     ::ReleaseMutex(mgr->locker) ;
@@ -223,6 +227,22 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
     ::InterlockedIncrement(&mgr->thread_counter) ;
     BOOL result = ::GetQueuedCompletionStatus(mgr->iocp , &bytes_transferred , &completion_key , &overlapped , timeout) ;
     LONG now_threads =  ::InterlockedDecrement(&mgr->thread_counter) ;
+
+    socket_ovlp_t * ovlp = (socket_ovlp_t *)overlapped ;
+    socket_t * owner = (ovlp == NULL) ? NULL : ovlp->owner ;
+    iocp_item_t * item = NULL ;
+    if(owner != NULL)
+        item = (iocp_item_t *)owner->addition ;
+
+    uint32_t old_occur = 0 , new_occur = 0 ;
+    uint32_t events = 0 ;
+    if(item != NULL)
+    {
+        old_occur = item->occur ;
+        events = item->data.events ;
+    }
+
+
     if(result == TRUE)
     {
         if(overlapped == NULL && completion_key == 1)
@@ -232,78 +252,119 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
             return 0 ;
         }
 
-        socket_ovlp_t * ovlp = (socket_ovlp_t *)overlapped ;
-        socket_t * owner = ovlp->owner ;
-        iocp_item_t * item = NULL ;
-        if(owner != NULL)
-            item = (iocp_item_t *)owner->addition ;
-
-        bool ready = false ;
         ovlp_type_t type = ovlp->type ;
         if(type == OVLP_INPUT)
         {
-            recv_result_t * receiver = (recv_result_t *)ovlp ;
-            if((item->data.events & EPOLLIN) == EPOLLIN)
+            if(bitop_in(events , EPOLLIN) == true)
             {
                 //标记可读
-                item->occur |= EPOLLIN ;
-                ready = true ;
+                new_occur |= EPOLLIN ;
             }
         }
         else if(type == OVLP_OUTPUT)
         {
-            send_result_t * sender = (send_result_t *)ovlp ;
-            if((item->data.events & EPOLLOUT) == EPOLLOUT)
+            if(bitop_in(events , EPOLLOUT) == true)
             {
-                //标记可写
-                item->occur |= EPOLLOUT ;
-                ready = true ;
+                //标记可读
+                new_occur |= EPOLLOUT ;
             }
         }
         else if(type == OVLP_ACCEPT)
         {
-            accept_result_t * acceptor = (accept_result_t *)ovlp ;
-            if((item->data.events & EPOLLIN) == EPOLLIN)
+            if(bitop_in(events , EPOLLIN) == true)
             {
-                item->occur |= EPOLLIN ;
-                ready = true ;
+                //标记可读
+                new_occur |= EPOLLIN ;
             }
         }
+    }
+    else
+    {
+        if((item != NULL) && (bitop_in(events , EPOLLERR) == true))
+        {
+            new_occur |= EPOLLERR ;
+        }        
+    }
+    bitop_set(item->occur , new_occur) ;
+    new_occur = item->occur ;
+    socket_ovlp_unlock(ovlp) ;
 
-        if(ready == true)
+    bool is_et = bitop_in(events , EPOLLET) ;
+
+    if(old_occur == new_occur)
+    {
+        if(new_occur != 0 && is_et == false)
             iocp_mgr_item_ready(mgr , item) ;
-
-        socket_ovlp_unlock(ovlp) ;
+    }
+    else
+    {
+        if(new_occur == 0)
+            iocp_mgr_item_unready(mgr , item) ;
+        else if(is_et == false)
+            iocp_mgr_item_ready(mgr , item) ;
     }
 
     return 0 ;
 }
 
+void iocp_process_event(int events , int result , int& occur)
+{
+    if(events == 0)
+        return ;
+
+    int old_occur = 0 , now_occur = 0;
+    if(result == 0)
+    {
+        old_occur = (occur & events) ;
+        now_occur |= events ;
+    }
+    else if(result != WSAEWOULDBLOCK) 
+    {
+        old_occur = (occur & events) ;
+        now_occur |= events ;
+    } 
+    else if(result == WSAEWOULDBLOCK)
+    {
+        old_occur = (occur & events) ;
+        now_occur = (old_occur ^ events) ;
+    }
+
+    occur = (occur & (~events)) | now_occur ;
+}
+
 int iocp_socket_callback(socket_t * s , int evt , int result) 
 {
-    /**
-    #define kBeforeSocketClose      1 
-    #define kSocketConnect          2
-    #define kSocketSend             3
-    #define kSocketSendTo           4
-    #define kSocketRecv             5
-    #define kSocketRecvFrom         6
-    */
     if(s == NULL || s->addition == NULL)
         return 0 ;
 
-    bool ready = false ;
     iocp_item_t * item = (iocp_item_t *)s->addition ;
     uint32_t events = item->data.events ;
-    
-    if(evt == kSocketConnect || evt == kSocketSend || evt == kSocketSendTo ||
-        evt == kSocketRecv || evt == kSocketRecvFrom)
+    int old_occur = item->occur , new_occur = item->occur;
+
+    if(evt == kSocketConnect)
+        iocp_process_event(events & EPOLLERR , result , new_occur) ;
+    else if(evt == kSocketSend || evt == kSocketSendTo)
+        iocp_process_event(events & EPOLLOUT , result , new_occur) ;
+    else if(evt == kSocketRecv || evt == kSocketRecvFrom)
+        iocp_process_event(events & EPOLLIN , result , new_occur) ;
+    else if(evt == kBeforeSocketClose)
+        new_occur = 0 ;
+    item->occur = new_occur ;
+
+    if((events & EPOLLET) != 0)
     {
-        if(((events & EPOLLERR) == EPOLLERR) && (result != 0))
-        {
-            item->occur |= EPOLLERR ;
-            ready = true ;
-        }
+        //边缘触发，只在状态翻转时，执行操作
+        if(old_occur == 0 && new_occur != 0)
+            iocp_mgr_item_ready(item->owner , item) ;
+        else if(old_occur != 0 && new_occur == 0)
+            iocp_mgr_item_unready(item->owner , item) ;
+    }
+    else
+    {
+        if(new_occur != 0)
+            iocp_mgr_item_ready(item->owner , item) ;
+        else
+            iocp_mgr_item_unready(item->owner , item) ;
     }
 
     return 0 ;

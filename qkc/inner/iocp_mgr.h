@@ -28,7 +28,7 @@ struct __st_iocp_mgr{
     HANDLE  iocp ;                  //必须的
     HANDLE  locker ;                //保护下面的列表
     rlist_t ready ;                 //已经就绪的
-    //rlist_t monitored ;             //被监控的
+    int     ready_count ;
     volatile LONG thread_counter ;  //加入线程数
 } ;
 
