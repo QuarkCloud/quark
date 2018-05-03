@@ -6,26 +6,26 @@
 #include <windows.h>
 #include <sys/socket.h>
 
-int iocp_mgr_new()
+iocp_mgr_t * iocp_mgr_new()
 {
     iocp_mgr_t * mgr = (iocp_mgr_t *)::malloc(sizeof(iocp_mgr_t)) ;
     if(mgr == NULL)
     {
         errno = ENOMEM ;
-        return -1 ;
+        return NULL ;
     }
 
-    if(iocp_mgr_init(mgr) == false)
+    int epfd = INVALID_WOBJ_ID ;
+    if((iocp_mgr_init(mgr) == true) && (epfd = wobj_set(WOBJ_IOCP , mgr->iocp , mgr) != INVALID_WOBJ_ID))
+    {
+        mgr->epfd = epfd ;
+        return mgr ;
+    }
+    else
     {
         ::free(mgr) ;
-        return -1 ;
+        return NULL ;
     }
-
-    int epfd = wobj_set(WOBJ_IOCP , mgr->iocp , mgr) ;
-    if(epfd == INVALID_WOBJ_ID)
-        return -1 ;
-    mgr->epfd = epfd ;
-    return epfd ;
 }
 
 int iocp_mgr_free(iocp_mgr_t * mgr)
@@ -143,6 +143,30 @@ bool iocp_mgr_item_unready(iocp_mgr_t * mgr , iocp_item_t * item)
     return true ;
 }
 
+int iocp_mgr_retrieve(iocp_mgr_t * mgr , struct epoll_event * evs ,  int maxevents)
+{
+    if(mgr == NULL || evs == NULL || maxevents <= 0)
+        return -1 ;
+
+    int counter = 0 ;
+    ::WaitForSingleObject(mgr->locker , INFINITE) ;
+
+    rlist_t * head = &mgr->ready , *next = NULL ;
+    while((counter < maxevents) && (next = head->next) != head)
+    {
+        rlist_del(NULL , next) ;
+        iocp_item_t * item = (iocp_item_t *)next ;
+        mgr->ready_count-- ;        
+        evs[counter].data.u64 = item->data.data.u64 ;
+        evs[counter].events = item->occur ;
+        item->occur = 0 ;
+        ++counter ;
+    }
+
+    ::ReleaseMutex(mgr->locker) ;
+    return counter ;
+}
+
 bool iocp_mgr_add(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
 {
     if(mgr == NULL || s == NULL || ev == NULL)
@@ -228,6 +252,12 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
     BOOL result = ::GetQueuedCompletionStatus(mgr->iocp , &bytes_transferred , &completion_key , &overlapped , timeout) ;
     LONG now_threads =  ::InterlockedDecrement(&mgr->thread_counter) ;
 
+    if(result == FALSE && overlapped == NULL)
+    {
+        //没有可等待的事件
+        return -1 ;
+    }
+
     socket_ovlp_t * ovlp = (socket_ovlp_t *)overlapped ;
     socket_t * owner = (ovlp == NULL) ? NULL : ovlp->owner ;
     iocp_item_t * item = NULL ;
@@ -241,7 +271,6 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
         old_occur = item->occur ;
         events = item->data.events ;
     }
-
 
     if(result == TRUE)
     {

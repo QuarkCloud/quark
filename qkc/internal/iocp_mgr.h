@@ -33,7 +33,7 @@ struct __st_iocp_mgr{
 } ;
 
 
-int  iocp_mgr_new() ;
+iocp_mgr_t *  iocp_mgr_new() ;
 int  iocp_mgr_free(iocp_mgr_t * mgr) ;
 bool iocp_mgr_init(iocp_mgr_t * mgr) ;
 bool iocp_mgr_final(iocp_mgr_t * mgr) ;
@@ -48,6 +48,7 @@ bool iocp_mgr_mod(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev) ;
 bool iocp_mgr_del(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev) ;
 
 int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout) ;
+int iocp_mgr_retrieve(iocp_mgr_t * mgr , struct epoll_event * evs ,  int maxevents);
 
 int iocp_socket_callback(socket_t * s , int evt , int result) ;
 

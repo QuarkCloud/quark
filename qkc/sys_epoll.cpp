@@ -7,61 +7,76 @@
 #include "internal/rlist.h"
 #include "internal/rbtree.h"
 #include "internal/fsocket.h"
+#include "internal/iocp_mgr.h"
 
 int epoll_create (int size)
 {
-    HANDLE handle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE , NULL , 0 , 0) ;
-    if(handle == INVALID_HANDLE_VALUE)
-    {
-        errno = EIO ;
+    iocp_mgr_t * mgr = iocp_mgr_new() ;
+    if(mgr == NULL)
         return -1 ;
-    }
-
-    return wobj_set(WOBJ_IOCP , handle , NULL) ;
+    else
+        return mgr->epfd ;
 }
 
-bool iocp_add(HANDLE iocp , SOCKET fd , struct epoll_event * ev) ;
-bool iocp_del(HANDLE iocp , SOCKET fd) ;
-bool iocp_mod(HANDLE iocp , SOCKET fd , struct epoll_event * ev) ;
+iocp_mgr_t * fd_to_iocp(int fd) ;
+socket_t *   fd_to_socket(int fd) ;
 
 int epoll_ctl (int epfd, int op, int fd, struct epoll_event * ev)
 {
-    wobj_t * eobj = ::wobj_get(epfd) ;
-    if(eobj == NULL || eobj->type != WOBJ_IOCP)
+    iocp_mgr_t * mgr = NULL ;
+    socket_t * sock = NULL ; 
+    if((mgr = fd_to_iocp(epfd)) == NULL || (sock = fd_to_socket(fd)) == NULL)
+    {
+        errno = EINVAL ;
         return -1 ;
-
-    wobj_t * fobj = ::wobj_get(fd) ;
-    if(fobj == NULL || eobj->type != WOBJ_SOCK)
-        return -1 ;
+    }
 
     bool result = false ;
     if(op == EPOLL_CTL_ADD)
-        result = iocp_add(eobj->handle , (SOCKET)fobj->handle , ev) ;
+        result = iocp_mgr_add(mgr , sock , ev) ;
     else if(op == EPOLL_CTL_DEL)
-        result = iocp_del(eobj->handle , (SOCKET)fobj->handle) ;
+        result = iocp_mgr_del(mgr , sock , ev) ;
     else if(op == EPOLL_CTL_MOD)
-        result = iocp_mod(eobj->handle , (SOCKET)fobj->handle , ev) ;
+        result = iocp_mgr_mod(mgr , sock , ev) ;
         
-    return (result?0:-1) ;
+    return (result == true ? 0 : -1) ;
 }
 
 int epoll_wait (int epfd, struct epoll_event * evs ,  int maxevents, int timeout)
 {
-    return 0 ;
+    iocp_mgr_t * mgr = fd_to_iocp(epfd) ;
+    if(mgr == NULL)
+    {
+        errno = EBADF ;
+        return -1 ;
+    }
+
+    //尽可能攒齐了再返回，实在没有，只能等了。
+    int counter = 0 ;
+    while((counter < maxevents) && (iocp_mgr_wait(mgr , 0) == 0)) 
+        ++counter ;
+    if(counter == 0)
+        iocp_mgr_wait(mgr , timeout) ;
+
+    return iocp_mgr_retrieve(mgr , evs , maxevents) ;
 }
 
-bool iocp_add(HANDLE iocp , SOCKET fd , struct epoll_event * ev)
+iocp_mgr_t * fd_to_iocp(int fd)
 {
-    return false ;
+    wobj_t * obj = ::wobj_get(fd) ;
+    if(obj == NULL || obj->type != WOBJ_IOCP || obj->addition == NULL)
+        return NULL ;
+    else
+        return (iocp_mgr_t *)obj->addition ;
 }
 
-bool iocp_del(HANDLE iocp , SOCKET fd)
+socket_t *   fd_to_socket(int fd)
 {
-    return true ;
+    wobj_t * obj = ::wobj_get(fd) ;
+    if(obj == NULL || obj->type != WOBJ_SOCK || obj->addition == NULL)
+        return NULL ;
+    else
+        return (socket_t *)obj->addition ;
 }
 
-bool iocp_mod(HANDLE iocp , SOCKET fd , struct epoll_event * ev)
-{
-    return false ;
-}
 
