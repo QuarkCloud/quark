@@ -5,7 +5,7 @@
 #include <winsock2.h>
 #include <sys/socket.h>
 #include <wintf/wobj.h>
-#include "inner/fsocket.h"
+#include "internal/fsocket.h"
 
 int socket(int domain , int type , int protocol)
 {

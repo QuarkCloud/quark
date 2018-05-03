@@ -2,7 +2,7 @@
 #include <sys/mman.h>
 #include <windows.h>
 #include <wintf/wcrt.h>
-#include "inner/rlist.h"
+#include "internal/rlist.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>

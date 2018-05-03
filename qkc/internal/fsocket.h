@@ -1,6 +1,6 @@
 
-#ifndef __QKC_INNER_FSOCKET_H
-#define __QKC_INNER_FSOCKET_H 1
+#ifndef __QKC_INTERNAL_FSOCKET_H
+#define __QKC_INTERNAL_FSOCKET_H 1
 
 #include <quark_compile.h>
 #include <stdint.h>
@@ -163,4 +163,4 @@ bool socket_start_accept(accept_result_t * result) ;
 }
 #endif
 
-#endif /** __QKC_INNER_FSOCKET_H */
+#endif /** __QKC_INTERNAL_FSOCKET_H */

@@ -4,9 +4,9 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <errno.h>
-#include "inner/rlist.h"
-#include "inner/rbtree.h"
-#include "inner/fsocket.h"
+#include "internal/rlist.h"
+#include "internal/rbtree.h"
+#include "internal/fsocket.h"
 
 int epoll_create (int size)
 {

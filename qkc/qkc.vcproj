@@ -345,30 +345,30 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="inner"
+				Name="internal"
 				>
 				<File
-					RelativePath=".\inner\fsocket.cpp"
+					RelativePath=".\internal\fsocket.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\inner\hash.cpp"
+					RelativePath=".\internal\hash.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\inner\iocp_mgr.cpp"
+					RelativePath=".\internal\iocp_mgr.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\inner\rbtree.cpp"
+					RelativePath=".\internal\rbtree.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\inner\ring_buffer.cpp"
+					RelativePath=".\internal\ring_buffer.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\inner\rxtree.cpp"
+					RelativePath=".\internal\rxtree.cpp"
 					>
 				</File>
 			</Filter>
@@ -611,38 +611,38 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="inner"
+				Name="internal"
 				>
 				<File
-					RelativePath=".\inner\bitop.h"
+					RelativePath=".\internal\bitop.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inner\fsocket.h"
+					RelativePath=".\internal\fsocket.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inner\hash.h"
+					RelativePath=".\internal\hash.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inner\iocp_mgr.h"
+					RelativePath=".\internal\iocp_mgr.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inner\rbtree.h"
+					RelativePath=".\internal\rbtree.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inner\ring_buffer.h"
+					RelativePath=".\internal\ring_buffer.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inner\rlist.h"
+					RelativePath=".\internal\rlist.h"
 					>
 				</File>
 				<File
-					RelativePath=".\inner\rxtree.h"
+					RelativePath=".\internal\rxtree.h"
 					>
 				</File>
 			</Filter>

@@ -1,6 +1,6 @@
 
-#ifndef __QKC_INNER_RBTREE_H
-#define __QKC_INNER_RBTREE_H 1
+#ifndef __QKC_INTERNAL_RBTREE_H
+#define __QKC_INTERNAL_RBTREE_H 1
 
 #include <quark_compile.h>
 
@@ -57,4 +57,4 @@ static inline void rb_link_node(rb_node_t * node, rb_node_t * parent,	rb_node_t 
 }
 #endif
 
-#endif /** __QKC_INNER_RBTREE_H */
+#endif /** __QKC_INTERNAL_RBTREE_H */

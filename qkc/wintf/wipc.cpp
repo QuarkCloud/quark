@@ -3,7 +3,7 @@
 #include <wintf/wobj.h>
 #include <windows.h>
 #include <string.h>
-#include "../inner/hash.h"
+#include "../internal/hash.h"
 #include <sys/ipc.h>
 
 static const char * __wipc_name__ = "Global\\qkc.ipc" ;

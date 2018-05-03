@@ -1,6 +1,6 @@
 
-#ifndef __QKC_INNER_RXTREE_H
-#define __QKC_INNER_RXTREE_H 1
+#ifndef __QKC_INTERNAL_RXTREE_H
+#define __QKC_INTERNAL_RXTREE_H 1
 
 #include <quark_compile.h>
 #include <stdint.h>
@@ -36,4 +36,4 @@ QKCAPI uintptr_t rx_tree32_find(rx_tree_t *tree, uint32_t key);
 }
 #endif
 
-#endif /** __QKC_INNER_RXTREE_H */
+#endif /** __QKC_INTERNAL_RXTREE_H */

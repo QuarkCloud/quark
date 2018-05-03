@@ -54,8 +54,8 @@ typedef struct __st_lpfn_socket{
     LPFN_WSAWAITFORMULTIPLEEVENTS         lpfn_WSAWaitForMultipleEvents ;   
 } lpfn_socket_t ;
 
-SRWLOCK __socket_inner_rwlock__ =  SRWLOCK_INIT ;
-static bool __socket_inner_rwlock_inited__ = false ;
+SRWLOCK __socket_internal_rwlock__ =  SRWLOCK_INIT ;
+static bool __socket_internal_rwlock_inited__ = false ;
 static lpfn_socket_t __socket_pfns__ ;
 
 #define DECLARE_SOCKET_PFN(name , type) __socket_pfns__.lpfn_##name = (type)::GetProcAddress(module , #name)
@@ -129,16 +129,16 @@ bool socket_library_load()
 
 bool socket_library_init()
 {
-    if(__socket_inner_rwlock_inited__ == false)
+    if(__socket_internal_rwlock_inited__ == false)
     {
-        ::AcquireSRWLockExclusive(&__socket_inner_rwlock__) ;
+        ::AcquireSRWLockExclusive(&__socket_internal_rwlock__) ;
 
-        if(__socket_inner_rwlock_inited__ == false)
-            __socket_inner_rwlock_inited__ = socket_library_load() ;
-        ::ReleaseSRWLockExclusive(&__socket_inner_rwlock__) ;
+        if(__socket_internal_rwlock_inited__ == false)
+            __socket_internal_rwlock_inited__ = socket_library_load() ;
+        ::ReleaseSRWLockExclusive(&__socket_internal_rwlock__) ;
     }
 
-    return __socket_inner_rwlock_inited__ ;
+    return __socket_internal_rwlock_inited__ ;
 }
 
 

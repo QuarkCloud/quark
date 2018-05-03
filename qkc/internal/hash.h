@@ -1,6 +1,6 @@
 
-#ifndef __QKC_INNER_HASH_H
-#define __QKC_INNER_HASH_H 1
+#ifndef __QKC_INTERNAL_HASH_H
+#define __QKC_INTERNAL_HASH_H 1
 
 #include <quark_compile.h>
 #include <stdint.h>
@@ -15,4 +15,4 @@ QKCAPI uint32_t hash_time33(const char * str , int size , uint32_t hash) ;
 }
 #endif
 
-#endif /** __QKC_INNER_HASH_H */
+#endif /** __QKC_INTERNAL_HASH_H */

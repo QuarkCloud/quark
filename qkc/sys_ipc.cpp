@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <sys/ipc.h>
-#include "inner/hash.h"
+#include "internal/hash.h"
 
 key_t ftok (const char *pathname , int proj_id)
 {

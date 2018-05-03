@@ -1,6 +1,6 @@
 
-#ifndef __QKC_INNER_RLIST_H
-#define __QKC_INNER_RLIST_H 1
+#ifndef __QKC_INTERNAL_RLIST_H
+#define __QKC_INTERNAL_RLIST_H 1
 
 #include <quark_compile.h>
 #include <stdint.h>
@@ -44,4 +44,4 @@ static inline bool rlist_empty(rlist_t *rlist){return (rlist == rlist->prev && r
 }
 #endif
 
-#endif /** __QKC_INNER_RLIST_H */
+#endif /** __QKC_INTERNAL_RLIST_H */
