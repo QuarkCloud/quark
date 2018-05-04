@@ -98,7 +98,7 @@ struct flock64
 # define SEEK_CUR	1	/* Seek from current position.  */
 # define SEEK_END	2	/* Seek from end of file.  */
 
-
+//目前只支持socket的O_NONBLOCK
 QKCAPI int fcntl (int fd , int cmd , ...);
 
 
