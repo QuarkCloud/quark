@@ -5,6 +5,7 @@
 #include <wintf/wcrt.h>
 #include <windows.h>
 #include <errno.h>
+#include <string.h>
 
 int stat (const char * file, struct stat * buf)
 {
@@ -13,8 +14,24 @@ int stat (const char * file, struct stat * buf)
     if(ret != 0)
         return ret ;
 
+    HANDLE h = ::CreateFileA(file , GENERIC_READ , 0 , NULL , OPEN_EXISTING , FILE_ATTRIBUTE_NORMAL , NULL) ;
+    if(h != INVALID_HANDLE_VALUE)
+    {
+
+        BY_HANDLE_FILE_INFORMATION fi ;
+        ::memset(&fi , 0 , sizeof(fi)) ;
+        if(::GetFileInformationByHandle(h , &fi) == TRUE)
+        {
+            DWORD low = fi.nFileIndexLow ;
+            DWORD high = fi.nFileIndexHigh ;
+            high = (high >> 16) << 24 ;
+            buf->st_ino = (high | low) ;
+        }   
+        ::CloseHandle(h) ;
+    }
+
     buf->st_dev = s64.st_dev ;
-    buf->st_ino = s64.st_ino ;
+
     buf->st_nlink = s64.st_nlink ;
     buf->st_mode = s64.st_mode ;
     buf->st_uid = s64.st_uid ;
@@ -40,8 +57,23 @@ int fstat (int fd , struct stat *buf)
     if(ret != 0)
         return ret ;
 
+    HANDLE h = (HANDLE)::_get_osfhandle(fd) ;
+    if(h != INVALID_HANDLE_VALUE)
+    {
+
+        BY_HANDLE_FILE_INFORMATION fi ;
+        ::memset(&fi , 0 , sizeof(fi)) ;
+        if(::GetFileInformationByHandle(h , &fi) == TRUE)
+        {
+            DWORD low = fi.nFileIndexLow ;
+            DWORD high = fi.nFileIndexHigh ;
+            high = (high >> 16) << 24 ;
+            buf->st_ino = (high | low) ;
+        }   
+    }
+
     buf->st_dev = s64.st_dev ;
-    buf->st_ino = s64.st_ino ;
+    //buf->st_ino = s64.st_ino ;
     buf->st_nlink = s64.st_nlink ;
     buf->st_mode = s64.st_mode ;
     buf->st_uid = s64.st_uid ;

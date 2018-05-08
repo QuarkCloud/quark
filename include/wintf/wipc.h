@@ -18,6 +18,9 @@ extern "C" {
 
     2018-03-20
     WIPC在空间利用上浪费颇多，等待继续完善。
+
+    2018-05-08
+    
 */
 #define IPC_ITEM_SIZE       128 
 #define IPC_ITEM_COUNT      512
