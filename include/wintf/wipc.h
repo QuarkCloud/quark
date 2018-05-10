@@ -5,6 +5,7 @@
 #include <quark_compile.h>
 #include <windows.h>
 #include <stdint.h>
+#include <sys/ipc.h>
 
 #ifdef	__cplusplus
 extern "C" {
@@ -19,101 +20,82 @@ extern "C" {
     2018-03-20
     WIPC在空间利用上浪费颇多，等待继续完善。
 
-    2018-05-08
-    
+    2018-05-10
+    创建一个公共的共享缓冲区，包含一个超级块，一个索引块，用于快速检查key_t是否存在，
+    一个明细块，包含对象的名称以及其他细节。
 */
-#define IPC_ITEM_SIZE       128 
-#define IPC_ITEM_COUNT      512
-#define IPC_SECTION_SIZE    65536
 
+//如linux，只支持信号量作为进程同步对象。消息队列暂时不管了。
 #define IPC_TYPE_UNK        0
 #define IPC_TYPE_SHM        1
 #define IPC_TYPE_SEM        2
-#define IPC_TYPE_MTX        3
-#define IPC_TYPE_EVT        4
-#define IPC_TYPE_MAX        5
+#define IPC_TYPE_MAX        3
 
-static const char * ipc_type_names[IPC_TYPE_MAX] = {
-    "\0" , "shm" , "sem" , "mtx" , "evt"
-} ;
+static const char * ipc_type_names[IPC_TYPE_MAX] = {"\0" , "shm" , "sem"} ;
 
 #define IPC_NAME_UNK        {'\0' , '\0' , '\0'}
 #define IPC_NAME_SHM        {'s' , 'h' , 'm'}
 #define IPC_NAME_SEM        {'s' , 'e' , 'm'}
-#define IPC_NAME_MTX        {'m' , 't' , 'x'}
-#define IPC_NAME_EVT        {'e' , 'v' , 't'}
 
 typedef struct __st_ipc_item{
-    uint8_t cont[IPC_ITEM_SIZE] ;
+    uint8_t     magic[2]    ;
+    uint8_t     isize   ;
+    uint8_t     type    ;
+
+    uint16_t    id ;
+    uint16_t    nattch ;
+    
+    uint32_t    key ;
+    uint32_t    bytes ;
 } ipc_item_t;
 
-typedef struct __st_ipc_item_head{
-    char        magic[4] ;
-    uint32_t    hash ;                 //用于校验名字
-} ipc_item_head_t ;
+#define INFO_BITMAP_SIZE    2048 
+#define ITEM_COUNT          16384
+#define IPC_SUPER_SIZE      4096
+#define GLOBAL_IPC_SIZE     0X40000     //256K
+typedef struct __st_ipc_section_info{
+    uint16_t    offset    ;
+    uint16_t    count     ;
+    uint32_t    last_id   ;     //允许按照BITMAP进行折叠
+    uint8_t     unused[248] ;
+} ipc_section_info_t ;
 
-static const char * IPC_HEAD_MAGIC = "qkc" ;
+//超级块
+typedef struct __st_ipc_super{
+    char        magic[4] ;      //4
+    uint32_t    ipc_size ;      //8
+    uint8_t     major ;
+    uint8_t     minor ;
+    uint16_t    build ;         //12
 
-typedef struct __st_ipc_section_head{
-    uint8_t     magic[4] ;
-    int32_t     start ;
-    int32_t     count ;
-    int32_t     last_id ;
-    uint8_t     bitmap[8] ; //由于要先确定是否已经存在，貌似位图也没有啥用
-} ipc_section_head_t;
+    uint16_t    offset ;
+    uint16_t    count   ;       //16
+    uint32_t    last_id ;       //20
 
-typedef struct __st_ipc_shm_item{
-    ipc_item_head_t     head ;
-    int32_t             key ;
-    int32_t             shmid ;
-    int                 perms ;
-    uint32_t            bytes ;
-    uint32_t            nattch ;
-    char                name[4] ;
-} ipc_shm_item_t ;
+    uint8_t     unused[236] ;   //凑成256
+    uint8_t     bitmap[INFO_BITMAP_SIZE] ;
+}ipc_super_t ;
 
-typedef struct __st_ipc_sem_item{
-    ipc_item_head_t     head ;
-    int32_t             key ;
-    int32_t             semid ;
-    int                 perms ;
-    uint32_t            nsems ;
-    uint32_t            nattch ;
-    char                name[4] ;
-} ipc_sem_item_t ;
+//公共共享内存块的定义
+typedef struct __st_ipc_global{
+    uint8_t super[IPC_SUPER_SIZE] ;
+    ipc_item_t  items[ITEM_COUNT] ;
+}ipc_global_t ;
 
-typedef struct __st_ipc_bulk_item{
-    ipc_item_head_t     head ;
-    uint32_t            size ;
-    uint32_t            nattch ;
-} ipc_bulk_item_t ;
+QKCAPI const char * ipc_mtx_name() ;
+QKCAPI const char * ipc_shm_name() ;
+
+QKCAPI bool ipc_super_init(ipc_super_t * super) ;
+QKCAPI bool ipc_super_final(ipc_super_t * super) ;
+QKCAPI bool ipc_super_validate_magic(ipc_super_t * super) ;
+QKCAPI void ipc_super_assign_magic(ipc_super_t * super) ;
 
 
-typedef struct __st_ipc_section{
-    ipc_item_t          items[IPC_ITEM_COUNT] ;
-} ipc_section_t ;
+QKCAPI bool ipc_global_init(ipc_global_t * global) ;
+QKCAPI bool ipc_global_final(ipc_global_t * global) ;
 
-QKCAPI const char * ipc_name() ;
-QKCAPI const char * ipc_glmtx_name() ;
-QKCAPI const char * ipc_glshm_name() ;
-
-QKCAPI ipc_section_t * ipc_section_init() ;
-
-QKCAPI ipc_section_t * ipc_section_get() ;
-
-QKCAPI void ipc_section_final() ;
-
-QKCAPI int ipc_item_get_type(const ipc_item_head_t * head) ;
-
-QKCAPI bool ipc_item_set_type(ipc_item_head_t * head , int type) ;
-
-QKCAPI ipc_item_t * ipc_item_alloc(int type , const char * name) ;
-
-QKCAPI bool ipc_item_free(ipc_item_t * item) ;
-
-QKCAPI bool ipc_item_attach(ipc_item_t * item) ;
-
-QKCAPI bool ipc_item_detach(ipc_item_t * item) ;
+QKCAPI int ipc_alloc_id(key_t key , int type) ;
+QKCAPI void ipc_free_id(int id) ;
 
 #ifdef	__cplusplus
 }
