@@ -5,7 +5,6 @@
 
 key_t ftok (const char *pathname , int proj_id)
 {
-    //int stat (const char * file, struct stat * buf) ;
     struct stat sbuf ;
     if(::stat(pathname , &sbuf) != 0)
         return -1 ;

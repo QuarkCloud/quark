@@ -28,7 +28,6 @@ typedef union
 /**
     在windows下，解决跨进程比较困难，需要基于共享内存来实现，先放着，等后续再解决。
 */
-
 QKCAPI int sem_init(sem_t * sem , int pshared, unsigned int value);
 
 QKCAPI int sem_destroy(sem_t *sem) ;

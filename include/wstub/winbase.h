@@ -79,6 +79,9 @@ extern "C" {
 #define OPEN_ALWAYS         4
 #define TRUNCATE_EXISTING   5
 
+#define MUTEX_MODIFY_STATE MUTANT_QUERY_STATE
+#define MUTEX_ALL_ACCESS MUTANT_ALL_ACCESS
+
 typedef struct _WIN32_FIND_DATAA {
     DWORD dwFileAttributes;
     FILETIME ftCreationTime;

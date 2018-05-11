@@ -46,6 +46,9 @@ extern "C" {
 
     2018-03-26
     Atom不能自动删除，还要显式删除，可能会消耗操作系统的资源，换成哈希函数
+
+    2018-05-11
+    在stat函数中，加入了st_ino和st_dev。参考cygwin的建议
 */
 QKCAPI key_t ftok (const char *pathname , int proj_id) ;
 

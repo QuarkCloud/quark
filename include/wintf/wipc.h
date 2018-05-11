@@ -38,27 +38,21 @@ static const char * ipc_type_names[IPC_TYPE_MAX] = {"\0" , "shm" , "sem"} ;
 #define IPC_NAME_SEM        {'s' , 'e' , 'm'}
 
 typedef struct __st_ipc_item{
-    uint8_t     magic[2]    ;
-    uint8_t     isize   ;
-    uint8_t     type    ;
-
-    uint16_t    id ;
-    uint16_t    nattch ;
-    
     uint32_t    key ;
+
+    uint32_t    id ;
+
+    uint8_t     type ;
+    uint8_t     perms ;
+    uint16_t    nattch ;    
+
     uint32_t    bytes ;
 } ipc_item_t;
 
-#define INFO_BITMAP_SIZE    2048 
-#define ITEM_COUNT          16384
-#define IPC_SUPER_SIZE      4096
-#define GLOBAL_IPC_SIZE     0X40000     //256K
-typedef struct __st_ipc_section_info{
-    uint16_t    offset    ;
-    uint16_t    count     ;
-    uint32_t    last_id   ;     //允许按照BITMAP进行折叠
-    uint8_t     unused[248] ;
-} ipc_section_info_t ;
+#define IPC_INFO_BITMAP_SIZE    2048 
+#define IPC_ITEM_COUNT          16384
+#define IPC_SUPER_SIZE          4096
+#define IPC_GLOBAL_SIZE         0X40000     //256K
 
 //超级块
 typedef struct __st_ipc_super{
@@ -73,29 +67,52 @@ typedef struct __st_ipc_super{
     uint32_t    last_id ;       //20
 
     uint8_t     unused[236] ;   //凑成256
-    uint8_t     bitmap[INFO_BITMAP_SIZE] ;
+    uint8_t     bitmap[IPC_INFO_BITMAP_SIZE] ;
 }ipc_super_t ;
 
 //公共共享内存块的定义
 typedef struct __st_ipc_global{
     uint8_t super[IPC_SUPER_SIZE] ;
-    ipc_item_t  items[ITEM_COUNT] ;
+    ipc_item_t  items[IPC_ITEM_COUNT] ;
 }ipc_global_t ;
 
 QKCAPI const char * ipc_mtx_name() ;
 QKCAPI const char * ipc_shm_name() ;
+QKCAPI uint32_t ipc_version() ;
 
-QKCAPI bool ipc_super_init(ipc_super_t * super) ;
-QKCAPI bool ipc_super_final(ipc_super_t * super) ;
 QKCAPI bool ipc_super_validate_magic(ipc_super_t * super) ;
 QKCAPI void ipc_super_assign_magic(ipc_super_t * super) ;
 
 
-QKCAPI bool ipc_global_init(ipc_global_t * global) ;
-QKCAPI bool ipc_global_final(ipc_global_t * global) ;
+QKCAPI bool ipc_global_init() ;
+QKCAPI bool ipc_global_final() ;
 
-QKCAPI int ipc_alloc_id(key_t key , int type) ;
+QKCAPI int ipc_alloc_id(key_t key , int type , int flag) ;
 QKCAPI void ipc_free_id(int id) ;
+
+QKCAPI ipc_item_t * ipc_get_item_by_id(int id) ;
+
+
+/**
+    2018-05-11
+    具体的共享内存本地实现
+*/
+typedef struct __st_win_shm{
+    uint32_t key ;
+    uint32_t id ;
+    HANDLE fhandle ;
+    void * map_addr ;
+    size_t size ;
+    char * name ;
+    DWORD page_protect ;
+    DWORD map_access ;
+} win_shm_t ;
+
+QKCAPI win_shm_t * ipc_shm_create(uint32_t id) ;
+QKCAPI bool ipc_shm_init(win_shm_t * shm) ;
+QKCAPI bool ipc_shm_final(win_shm_t * shm) ;
+QKCAPI bool ipc_shm_destory(win_shm_t * shm) ;
+
 
 #ifdef	__cplusplus
 }
