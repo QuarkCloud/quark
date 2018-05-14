@@ -255,7 +255,13 @@ void  ipc_free_id(int id)
 ipc_item_t * ipc_get_item_by_id(int id) 
 {
     uint32_t real_id = (id & (IPC_ITEM_COUNT - 1)) ;
-    return NULL ;
+    uint32_t uof = (real_id >> 5) , ubits = (real_id & 31);
+    uint32_t * u32s = (uint32_t *)((ipc_super_t *)__wipc_global__->super)->bitmap ;
+
+    if(::bitop_in(u32s[uof] , (1<<ubits)) == false)
+        return NULL ;
+
+    return (__wipc_global__->items + real_id) ;
 }
 
 win_shm_t * ipc_shm_create(uint32_t id)

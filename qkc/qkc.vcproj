@@ -269,6 +269,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sys_shm.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\sys_socket.cpp"
 				>
 			</File>

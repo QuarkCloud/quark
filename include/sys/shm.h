@@ -101,8 +101,6 @@ QKCAPI void *shmat (int shmid, const void * shmaddr, int shmflg) ;
 
 QKCAPI int shmdt (const void * shmaddr) ;
 
-QKCAPI int __getpagesize (void) ;
-
 #ifdef __cplusplus
 }
 #endif
