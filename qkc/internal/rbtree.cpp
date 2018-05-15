@@ -1,7 +1,8 @@
 
 #include "rbtree.h"
+#include <errno.h>
 
-static void __rb_rotate_left(rb_node_t *node, rb_root_t *root)
+static void __rb_rotate_left(rb_root_t *root , rb_node_t * node)
 {
 	rb_node_t *right = node->right;
 
@@ -21,7 +22,7 @@ static void __rb_rotate_left(rb_node_t *node, rb_root_t *root)
 	node->parent = right;
 }
 
-static void __rb_rotate_right(rb_node_t *node, rb_root_t *root)
+static void __rb_rotate_right(rb_root_t *root , rb_node_t *node)
 {
 	rb_node_t *left = node->left;
 
@@ -41,7 +42,7 @@ static void __rb_rotate_right(rb_node_t *node, rb_root_t *root)
 	node->parent = left;
 }
 
-void rb_insert_color(rb_node_t *node, rb_root_t *root)
+void rb_insert_color(rb_root_t *root , rb_node_t *node)
 {
 	rb_node_t *parent, *gparent;
 
@@ -66,7 +67,7 @@ void rb_insert_color(rb_node_t *node, rb_root_t *root)
 			if (parent->right == node)
 			{
 				register rb_node_t *tmp;
-				__rb_rotate_left(parent, root);
+				__rb_rotate_left(root , parent);
 				tmp = parent;
 				parent = node;
 				node = tmp;
@@ -74,7 +75,7 @@ void rb_insert_color(rb_node_t *node, rb_root_t *root)
 
 			parent->color = RB_BLACK;
 			gparent->color = RB_RED;
-			__rb_rotate_right(gparent, root);
+			__rb_rotate_right(root , gparent);
 		} else {
 			{
 				register rb_node_t *uncle = gparent->left;
@@ -91,7 +92,7 @@ void rb_insert_color(rb_node_t *node, rb_root_t *root)
 			if (parent->left == node)
 			{
 				register rb_node_t *tmp;
-				__rb_rotate_right(parent, root);
+				__rb_rotate_right(root , parent);
 				tmp = parent;
 				parent = node;
 				node = tmp;
@@ -99,15 +100,14 @@ void rb_insert_color(rb_node_t *node, rb_root_t *root)
 
 			parent->color = RB_BLACK;
 			gparent->color = RB_RED;
-			__rb_rotate_left(gparent, root);
+			__rb_rotate_left(root , gparent);
 		}
 	}
 
 	root->root->color = RB_BLACK;
 }
 
-static void __rb_erase_color(rb_node_t *node, rb_node_t *parent,
-			     rb_root_t *root)
+static void __rb_erase_color(rb_root_t *root , rb_node_t *node, rb_node_t *parent)
 {
 	rb_node_t *other;
 
@@ -120,7 +120,7 @@ static void __rb_erase_color(rb_node_t *node, rb_node_t *parent,
 			{
 				other->color = RB_BLACK;
 				parent->color = RB_RED;
-				__rb_rotate_left(parent, root);
+				__rb_rotate_left(root , parent);
 				other = parent->right;
 			}
 			if ((!other->left ||
@@ -141,14 +141,14 @@ static void __rb_erase_color(rb_node_t *node, rb_node_t *parent,
 					if ((o_left = other->left))
 						o_left->color = RB_BLACK;
 					other->color = RB_RED;
-					__rb_rotate_right(other, root);
+					__rb_rotate_right(root , other);
 					other = parent->right;
 				}
 				other->color = parent->color;
 				parent->color = RB_BLACK;
 				if (other->right)
 					other->right->color = RB_BLACK;
-				__rb_rotate_left(parent, root);
+				__rb_rotate_left(root , parent);
 				node = root->root;
 				break;
 			}
@@ -160,7 +160,7 @@ static void __rb_erase_color(rb_node_t *node, rb_node_t *parent,
 			{
 				other->color = RB_BLACK;
 				parent->color = RB_RED;
-				__rb_rotate_right(parent, root);
+				__rb_rotate_right(root , parent);
 				other = parent->left;
 			}
 			if ((!other->left ||
@@ -181,14 +181,14 @@ static void __rb_erase_color(rb_node_t *node, rb_node_t *parent,
 					if ((o_right = other->right))
 						o_right->color = RB_BLACK;
 					other->color = RB_RED;
-					__rb_rotate_left(other, root);
+					__rb_rotate_left(root , other);
 					other = parent->left;
 				}
 				other->color = parent->color;
 				parent->color = RB_BLACK;
 				if (other->left)
 					other->left->color = RB_BLACK;
-				__rb_rotate_right(parent, root);
+				__rb_rotate_right(root , parent);
 				node = root->root;
 				break;
 			}
@@ -198,7 +198,7 @@ static void __rb_erase_color(rb_node_t *node, rb_node_t *parent,
 		node->color = RB_BLACK;
 }
 
-void rb_erase(rb_node_t *node, rb_root_t *root)
+void rb_erase(rb_root_t *root , rb_node_t *node)
 {
 	rb_node_t *child, *parent;
 	int color;
@@ -269,8 +269,95 @@ void rb_erase(rb_node_t *node, rb_root_t *root)
 
  color:
 	if (color == RB_BLACK)
-		__rb_erase_color(child, parent, root);
+		__rb_erase_color(root , child, parent);
 }
+
+bool rb_insert(rb_root_t * root , rb_node_t * node)
+{
+    if(root == NULL || root->key_compare == NULL || node == NULL)
+    {
+        errno = EINVAL ;
+        return false;
+    }
+
+    if(rb_find(root , node) != NULL)
+    {
+        errno = EEXIST ;
+        return false ;
+    }
+
+    rb_node_t *p = NULL ;
+    rb_link_node(node , NULL , &p) ;
+    rb_insert_color(root , node) ;
+    return true ;
+}
+
+rb_node_t * rb_find(rb_root_t * root , const rb_node_t * node)
+{
+    if(root == NULL || root->key_compare == NULL || node == NULL)
+    {
+        errno = EINVAL ;
+        return NULL ;
+    }
+
+    rb_node_t * cur = root->root ;
+    while(cur != NULL)
+    {
+        int cmp = root->key_compare(cur , node) ;
+        if(cmp == 0)
+            return cur ;
+        else if(cmp > 0)
+            cur = cur->left ;
+        else
+            cur = cur->right ;
+    }
+
+    return NULL ;
+}
+
+rb_node_t * rb_lower_bound(rb_root_t * root , const rb_node_t * node)
+{
+    if(root == NULL || root->key_compare == NULL || node == NULL)
+    {
+        errno = EINVAL ;
+        return NULL ;
+    }
+
+    rb_node_t * cur = root->root;
+    while(cur != NULL)
+    {
+        int cmp = root->key_compare(cur , node) ;
+        if(cmp <= 0)
+            return cur ;
+        else if(cmp > 0)
+            cur = cur->left ;
+    }
+
+    return NULL ;
+}
+
+rb_node_t * rb_upper_bound(rb_root_t * root , const rb_node_t * node)
+{
+    if(root == NULL || root->key_compare == NULL || node == NULL)
+    {
+        errno = EINVAL ;
+        return NULL ;
+    }
+
+    rb_node_t * cur = root->root;
+    while(cur != NULL)
+    {
+        int cmp = root->key_compare(cur , node) ;
+        if(cmp >= 0)
+            return cur ;
+        else if(cmp < 0)
+            cur = cur->right ;
+    }
+
+    return NULL ;
+}
+
+
 /*
  * This function returns the first node (in sort order) of the tree.
  */

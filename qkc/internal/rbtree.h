@@ -20,6 +20,7 @@ typedef struct st_rb_node {
 
 typedef struct st_rb_root {
 	rb_node_t * root;
+    int (*key_compare)(const rb_node_t * src , const rb_node_t * dst) ;     //·µ»ØÖµ=src - dst¡£
 } rb_root_t ;
 
 // Copy from linux kernel 2.6 source (kernel.h, stddef.h)
@@ -29,20 +30,24 @@ typedef struct st_rb_root {
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
 
-#define RB_ROOT	(rb_root_t) { NULL }
+#define RB_ROOT { NULL , NULL}
 #define	rb_entry(ptr, type, member) container_of(ptr, type, member)
 
-QKCAPI void rb_insert_color(rb_node_t *, rb_root_t *);
-QKCAPI void rb_erase(rb_node_t *, rb_root_t *);
+QKCAPI void rb_insert_color(rb_root_t * root , rb_node_t * node);
+QKCAPI bool rb_insert(rb_root_t * root, rb_node_t * node);
+QKCAPI void rb_erase(rb_root_t * root , rb_node_t * node);
+QKCAPI rb_node_t * rb_find(rb_root_t * root , const rb_node_t * node);
+QKCAPI rb_node_t * rb_lower_bound(rb_root_t * root , const rb_node_t * node);   //rbnode->key <= key ;
+QKCAPI rb_node_t * rb_upper_bound(rb_root_t * root , const rb_node_t * node);   //rbnode->key >= key ;
 
 /* Find logical next and previous nodes in a tree */
-QKCAPI rb_node_t *rb_next(rb_node_t *);
-QKCAPI rb_node_t *rb_prev(rb_node_t *);
-QKCAPI rb_node_t *rb_first(rb_root_t *);
-QKCAPI rb_node_t *rb_last(rb_root_t *);
+QKCAPI rb_node_t *rb_next(rb_node_t * node);
+QKCAPI rb_node_t *rb_prev(rb_node_t * node);
+QKCAPI rb_node_t *rb_first(rb_root_t * root);
+QKCAPI rb_node_t *rb_last(rb_root_t * root);
 
 /* Fast replacement of a single node without remove/rebalance/add/rebalance */
-QKCAPI void rb_replace_node(rb_node_t *victim, rb_node_t * new_node,  rb_root_t *root);
+QKCAPI void rb_replace_node(rb_root_t * root , rb_node_t *victim, rb_node_t * new_node );
 
 static inline void rb_link_node(rb_node_t * node, rb_node_t * parent,	rb_node_t ** rb_link)
 {
