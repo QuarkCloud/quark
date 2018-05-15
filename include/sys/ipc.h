@@ -19,7 +19,7 @@
 #define IPC_INFO	3		/* See ipcs.  */
 
 /* Special key values.  */
-#define IPC_PRIVATE	((__key_t) 0)	/* Private key.  */
+#define IPC_PRIVATE	((key_t) 0)	/* Private key.  */
 
 struct ipc_perm
 {

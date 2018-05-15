@@ -86,6 +86,8 @@ QKCAPI uint32_t ipc_version() ;
 
 QKCAPI bool ipc_super_validate_magic(ipc_super_t * super) ;
 QKCAPI void ipc_super_assign_magic(ipc_super_t * super) ;
+QKCAPI void ipc_super_bitmap_set(ipc_super_t * super , uint32_t id , bool val) ;
+QKCAPI void ipc_super_bitmap_get(ipc_super_t * super , uint32_t id , bool& val) ;
 
 
 QKCAPI bool ipc_global_init() ;

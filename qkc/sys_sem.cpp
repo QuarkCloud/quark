@@ -1,6 +1,7 @@
 
 #include <sys/sem.h>
 #include <stdarg.h>
+#include <wintf/wipc.h>
 
 int semctl(int semid, int semnum, int cmd, ...)
 {
@@ -19,7 +20,7 @@ int semctl(int semid, int semnum, int cmd, ...)
 
 int semget (key_t key, int nsems, int semflg)
 {
-    int semid = ipc_alloc_id(key , IPC_TYPE_SEM , semflag) ;
+    int semid = ipc_alloc_id(key , IPC_TYPE_SEM , semflg) ;
     if(semid < 0)
         return -1 ;
 
