@@ -176,7 +176,7 @@ int  ipc_alloc_id(key_t key , int type , int flag)
         for(int bidx = 0 ; bidx < 32 ; ++bidx)
         {
             uint32_t mask = 1 << bidx ;
-            if(bitop_in(uval , mask) == true)
+            if(bitop_in(uval , mask) == true && key != IPC_PRIVATE)
             {
                 //这个项是赋值过的，检查key是否一致
                 offset = (uidx << 5) + bidx ;
