@@ -1,6 +1,6 @@
 
-#ifndef __IOCP_MGR_H
-#define __IOCP_MGR_H 1
+#ifndef __QKC_INTERNAL_IOCP_MGR_H
+#define __QKC_INTERNAL_IOCP_MGR_H 1
 
 #include <sys/epoll.h>
 #include <windows.h>
@@ -56,4 +56,4 @@ int iocp_socket_callback(socket_t * s , int evt , int result) ;
 }
 #endif
 
-#endif /** __IOCP_MGR_H */
+#endif /** __QKC_INTERNAL_IOCP_MGR_H */

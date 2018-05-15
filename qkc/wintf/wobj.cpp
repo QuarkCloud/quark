@@ -44,6 +44,29 @@ wobj_t * wobj_get(int wid)
     return ko ;
 }
 
+wobj_t *  wobj_find_by_handle(wobj_type type , HANDLE handle)
+{
+    if(ConfirmWObjInited() == FALSE)
+        return NULL ;
+
+    wobj_t * ko = NULL ;
+    ::AcquireSRWLockShared(&__wobj_rwlock__) ;
+
+    for(int idx = 0 ; idx < wObjMaxSize ; ++idx)
+    {
+        wobj_t * obj = __wobjs__ + idx ;
+        if(obj->type == type && obj->handle == handle)
+        {
+            ko = obj ;
+            break ;
+        }
+    }
+
+    ::ReleaseSRWLockShared(&__wobj_rwlock__) ;
+
+    return ko ;
+}
+
 int wobj_set(wobj_type type , HANDLE handle , void * addition)
 {
     if(ConfirmWObjInited() == false)

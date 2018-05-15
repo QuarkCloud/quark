@@ -53,6 +53,8 @@ QKCAPI int wobj_set(wobj_type type , HANDLE handle , void * addition) ;
 
 QKCAPI bool wobj_del(int wid) ;
 
+QKCAPI wobj_t *  wobj_find_by_handle(wobj_type type , HANDLE handle) ;
+
 QKCAPI HANDLE default_heap_get() ;
 
 QKCAPI void global_wrlock() ;

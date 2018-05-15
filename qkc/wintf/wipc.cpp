@@ -1,6 +1,9 @@
 
 #include "wintf/wipc.h"
 #include "../internal/bitop.h"
+#include "../internal/rbtree.h"
+#include "../internal/addr_mgr.h"
+
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +13,7 @@
 
 static const char * __wipc_mtx_name__   = "Global\\qkc.mtx" ;
 static const char * __wipc_shm_name__   = "Global\\qkc.shm" ;
+static const char * __wipc_sem_name__   = "Global\\qkc.sem" ;
 static const char * __ipc_super_magic__ = "qkc" ;
 
 static HANDLE __wipc_mtx__ = NULL ;
@@ -18,6 +22,8 @@ static ipc_global_t * __wipc_global__ = NULL ;
 
 static INIT_ONCE __wipc_inited__ = INIT_ONCE_STATIC_INIT ;
 static SRWLOCK __wipc_rwlock__ =  SRWLOCK_INIT ;
+
+static addr_mgr_t __wipc_addr_mgr__ = ADDR_MGR_INIT ;
 
 static uint8_t  __version_major__ = 0 ;
 static uint8_t  __version_minor__ = 1 ;
@@ -52,6 +58,15 @@ const char * ipc_shm_name()
     return __wipc_shm_name__ ;
 }
 
+const char * ipc_sem_name() 
+{
+    return __wipc_sem_name__ ;
+}
+
+typedef struct __st_ipc_info{
+
+} ipc_info_t ;
+
 uint32_t ipc_version() 
 {
     uint32_t v = 0 ;//__version_build__ ;
@@ -75,6 +90,9 @@ bool ipc_global_init()
 {
     if(ConfirmWIPCInited() == FALSE)
         return false ;
+
+    if(__wipc_global_handle__ != NULL)
+        return true ;
 
     if(::WaitForSingleObject(__wipc_mtx__ , INFINITE) != WAIT_OBJECT_0)
         return false ;
@@ -134,6 +152,9 @@ bool ipc_global_final()
 
 int  ipc_alloc_id(key_t key , int type , int flag)
 {
+    if(ipc_global_init() == false)
+        return -1 ;
+
     if(::WaitForSingleObject(__wipc_mtx__ , INFINITE) != WAIT_OBJECT_0)
         return -1 ;
 
@@ -230,6 +251,9 @@ int  ipc_alloc_id(key_t key , int type , int flag)
 
 void  ipc_free_id(int id)
 {
+    if(ipc_global_init() == false)
+        return ;
+
     if(::WaitForSingleObject(__wipc_mtx__ , INFINITE) != WAIT_OBJECT_0)
         return ;
 
@@ -264,10 +288,10 @@ ipc_item_t * ipc_get_item_by_id(int id)
     return (__wipc_global__->items + real_id) ;
 }
 
-win_shm_t * ipc_shm_create(uint32_t id)
+win_shm_t * ipc_shm_create(uint32_t shmid , size_t size)
 {
-    ipc_item_t * item = ipc_get_item_by_id(id) ;
-    if(item == NULL || item->id != id)
+    ipc_item_t * item = ipc_get_item_by_id(shmid) ;
+    if(item == NULL || item->id != shmid)
         return NULL ;
 
     win_shm_t * shm = (win_shm_t *)::malloc(sizeof(win_shm_t)) ;
@@ -278,21 +302,28 @@ win_shm_t * ipc_shm_create(uint32_t id)
     }
     ::memset(shm , 0 , sizeof(win_shm_t)) ;
     shm->key = item->key ;
-    shm->id = item->id  ;
-    shm->size = item->bytes ;
+    shm->shmid = item->id  ;
+    if(item->bytes == 0)
+        shm->size = size ;
+    else
+        shm->size = item->bytes ;
+
+    /**
 
     if(ipc_shm_init(shm) == false)
     {
         ::free(shm) ;
         return NULL ;
     }
+    item->bytes = size ;
+    */
     return shm ;
 }
 
 bool ipc_shm_init(win_shm_t * shm)
 {
     char name[256] = {'\0'} ;
-    int nsize = ::sprintf(name , "%s.%u" , __wipc_shm_name__ , shm->id) + 1;
+    int nsize = ::sprintf(name , "%s.%u" , __wipc_shm_name__ , shm->shmid) + 1;
 
     HANDLE handle = ::CreateFileMapping(INVALID_HANDLE_VALUE , NULL , PAGE_READWRITE , 0 , shm->size , name) ;
     if(handle == NULL)
@@ -335,11 +366,43 @@ bool ipc_shm_final(win_shm_t * shm)
     return true ;
 }
 
-bool ipc_shm_destory(win_shm_t * shm)
+bool ipc_shm_destroy(win_shm_t * shm)
 {
     ipc_shm_final(shm) ;
-    ipc_free_id(shm->id) ;
+    ipc_free_id(shm->shmid) ;
     ::free(shm) ;
     return true ;
+}
+
+void ipc_shm_item_free(void * addition)
+{
+    win_shm_t * shm = (win_shm_t *)addition ;
+    if(shm == NULL)
+        return ;
+
+    ipc_shm_destroy(shm) ;
+}
+
+bool ipc_shm_addr_add(void * addr , win_shm_t * shm)
+{
+    return addr_mgr_add(&__wipc_addr_mgr__ , addr , shm , ipc_shm_item_free) ;
+}
+
+win_shm_t * ipc_shm_addr_find(const void * addr) 
+{
+    addr_item_t * item = addr_mgr_find(&__wipc_addr_mgr__ , addr) ;
+    if(item == NULL)
+        return NULL ;
+
+    return (win_shm_t *)item->addition ;
+}
+
+bool ipc_shm_addr_del(const void * addr)
+{
+    addr_item_t * item = addr_mgr_find(&__wipc_addr_mgr__ , addr) ;
+    if(item == NULL)
+        return false ;
+
+    return addr_mgr_del(&__wipc_addr_mgr__ , item) ;
 }
 

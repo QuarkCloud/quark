@@ -1,6 +1,6 @@
 
-#ifndef __RING_BUFFER_H
-#define __RING_BUFFER_H 1
+#ifndef __QKC_INTERNAL_RING_BUFFER_H
+#define __QKC_INTERNAL_RING_BUFFER_H 1
 
 #include <stdlib.h>
 #include <string.h>
@@ -39,4 +39,4 @@ bool ring_buffer_refer_message(ring_buffer_t * ring , char *&buf , size_t& size)
 }
 #endif
 
-#endif /** __RING_BUFFER_H */
+#endif /** __QKC_INTERNAL_RING_BUFFER_H */

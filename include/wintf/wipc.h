@@ -29,13 +29,15 @@ extern "C" {
 #define IPC_TYPE_UNK        0
 #define IPC_TYPE_SHM        1
 #define IPC_TYPE_SEM        2
-#define IPC_TYPE_MAX        3
+#define IPC_TYPE_MTX        3
+#define IPC_TYPE_MAX        4
 
-static const char * ipc_type_names[IPC_TYPE_MAX] = {"\0" , "shm" , "sem"} ;
+static const char * ipc_type_names[IPC_TYPE_MAX] = {"\0" , "shm" , "sem" , "mtx"} ;
 
 #define IPC_NAME_UNK        {'\0' , '\0' , '\0'}
 #define IPC_NAME_SHM        {'s' , 'h' , 'm'}
 #define IPC_NAME_SEM        {'s' , 'e' , 'm'}
+#define IPC_NAME_MTX        {'m' , 't' , 'x'}
 
 typedef struct __st_ipc_item{
     uint32_t    key ;
@@ -78,6 +80,8 @@ typedef struct __st_ipc_global{
 
 QKCAPI const char * ipc_mtx_name() ;
 QKCAPI const char * ipc_shm_name() ;
+QKCAPI const char * ipc_sem_name() ;
+
 QKCAPI uint32_t ipc_version() ;
 
 QKCAPI bool ipc_super_validate_magic(ipc_super_t * super) ;
@@ -99,7 +103,8 @@ QKCAPI ipc_item_t * ipc_get_item_by_id(int id) ;
 */
 typedef struct __st_win_shm{
     uint32_t key ;
-    uint32_t id ;
+    uint32_t shmid ;
+    int      oid ;
     HANDLE fhandle ;
     void * map_addr ;
     size_t size ;
@@ -108,11 +113,14 @@ typedef struct __st_win_shm{
     DWORD map_access ;
 } win_shm_t ;
 
-QKCAPI win_shm_t * ipc_shm_create(uint32_t id) ;
+QKCAPI win_shm_t * ipc_shm_create(uint32_t shmid , size_t size) ;
 QKCAPI bool ipc_shm_init(win_shm_t * shm) ;
 QKCAPI bool ipc_shm_final(win_shm_t * shm) ;
-QKCAPI bool ipc_shm_destory(win_shm_t * shm) ;
+QKCAPI bool ipc_shm_destroy(win_shm_t * shm) ;
 
+QKCAPI bool ipc_shm_addr_add(void * addr , win_shm_t * shm) ;
+QKCAPI win_shm_t * ipc_shm_addr_find(const void * addr) ;
+QKCAPI bool ipc_shm_addr_del(const void * addr) ;
 
 #ifdef	__cplusplus
 }

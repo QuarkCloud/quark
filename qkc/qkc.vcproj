@@ -352,6 +352,10 @@
 				Name="internal"
 				>
 				<File
+					RelativePath=".\internal\addr_mgr.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\internal\fsocket.cpp"
 					>
 				</File>
@@ -617,6 +621,10 @@
 			<Filter
 				Name="internal"
 				>
+				<File
+					RelativePath=".\internal\addr_mgr.h"
+					>
+				</File>
 				<File
 					RelativePath=".\internal\bitop.h"
 					>

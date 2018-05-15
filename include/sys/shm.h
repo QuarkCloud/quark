@@ -86,8 +86,6 @@ struct shm_info
     unsigned long int swap_successes;
 };
 
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
