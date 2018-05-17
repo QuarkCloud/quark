@@ -7,6 +7,9 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Flags for `semop'.  */
 #define SEM_UNDO	0x1000		/* undo the operation on exit */
@@ -34,7 +37,7 @@ struct semid_ds
     unsigned long int __unused4;
 };
 
-#define _SEM_SEMUN_UNDEFINED	1
+//#define _SEM_SEMUN_UNDEFINED	1
 
 /* ipcs ctl cmds */
 # define SEM_STAT 18
@@ -61,17 +64,12 @@ struct sembuf
     short int sem_flg;		/* operation flag */
 };
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-union semun
+   union semun
 {
-    int                     val;
-    struct semid_ds *       buf;	
-    unsigned short int *    all;
-    struct seminfo *        info;
+     int val;                           <= value for SETVAL
+     struct semid_ds *buf;              <= buffer for IPC_STAT & IPC_SET
+     unsigned short int *array;         <= array for GETALL & SETALL
+     struct seminfo *   info;             <= buffer for IPC_INFO
 };
 
 QKCAPI int semctl(int semid, int semnum, int cmd, ...) ;

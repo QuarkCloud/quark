@@ -4,6 +4,7 @@
 #include "../internal/rbtree.h"
 #include "../internal/addr_mgr.h"
 #include <sys/ipc.h>
+#include <limits.h>
 
 #include <windows.h>
 #include <stdio.h>
@@ -346,20 +347,12 @@ win_shm_t * ipc_shm_create(uint32_t shmid , size_t size)
     ::memset(shm , 0 , sizeof(win_shm_t)) ;
     shm->key = item->key ;
     shm->shmid = item->id  ;
-    if(item->bytes == 0)
+    if(((ipc_shm_t *)item)->bytes == 0)
         shm->size = size ;
     else
-        shm->size = item->bytes ;
+        shm->size = ((ipc_shm_t *)item)->bytes ;
+    shm->ipc = item ;
 
-    /**
-
-    if(ipc_shm_init(shm) == false)
-    {
-        ::free(shm) ;
-        return NULL ;
-    }
-    item->bytes = size ;
-    */
     return shm ;
 }
 
@@ -447,5 +440,67 @@ bool ipc_shm_addr_del(const void * addr)
         return false ;
 
     return addr_mgr_del(&__wipc_addr_mgr__ , item) ;
+}
+
+win_sem_t * ipc_sem_create(uint32_t semid)
+{
+    ipc_item_t * item = ipc_get_item_by_id(semid) ;
+    if(item == NULL)
+        return NULL ;
+
+    win_sem_t * sem = (win_sem_t *)::malloc(sizeof(win_sem_t)) ;
+    ::memset(sem , 0 , sizeof(win_sem_t)) ;
+
+    sem->key = item->key ;
+    sem->semid = item->id ;
+    sem->ipc = item ;    
+    return sem ;    
+}
+
+bool ipc_sem_init(win_sem_t * sem)
+{
+    char name[256] = {'\0'} ;
+    int nsize = ::sprintf(name , "%s.%u" , __wipc_sem_name__ , sem->semid) + 1;
+
+    HANDLE handle = ::CreateSemaphore(NULL , 1 , LONG_MAX , name) ;
+    if(handle == NULL)
+        return false ;
+
+    sem->handle = handle ;
+    char * nstr = (char *)::malloc(nsize) ;
+    if(nstr != NULL)
+    {
+        ::memcpy(sem->name , name , nsize) ;
+        sem->name = nstr ;
+    }
+    return true ;
+}
+
+bool ipc_sem_final(win_sem_t * sem)
+{
+    if(sem == NULL)
+        return false ;
+
+    char * name = sem->name ;
+    sem->name = NULL ;
+    HANDLE handle = sem->handle ;
+    sem->handle = NULL ;
+
+    if(name != NULL)
+        ::free(name) ;
+    if(handle != NULL)
+        ::CloseHandle(handle) ;
+    return true ;
+}
+
+bool ipc_sem_destroy(win_sem_t * sem)
+{
+    if(sem == NULL)
+        return false ;
+
+    ipc_sem_final(sem) ;
+    ::free(sem) ;
+
+    return true ;
 }
 

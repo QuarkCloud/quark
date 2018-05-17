@@ -39,20 +39,39 @@ static const char * ipc_type_names[IPC_TYPE_MAX] = {"\0" , "shm" , "sem" , "mtx"
 #define IPC_NAME_SEM        {'s' , 'e' , 'm'}
 #define IPC_NAME_MTX        {'m' , 't' , 'x'}
 
+//12个字节
+#define IPC_ITEM_MEMBERS    \
+    uint32_t    key ;       \
+    uint32_t    id ;        \
+    uint16_t    type ;      \
+    uint16_t    perms ;     \
+    uint32_t    nattch ;    
+
+
 typedef struct __st_ipc_item{
-    uint32_t    key ;
-
-    uint32_t    id ;
-
-    uint8_t     type ;
-    uint8_t     perms ;
-    uint16_t    nattch ;    
-
-    uint32_t    bytes ;
+    IPC_ITEM_MEMBERS
+    uint8_t    pad0[16] ;       //凑齐32个字节
 } ipc_item_t;
 
-#define IPC_INFO_BITMAP_SIZE    2048 
-#define IPC_ITEM_COUNT          16384
+typedef struct __st_ipc_shm{
+    IPC_ITEM_MEMBERS 
+    uint32_t    bytes;
+    int32_t     atime;
+    int32_t     dtime;
+    int32_t     ctime;
+}ipc_shm_t ;
+
+typedef struct __st_ipc_sem{
+    IPC_ITEM_MEMBERS 
+    int32_t     otime;
+    int32_t     ctime;
+    long        value ;
+    uint8_t     pad1[4] ;
+}ipc_sem_t ;
+
+
+#define IPC_INFO_BITMAP_SIZE    1024 
+#define IPC_ITEM_COUNT          8192
 #define IPC_SUPER_SIZE          4096
 #define IPC_GLOBAL_SIZE         0X40000     //256K
 
@@ -113,6 +132,7 @@ typedef struct __st_win_shm{
     char * name ;
     DWORD page_protect ;
     DWORD map_access ;
+    ipc_shm_t * ipc ;
 } win_shm_t ;
 
 QKCAPI win_shm_t * ipc_shm_create(uint32_t shmid , size_t size) ;
@@ -123,6 +143,26 @@ QKCAPI bool ipc_shm_destroy(win_shm_t * shm) ;
 QKCAPI bool ipc_shm_addr_add(void * addr , win_shm_t * shm) ;
 QKCAPI win_shm_t * ipc_shm_addr_find(const void * addr) ;
 QKCAPI bool ipc_shm_addr_del(const void * addr) ;
+
+/**
+    2018-05-26
+    信号量的本地实现
+*/
+typedef struct __st_win_sem{
+    uint32_t    key ;
+    uint32_t    semid ;
+    int         oid ;
+
+    HANDLE      handle ;
+    char *      name ;
+    ipc_sem_t  *ipc ;
+} win_sem_t;
+
+QKCAPI win_sem_t * ipc_sem_create(uint32_t semid) ;
+QKCAPI bool ipc_sem_init(win_sem_t * sem) ;
+QKCAPI bool ipc_sem_final(win_sem_t * sem) ;
+QKCAPI bool ipc_sem_destroy(win_sem_t * sem) ;
+
 
 #ifdef	__cplusplus
 }
