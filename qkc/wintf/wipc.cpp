@@ -449,6 +449,11 @@ win_sem_t * ipc_sem_create(uint32_t semid)
         return NULL ;
 
     win_sem_t * sem = (win_sem_t *)::malloc(sizeof(win_sem_t)) ;
+    if(sem == NULL)
+    {
+        errno = ENOMEM ;
+        return NULL ;
+    }
     ::memset(sem , 0 , sizeof(win_sem_t)) ;
 
     sem->key = item->key ;
@@ -462,7 +467,7 @@ bool ipc_sem_init(win_sem_t * sem)
     char name[256] = {'\0'} ;
     int nsize = ::sprintf(name , "%s.%u" , __wipc_sem_name__ , sem->semid) + 1;
 
-    HANDLE handle = ::CreateSemaphore(NULL , 1 , LONG_MAX , name) ;
+    HANDLE handle = ::CreateSemaphore(NULL , 0 , LONG_MAX , name) ;
     if(handle == NULL)
         return false ;
 

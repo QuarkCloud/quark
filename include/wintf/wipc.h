@@ -65,7 +65,7 @@ typedef struct __st_ipc_sem{
     IPC_ITEM_MEMBERS 
     int32_t     otime;
     int32_t     ctime;
-    long        value ;
+    volatile long        value ;
     uint8_t     pad1[4] ;
 }ipc_sem_t ;
 
