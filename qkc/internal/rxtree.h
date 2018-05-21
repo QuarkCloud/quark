@@ -11,21 +11,21 @@ extern "C" {
 
 #define RADIX_NO_VALUE   (uintptr_t) -1
 
-typedef struct st_rx_node{
-    struct st_rx_node   *right;
-    struct st_rx_node   *left;
-    struct st_rx_node   *parent;
-    uintptr_t           value;
-} rx_node_t ;
+typedef struct __st_rx_node rx_node_t ;
+{
+    rx_node_t   *right;
+    rx_node_t   *left;
+    rx_node_t   *parent;
+    uintptr_t   value;
+} ; 
 
-
-typedef struct st_rx_tree{
+typedef struct __st_rx_tree rx_tree_t ;
+struct __st_rx_tree{
     rx_node_t           *root;
     rx_node_t           *free;
     char                *start;
     size_t              size;
-} rx_tree_t;
-
+};
 
 QKCAPI rx_tree_t *rx_tree_create();
 QKCAPI int32_t rx_tree32_insert(rx_tree_t *tree, uint32_t key, uint32_t mask, uintptr_t value);

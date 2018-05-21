@@ -11,8 +11,14 @@ int semctl_getval(ipc_sem_t * sem)
     return sem->value ;
 }
 
-int semctl_setval(win_sem_t * wsem , ipc_sem_t * sem , int val)
+int semctl_setval(win_sem_t * wsem , int val)
 {
+    if(wsem == NULL || wsem->ipc == NULL)
+    {
+        errno = EINVAL ;
+        return -1 ;
+    }
+    ipc_item_t * sem = wsem->ipc ;
     if(val > sem->value)
     {
         int delta = val - sem->value ;
@@ -40,11 +46,30 @@ int semctl_setval(win_sem_t * wsem , ipc_sem_t * sem , int val)
                 return -1 ;
         }
     }
+
+    return 0 ; 
+}
+
+int semctl_ipcstat(win_sem_t * wsem , struct semid_ds * ds)
+{
+    if(wsem == NULL || wsem->ipc == NULL || ds == NULL)
+    {
+        errno = EINVAL ;
+        return -1 ;
+    }
+    ipc_sem_t * sem = wsem->ipc ;
+    ds->sem_perm.__key = wsem->key ;
+    ds->sem_nsems = 1 ;
+    ds->sem_otime = sem->otime ;
+    ds->sem_ctime = sem->ctime ;
+
+    return 0 ;
 }
 
 int semctl(int semid, int semnum, int cmd, ...)
 {
     union semun arg = {0};
+
     if(cmd == IPC_STAT || cmd == IPC_SET || cmd == IPC_INFO || cmd == SEM_INFO || 
        cmd == GETALL || cmd == SETALL || cmd == SETVAL || cmd == GETVAL)
     {
@@ -68,57 +93,19 @@ int semctl(int semid, int semnum, int cmd, ...)
     }
 
     ipc_sem_t * sem =  wsem->ipc ;
-
     sem->ctime = (int)::time(NULL) ;
-
-    if(cmd == IPC_SET || cmd == IPC_INFO)
-    {
-        errno = ENOSYS ;
-        return -1 ;
-    }
 
     if(cmd == GETVAL)
         return semctl_getval(sem) ;
 
     if(cmd == SETVAL)
-    {
-        int val = arg.val ;
-        if(val > sem->value)
-        {
-            int delta = val - sem->value ;
-            if(::ReleaseSemaphore(wsem->handle , delta , NULL) == TRUE)
-            {
-                ::InterlockedExchangeAdd(&sem->value , delta) ;
-                sem->value = val ;
-            }
-            else
-                return -1 ;
-        }
-        else if(val < sem->value)
-        {
-            while(true)
-            {
-                if(val >= sem->value)
-                    break ;
+        return ::semctl_setval(wsem , arg.val) ;
 
-                DWORD result = 0 ;
-                if((result = ::WaitForSingleObject(wsem->handle , 0)) == WAIT_OBJECT_0)
-                    ::InterlockedDecrement(&sem->value) ;
-                else if(result == WAIT_TIMEOUT)
-                    ::InterlockedExchange(&sem->value , 0) ;
-                else
-                    return -1 ;
-            }
-        }
-    }
     if(cmd == IPC_STAT)
-    {
-    
-    }
+        return ::semctl_ipcstat(wsem , arg.ds) ;
 
-
-
-    return 0 ;
+    errno = ENOSYS ;
+    return -1 ;
 }
 
 int semget (key_t key, int nsems, int semflg)

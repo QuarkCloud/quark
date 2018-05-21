@@ -2,6 +2,9 @@
 #include "rxtree.h"
 #include <stdlib.h>
 
+//еп╤о
+static int __rx_level__ = 0 ;
+
 rx_tree_t *rx_tree_create()
 {
     return NULL ;

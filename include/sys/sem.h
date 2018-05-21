@@ -64,12 +64,12 @@ struct sembuf
     short int sem_flg;		/* operation flag */
 };
 
-   union semun
+union semun
 {
-     int val;                           <= value for SETVAL
-     struct semid_ds *buf;              <= buffer for IPC_STAT & IPC_SET
-     unsigned short int *array;         <= array for GETALL & SETALL
-     struct seminfo *   info;             <= buffer for IPC_INFO
+     int val;                           //<= value for SETVAL
+     struct semid_ds *buf;              //<= buffer for IPC_STAT & IPC_SET
+     unsigned short int *array;         //<= array for GETALL & SETALL
+     struct seminfo *   info;           //<= buffer for IPC_INFO
 };
 
 QKCAPI int semctl(int semid, int semnum, int cmd, ...) ;
