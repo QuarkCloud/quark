@@ -1,10 +1,12 @@
 
 #include <sys/sem.h>
+#include <sys/ipc.h>
 #include <stdarg.h>
 #include <errno.h>
 #include <time.h>
 #include <wintf/wipc.h>
 #include <wintf/wobj.h>
+#include "internal/bitop.h"
 
 int semctl_getval(ipc_sem_t * sem)
 {
@@ -18,7 +20,7 @@ int semctl_setval(win_sem_t * wsem , int val)
         errno = EINVAL ;
         return -1 ;
     }
-    ipc_item_t * sem = wsem->ipc ;
+    ipc_sem_t * sem = wsem->ipc ;
     if(val > sem->value)
     {
         int delta = val - sem->value ;
@@ -102,7 +104,7 @@ int semctl(int semid, int semnum, int cmd, ...)
         return ::semctl_setval(wsem , arg.val) ;
 
     if(cmd == IPC_STAT)
-        return ::semctl_ipcstat(wsem , arg.ds) ;
+        return ::semctl_ipcstat(wsem , arg.buf) ;
 
     errno = ENOSYS ;
     return -1 ;
@@ -142,6 +144,70 @@ int semget (key_t key, int nsems, int semflg)
 
 int semop (int semid, struct sembuf * sops, size_t nsops)
 {
+    wobj_t * obj = wobj_find_by_handle(WOBJ_SEMA , (HANDLE)semid) ;
+    if(obj == NULL || obj->addition == NULL)
+    {
+        errno = ENOENT ;
+        return -1 ;
+    }
+
+    win_sem_t * wsem = (win_sem_t *)obj->addition ;
+    if(wsem->handle == NULL)
+        return -1 ;
+
+    ipc_sem_t * sem =  wsem->ipc ;
+    sem->otime = (int)::time(NULL) ;
+
+    int op = sops->sem_num ;
+    int flag = sops->sem_flg ;
+
+    if(op > 0)
+    {
+        ::ReleaseSemaphore(wsem->handle , op , NULL) ;
+        ::InterlockedExchangeAdd(&sem->value , op) ;
+    }
+    else if(op < 0)
+    {
+        DWORD timeout = INFINITE ;
+        if(::bitop_get(flag , IPC_NOWAIT) != 0)
+            timeout = 0 ;
+
+        int times = 0 ;
+        for(; times > op ; --times)
+        {
+            if(::WaitForSingleObject(wsem->handle , timeout) == WAIT_OBJECT_0)
+                ::InterlockedDecrement(&sem->value) ;   
+            else
+                break ;
+        }
+        if(times != op)
+            return -1 ;
+    }
+    else
+    {
+        if(::bitop_get(flag , IPC_NOWAIT) != 0)
+        {
+            if(::InterlockedCompareExchange(&sem->value , 0 , 0) != 0)
+            {
+                errno = EAGAIN ;
+                return -1 ;
+            }
+            else
+                return 0 ;
+        }
+
+        time_t start_time = ::time(NULL) ;
+        while(::InterlockedCompareExchange(&sem->value , 0 , 0) != 0)
+        {
+            ::SwitchToThread() ;
+            time_t end_time = ::time(NULL) ;
+            int elapse = (int)(end_time - start_time) ;
+            if(elapse >= 60)
+                return -1 ;
+        }
+    }
+    
+
     return 0 ;
 }
 

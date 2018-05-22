@@ -351,7 +351,7 @@ win_shm_t * ipc_shm_create(uint32_t shmid , size_t size)
         shm->size = size ;
     else
         shm->size = ((ipc_shm_t *)item)->bytes ;
-    shm->ipc = item ;
+    shm->ipc = (ipc_shm_t *)item ;
 
     return shm ;
 }
@@ -458,7 +458,7 @@ win_sem_t * ipc_sem_create(uint32_t semid)
 
     sem->key = item->key ;
     sem->semid = item->id ;
-    sem->ipc = item ;    
+    sem->ipc = (ipc_sem_t *)item ;    
     return sem ;    
 }
 
@@ -505,7 +505,6 @@ bool ipc_sem_destroy(win_sem_t * sem)
 
     ipc_sem_final(sem) ;
     ::free(sem) ;
-
     return true ;
 }
 
