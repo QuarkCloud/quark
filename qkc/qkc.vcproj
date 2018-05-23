@@ -364,6 +364,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\internal\inotify_mgr.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\internal\iocp_mgr.cpp"
 					>
 				</File>
@@ -635,6 +639,10 @@
 				</File>
 				<File
 					RelativePath=".\internal\hash.h"
+					>
+				</File>
+				<File
+					RelativePath=".\internal\inotify_mgr.h"
 					>
 				</File>
 				<File
