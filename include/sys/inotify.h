@@ -11,7 +11,7 @@ struct inotify_event
   uint32_t mask;	/* Watch mask.  */
   uint32_t cookie;	/* Cookie to synchronize two events.  */
   uint32_t len;		/* Length (including NULs) of name.  */
-  char name ;	/* Name.  */
+  char name[4] ;	/* Name.  */
 };
 
 

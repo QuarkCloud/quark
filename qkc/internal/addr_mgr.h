@@ -17,7 +17,7 @@ typedef struct __st_addr_item{
 } addr_item_t ;
 
 typedef struct __st_addr_mgr{
-    rb_root_t   link ;
+    rb_tree_t   link ;
     SRWLOCK     guard ;
 } addr_mgr_t ;
 

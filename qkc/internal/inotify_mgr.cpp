@@ -31,7 +31,6 @@ bool inotify_mgr_init(inotify_mgr_t * mgr)
 {
     mgr->iocp = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE , NULL , 0 , 0) ;
     mgr->locker = ::CreateMutexA(NULL , FALSE , NULL) ;
-    rlist_init(&mgr->ready) ;
 
     int oid = ::wobj_set(WOBJ_NOTF , mgr->iocp , mgr) ;
     if(oid == INVALID_WOBJ_ID)
@@ -42,17 +41,99 @@ bool inotify_mgr_init(inotify_mgr_t * mgr)
 
 bool inotify_mgr_final(inotify_mgr_t * mgr)
 {
+    wobj_del(mgr->ifd) ;
+
     if(::WaitForSingleObject(mgr->locker , INFINITE) != WAIT_OBJECT_0)
         return false ;
 
+    rb_node_t * node = NULL ;
+    while((node = rb_first(&mgr->items)) != NULL)
+    {
+        inotify_item_t * item = (inotify_item_t *)node;
 
+        HANDLE handle = item->handle ;
+        if(handle != NULL)
+            ::FindCloseChangeNotification(handle) ;
+        rb_erase(&mgr->items , node) ;
+
+        ::free(node) ;
+    }
+
+    ::CloseHandle(mgr->iocp) ;
+    ::ReleaseMutex(mgr->locker) ;
+    ::CloseHandle(mgr->locker) ;
+
+    return true ;
 }
 
-bool inotify_mgr_items_free(rlist_t * rlist) ;
-bool inotify_mgr_item_free(inotify_item_t * item) ;
-bool inotify_mgr_item_ready(inotify_mgr_t * mgr , inotify_item_t * item) ;
-bool inotify_mgr_item_unready(inotify_mgr_t * mgr , inotify_item_t * item) ;
+bool inotify_items_free(rb_tree_t * items) 
+{
+    rb_node_t * node = NULL ;
+    while((node = rb_first(items)) != NULL)
+    {
+        inotify_item_free((inotify_item_t *)node) ;
+        rb_erase(items , node) ;
 
-int inotify_mgr_add(inotify_mgr_t * mgr , const char * name , uit32_t mask) ;
-bool inotify_mgr_del(inotify_mgr_t * mgr , int wd) ;
+        ::free(node) ;
+    }
+    return true ;
+}
+
+bool inotify_item_free(inotify_item_t * item)
+{
+    HANDLE handle = item->handle ;
+    if(handle == NULL)
+        return false ;
+
+    ::FindCloseChangeNotification(handle) ;
+    return true ;
+}
+
+size_t inotify_item_size() 
+{
+    inotify_item_t dummy ;
+    return (size_t)((char *)&dummy - dummy.data.name) ;
+}
+
+int inotify_mgr_add(inotify_mgr_t * mgr , const char * name , uint32_t mask)
+{
+    if(mgr == NULL || name == NULL || mask == 0)
+    {
+        errno = EINVAL ;
+        return -1 ;
+    }
+
+    size_t item_size = inotify_item_size() ;
+    size_t name_size = 0 ;
+    if(name != NULL)
+        name_size = ::strlen(name) ;
+
+    size_t size = item_size + name_size + 1;
+    inotify_ite_t * item = (inotify_ite_t * )::malloc(size) ;
+    if(item == NULL)
+    {
+        errno = ENOMEM ;
+        return -1 ;
+    }
+    ::memset(item , 0 , size) ;
+
+    item->data.mask = mask ;
+    ::memcpy(item->data.name , name , name_size) ;
+    item->data.len = name_size + 1 ;
+
+    if(::WaitForSingleObject(mgr->locker , INFINITE) != WAIT_OBJECT_0)
+    {
+        ::free(item) ;
+        return -1 ;
+    }
+    int wd = ++mgr->last_id ;
+    item->data.wd = wd ;
+
+    return 0 ;
+}
+
+bool inotify_mgr_del(inotify_mgr_t * mgr , int wd)
+{
+    return false ;
+}
 

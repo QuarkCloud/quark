@@ -2,7 +2,7 @@
 #include "rbtree.h"
 #include <errno.h>
 
-static void __rb_rotate_left(rb_root_t *root , rb_node_t * node)
+static void __rb_rotate_left(rb_tree_t *root , rb_node_t * node)
 {
 	rb_node_t *right = node->right;
 
@@ -22,7 +22,7 @@ static void __rb_rotate_left(rb_root_t *root , rb_node_t * node)
 	node->parent = right;
 }
 
-static void __rb_rotate_right(rb_root_t *root , rb_node_t *node)
+static void __rb_rotate_right(rb_tree_t *root , rb_node_t *node)
 {
 	rb_node_t *left = node->left;
 
@@ -42,7 +42,7 @@ static void __rb_rotate_right(rb_root_t *root , rb_node_t *node)
 	node->parent = left;
 }
 
-void rb_insert_color(rb_root_t *root , rb_node_t *node)
+void rb_insert_color(rb_tree_t *root , rb_node_t *node)
 {
 	rb_node_t *parent, *gparent;
 
@@ -107,7 +107,7 @@ void rb_insert_color(rb_root_t *root , rb_node_t *node)
 	root->root->color = RB_BLACK;
 }
 
-static void __rb_erase_color(rb_root_t *root , rb_node_t *node, rb_node_t *parent)
+static void __rb_erase_color(rb_tree_t *root , rb_node_t *node, rb_node_t *parent)
 {
 	rb_node_t *other;
 
@@ -198,7 +198,7 @@ static void __rb_erase_color(rb_root_t *root , rb_node_t *node, rb_node_t *paren
 		node->color = RB_BLACK;
 }
 
-void rb_erase(rb_root_t *root , rb_node_t *node)
+void rb_erase(rb_tree_t *root , rb_node_t *node)
 {
 	rb_node_t *child, *parent;
 	int color;
@@ -272,7 +272,7 @@ void rb_erase(rb_root_t *root , rb_node_t *node)
 		__rb_erase_color(root , child, parent);
 }
 
-bool rb_insert(rb_root_t * root , rb_node_t * node)
+bool rb_insert(rb_tree_t * root , rb_node_t * node)
 {
     if(root == NULL || root->key_compare == NULL || node == NULL)
     {
@@ -292,7 +292,7 @@ bool rb_insert(rb_root_t * root , rb_node_t * node)
     return true ;
 }
 
-rb_node_t * rb_find(rb_root_t * root , const rb_node_t * node)
+rb_node_t * rb_find(rb_tree_t * root , const rb_node_t * node)
 {
     if(root == NULL || root->key_compare == NULL || node == NULL)
     {
@@ -315,7 +315,7 @@ rb_node_t * rb_find(rb_root_t * root , const rb_node_t * node)
     return NULL ;
 }
 
-rb_node_t * rb_lower_bound(rb_root_t * root , const rb_node_t * node)
+rb_node_t * rb_lower_bound(rb_tree_t * root , const rb_node_t * node)
 {
     if(root == NULL || root->key_compare == NULL || node == NULL)
     {
@@ -336,7 +336,7 @@ rb_node_t * rb_lower_bound(rb_root_t * root , const rb_node_t * node)
     return NULL ;
 }
 
-rb_node_t * rb_upper_bound(rb_root_t * root , const rb_node_t * node)
+rb_node_t * rb_upper_bound(rb_tree_t * root , const rb_node_t * node)
 {
     if(root == NULL || root->key_compare == NULL || node == NULL)
     {
@@ -361,7 +361,7 @@ rb_node_t * rb_upper_bound(rb_root_t * root , const rb_node_t * node)
 /*
  * This function returns the first node (in sort order) of the tree.
  */
-rb_node_t *rb_first(rb_root_t *root)
+rb_node_t *rb_first(rb_tree_t *root)
 {
 	rb_node_t	*n;
 
@@ -374,7 +374,7 @@ rb_node_t *rb_first(rb_root_t *root)
 }
 // EXPORT_SYMBOL(rb_first);
 
-rb_node_t *rb_last(rb_root_t *root)
+rb_node_t *rb_last(rb_tree_t *root)
 {
 	rb_node_t	*n;
 
@@ -431,7 +431,7 @@ rb_node_t *rb_prev(rb_node_t *node)
 }
 // EXPORT_SYMBOL(rb_prev);
 
-void rb_replace_node(rb_node_t *victim, rb_node_t *new_node,   rb_root_t *root)
+void rb_replace_node(rb_node_t *victim, rb_node_t *new_node,   rb_tree_t *root)
 {
 	rb_node_t *parent = victim->parent;
 
