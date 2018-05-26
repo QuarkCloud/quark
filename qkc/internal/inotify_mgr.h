@@ -44,8 +44,13 @@ bool inotify_item_free(inotify_item_t * item) ;
 size_t inotify_item_size() ;
 
 int inotify_mgr_add(inotify_mgr_t * mgr , const char * name , uint32_t mask) ;
-bool inotify_mgr_del(inotify_mgr_t * mgr , int wd) ;
+bool inotify_mgr_del(inotify_mgr_t *  mgr , int wd) ;
 
+//TO-DO : ÊÂ¼þµÄÓ³Éä
+DWORD inotify_from_linux(uint32_t mask) ;
+uint32_t inotify_to_linux(DWORD fiter) ;
+
+int inotify_read(inotify_mgr_t * mgr , char * buffer , int bufsize) ;
 
 #ifdef __cplusplus
 }
