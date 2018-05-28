@@ -32,6 +32,8 @@ QKCAPI char *strtok_r (char * s, const char * delim,  char ** save_ptr);
 QUARK_LINKAGE size_t strlen (const char *s);
 QUARK_LINKAGE char *strerror (int errnum) ;
 
+QUARK_LINKAGE size_t wcslen(const wchar_t * s);
+QUARK_LINKAGE size_t wcsnlen(const wchar_t * s, size_t max_count);
 
 #ifdef __cplusplus
 }

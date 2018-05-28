@@ -101,7 +101,16 @@ bool inotify_item_free(inotify_item_t * item)
     if(handle == NULL)
         return false ;
 
-    ::FindCloseChangeNotification(handle) ;
+    item->handle = NULL ;
+    ::CloseHandle(handle) ;
+
+    inotify_ovlp_t * ovlp = item->olvp ;
+    item->olvp = NULL ;
+    if(ovlp != NULL)
+    {
+        ovlp->item = NULL ;
+        ::free(ovlp) ;
+    }
     return true ;
 }
 
@@ -137,6 +146,15 @@ int inotify_mgr_add(inotify_mgr_t * mgr , const char * name , uint32_t mask)
     ::memcpy(item->data.name , name , name_size) ;
     item->data.len = name_size + 1 ;
 
+    HANDLE inotify_handle = ::CreateFileA(name , GENERIC_READ | GENERIC_WRITE | FILE_LIST_DIRECTORY,
+        FILE_SHARE_READ | FILE_SHARE_WRITE , NULL , OPEN_EXISTING , FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED , NULL) ;
+    item->handle = inotify_handle ;
+
+    inotify_ovlp_t * ovlp = (inotify_ovlp_t *)::malloc(sizeof(inotify_ovlp_t)) ;
+    ::memset(ovlp , 0 , sizeof(inotify_ovlp_t)) ;
+    ovlp->item = item ;
+    item->olvp = ovlp ;
+
     if(::WaitForSingleObject(mgr->locker , INFINITE) != WAIT_OBJECT_0)
     {
         ::free(item) ;
@@ -144,14 +162,15 @@ int inotify_mgr_add(inotify_mgr_t * mgr , const char * name , uint32_t mask)
     }
     int wd = ++mgr->last_id ;
     item->data.wd = wd ;
-
     rb_insert(&mgr->items , &item->node) ;
 
+    ::CreateIoCompletionPort(inotify_handle , mgr->iocp , (ULONG_PTR)wd , 0) ;
+
     DWORD filter = inotify_from_linux(mask) ;
-    HANDLE hnotify = ::FindFirstChangeNotificationA(name , TRUE , filter) ;
-    //if(hnotify == NULL)
-    item->handle = hnotify ;
-    ::CreateIoCompletionPort(hnotify , mgr->iocp , NULL , 0) ;
+    DWORD bytes_returned = 0 ;
+    ovlp->buffer = ovlp->cache ;
+    ::ReadDirectoryChangesW(inotify_handle , ovlp->buffer , kOvlpBufferSize , FALSE , filter ,
+        &bytes_returned , (LPOVERLAPPED)ovlp , NULL) ;
 
     ::ReleaseSemaphore(mgr->locker , 1 , NULL) ;
     return wd ;
@@ -168,23 +187,25 @@ bool inotify_mgr_del(inotify_mgr_t * mgr , int wd)
     if(::WaitForSingleObject(mgr->locker , INFINITE) != WAIT_OBJECT_0)
         return false ;
 
+    bool result = false ;
     inotify_item_t kval , *item = NULL;
     ::memset(&kval , 0 , sizeof(inotify_item_t)) ;
     kval.data.wd = wd ;
     item = (inotify_item_t *)rb_find(&mgr->items , &kval.node) ;
     if(item == NULL)
-    {
         errno = ENOENT ;
-        return false ;
+    else
+    {
+        rb_erase(&mgr->items , &item->node) ;
+        inotify_item_free(item) ;
+        ::free(item) ;
+        mgr->count-- ;
+
+        result = true ;
     }
 
-    rb_erase(&mgr->items , &item->node) ;
-    inotify_item_free(item) ;
-    ::free(item) ;
-    mgr->count-- ;
-
     ::ReleaseMutex(mgr->locker) ;
-    return true ;
+    return result ;
 }
 
 DWORD inotify_from_linux(uint32_t mask)
@@ -209,6 +230,41 @@ uint32_t inotify_to_linux(DWORD fiter)
 }
 
 int inotify_read(inotify_mgr_t * mgr , char * buffer , int bufsize) 
+{  
+    if(::WaitForSingleObject(mgr->locker , INFINITE) != WAIT_OBJECT_0)
+        return -1 ;
+
+    DWORD bytes_returned = 0 ;
+    ULONG_PTR key = 0 ;
+    LPOVERLAPPED povlp = NULL ;
+
+    int result_size = 0 ;
+
+    while(result < bufsize)
+    {
+        if(::GetQueuedCompletionStatus(mgr->iocp , &bytes_returned , &key , &povlp , 0) == TRUE)
+        {
+            inotify_ovlp_t * ovlp = (inotify_ovlp_t *)povlp ;
+            FILE_NOTIFY_INFORMATION * notify_info = (FILE_NOTIFY_INFORMATION *)ovlp->buffer ;
+            DWORD next_entry_offset = 0 ;
+            do{
+                next_entry_offset = notify_info->NextEntryOffset ;
+            
+            
+            }while(next_entry_offset != 0) ;
+
+        }
+    }
+
+    ::ReadDirectoryChangesW() ;
+    return 0 ;
+}
+
+int wide_to_char(const wchar_t * wstr , int bytes , char * str , int len) 
 {
+    size_t wsize = ::wcsnlen(wstr , bytes) ;
+
+    int nbytes = ::WideCharToMultiByte(0 , 0 , wstr , wsize , NULL , 0 , NULL , NULL) ;
+
     return 0 ;
 }

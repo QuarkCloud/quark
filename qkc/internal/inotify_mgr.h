@@ -14,16 +14,30 @@
 extern "C" {
 #endif
 
+/**
+    FindFirstChangeNotification不能够提示具体变化情况，用ReadDirectoryChangesW
+*/
+
 typedef struct __st_inotify_item    inotify_item_t ;
 typedef struct __st_inotify_mgr     inotify_mgr_t ;
+typedef struct __st_inotify_ovlp    inotify_ovlp_t ;
 
 struct __st_inotify_item{
     rb_node_t               node ;
     HANDLE                  handle ;
     uint32_t                occur ;     //已经触发的事件
     inotify_mgr_t *         owner ;
+    inotify_ovlp_t *        olvp ;
     struct inotify_event    data ;
 };
+
+static const size_t kOvlpBufferSize = 1024 ;
+struct __st_inotify_ovlp{
+    OVERLAPPED          ovlp ;
+    inotify_item_t     *item ;
+    char * buffer ;
+    char cache[kOvlpBufferSize] ;    
+} ;
 
 struct __st_inotify_mgr{
     int     ifd ;
@@ -51,6 +65,8 @@ DWORD inotify_from_linux(uint32_t mask) ;
 uint32_t inotify_to_linux(DWORD fiter) ;
 
 int inotify_read(inotify_mgr_t * mgr , char * buffer , int bufsize) ;
+
+int wide_to_char(const wchar_t * wstr , int bytes , char * str , int len) ;
 
 #ifdef __cplusplus
 }

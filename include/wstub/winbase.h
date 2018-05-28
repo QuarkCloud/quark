@@ -2256,6 +2256,14 @@ WINBASEAPI HANDLE WINAPI CreateFileW(LPCWSTR lpFileName,DWORD dwDesiredAccess,DW
 
 #define CreateFile DECLEAR_FUNC_AW(CreateFile)
 
+WINBASEAPI int WINAPI MultiByteToWideChar(UINT CodePage,DWORD dwFlags ,
+    LPCSTR lpMultiByteStr,int cbMultiByte, LPWSTR lpWideCharStr, int cchWideChar);
+
+WINBASEAPI int WINAPI WideCharToMultiByte(UINT     CodePage,DWORD    dwFlags,
+    LPCWSTR  lpWideCharStr, int cchWideChar, LPSTR lpMultiByteStr, int  cbMultiByte,
+    LPCSTR   lpDefaultChar, LPBOOL  lpUsedDefaultChar);
+
+
 #ifdef __cplusplus
 }
 #endif
