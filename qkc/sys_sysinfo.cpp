@@ -83,12 +83,12 @@ int sysinfo (struct sysinfo * info)
 
 int get_nprocs_conf (void)
 {
-    return 0 ;
+    return (int)GetNumberOfProcessors() ;
 }
 
 int get_nprocs (void)
 {
-    return 0 ;
+    return (int)GetNumberOfProcessors() ;
 }
 
 long int get_phys_pages (void)
