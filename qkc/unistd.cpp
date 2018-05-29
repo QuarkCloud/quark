@@ -4,6 +4,7 @@
 #include <wintf/wcrt.h>
 #include <wintf/wobj.h>
 #include <winsock2.h>
+#include "internal/inotify_mgr.h"
 
 off_t lseek(int fd , off_t offset , int whence)
 {
@@ -27,8 +28,8 @@ int close(int fd)
         return -1 ;
     }
 
+    int result = 0 ;
     wobj_type type = wobj->type ;
-
     if(type == WOBJ_OTHR || type == WOBJ_PROC || type == WOBJ_THRD || 
         type == WOBJ_MUTEX || type == WOBJ_SEMA || type == WOBJ_EVENT || 
         type == WOBJ_IOCP)
@@ -45,15 +46,16 @@ int close(int fd)
     }
     else if(type == WOBJ_NOTF) 
     {
-        ::FindCloseChangeNotification(wobj->handle) ;
+        inotify_mgr_free((inotify_mgr_t *)wobj->addition) ;
     }
     else
     {
         errno = ENOSYS ;
-        return -1 ;
+        result = -1 ;
     }
 
-    return 0 ;
+    ::wobj_del(fd) ;
+    return result ;
 }
 
 ssize_t read(int fd , void * buf , size_t nbytes)

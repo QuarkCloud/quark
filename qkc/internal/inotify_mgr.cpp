@@ -116,8 +116,13 @@ bool inotify_item_free(inotify_item_t * item)
 
 size_t inotify_item_size() 
 {
-    inotify_item_t dummy ;
-    return (size_t)((char *)&dummy - dummy.data.name) ;
+    static size_t __inotify_item_size = 0 ;
+    if(__inotify_item_size == 0)
+    {
+        inotify_item_t dummy ;
+        __inotify_item_size = (size_t)((char *)&dummy - dummy.data.name) ;
+    }
+    return __inotify_item_size ;
 }
 
 int inotify_mgr_add(inotify_mgr_t * mgr , const char * name , uint32_t mask)
@@ -224,9 +229,25 @@ DWORD inotify_from_linux(uint32_t mask)
     return filter ;
 }
 
-uint32_t inotify_to_linux(DWORD fiter)
+uint32_t inotify_to_linux(DWORD action)
 {
-    return IN_ALL_EVENTS ;
+/**
+    FILE_ACTION_ADDED               The file was added to the directory.
+    FILE_ACTION_REMOVED             The file was removed from the directory.
+    FILE_ACTION_MODIFIED            The file was modified. This can be a change in the time stamp or attributes.
+    FILE_ACTION_RENAMED_OLD_NAME    The file was renamed and this is the old name.
+    FILE_ACTION_RENAMED_NEW_NAME    The file was renamed and this is the new name.
+*/
+    uint32_t mask = 0 ;
+    if(action == FILE_ACTION_ADDED)
+        mask = IN_CREATE ;
+    else if(action == FILE_ACTION_REMOVED)
+        mask = IN_DELETE ;
+    else if(action == FILE_ACTION_MODIFIED)
+        mask = IN_MODIFY | IN_ATTRIB;
+    //(action == FILE_ACTION_RENAMED_OLD_NAME || action == FILE_ACTION_RENAMED_NEW_NAME)
+
+    return mask ;
 }
 
 int inotify_read(inotify_mgr_t * mgr , char * buffer , int bufsize) 
@@ -238,25 +259,74 @@ int inotify_read(inotify_mgr_t * mgr , char * buffer , int bufsize)
     ULONG_PTR key = 0 ;
     LPOVERLAPPED povlp = NULL ;
 
-    int result_size = 0 ;
+    int result_size = 0 , expect_size = 0 ;
+    struct inotify_event * ievents = (struct inotify_event *) buffer;
 
-    while(result < bufsize)
+    while(expect_size < bufsize)
     {
         if(::GetQueuedCompletionStatus(mgr->iocp , &bytes_returned , &key , &povlp , 0) == TRUE)
         {
+            DWORD parse_size = 0 , next_entry_offset = 0;
             inotify_ovlp_t * ovlp = (inotify_ovlp_t *)povlp ;
-            FILE_NOTIFY_INFORMATION * notify_info = (FILE_NOTIFY_INFORMATION *)ovlp->buffer ;
-            DWORD next_entry_offset = 0 ;
+            FILE_NOTIFY_INFORMATION * info = (FILE_NOTIFY_INFORMATION *)ovlp->buffer ;
             do{
-                next_entry_offset = notify_info->NextEntryOffset ;
-            
+                next_entry_offset = info->NextEntryOffset ;
+                uint32_t mask = inotify_to_linux(info->Action) ;
+                if(mask > 0)
+                {
+                    char file_name[1024] ;
+                    int nsize = ::wide_to_char(info->FileName , info->FileNameLength , file_name , sizeof(file_name)) ;
+                    if(nsize > 0)
+                    {
+                        int ievent_size = (int)inotify_item_size() + nsize + 1 ;
+                        expect_size += ievent_size ;
+                        if(expect_size >= bufsize)
+                            break ;
+
+                        ::memset(ievents , 0 , ievent_size) ;
+                        ievents->wd = (int)key ;
+                        ievents->mask = mask ;
+
+                        ::memcpy(ievents->name , file_name , nsize) ;
+                        ievents->name[nsize] = '\0' ;
+                        ++nsize ;
+                        ievents->len = nsize ;
+
+                        result_size += ievent_size ;
+                    }
+                }
+
+                parse_size += next_entry_offset ;
+                info = (FILE_NOTIFY_INFORMATION *)(ovlp->buffer + parse_size) ;
+                if(next_entry_offset == 0)
+                {
+                    DWORD info_size = (DWORD)((char *)info->FileName - (char *)info) ;
+                    info_size += info->FileNameLength ;
+                    parse_size += info_size ;
+                }
             
             }while(next_entry_offset != 0) ;
 
+            if(next_entry_offset != 0)
+            {
+                //没有处理完
+                ovlp->buffer += parse_size ;
+                bytes_returned -= parse_size ;
+
+                ::PostQueuedCompletionStatus(mgr->iocp , bytes_returned , key , (LPOVERLAPPED)ovlp) ;
+                break ;
+            }
+
+            inotify_item_t * item = ovlp->item ;
+            ovlp->buffer = ovlp->cache ;
+            ::ReadDirectoryChangesW(item->handle , ovlp->buffer , kOvlpBufferSize , FALSE , inotify_from_linux(item->data.mask) , 
+                NULL , (LPOVERLAPPED)ovlp , NULL) ;
+        }
+        else
+        {
+            break ;
         }
     }
-
-    ::ReadDirectoryChangesW() ;
     return 0 ;
 }
 
@@ -266,5 +336,9 @@ int wide_to_char(const wchar_t * wstr , int bytes , char * str , int len)
 
     int nbytes = ::WideCharToMultiByte(0 , 0 , wstr , wsize , NULL , 0 , NULL , NULL) ;
 
-    return 0 ;
+    if(nbytes > len)
+        return -1 ;
+
+    nbytes = ::WideCharToMultiByte(0 , 0 , wstr , wsize , str , len , NULL , NULL) ;
+    return nbytes ;
 }

@@ -16,6 +16,8 @@ extern "C" {
 
 /**
     FindFirstChangeNotification不能够提示具体变化情况，用ReadDirectoryChangesW
+    2018-05-29
+    初步实现原型，等待后续继续完善。根据inotify的应用来调整
 */
 
 typedef struct __st_inotify_item    inotify_item_t ;
@@ -62,7 +64,7 @@ bool inotify_mgr_del(inotify_mgr_t *  mgr , int wd) ;
 
 //TO-DO : 事件的映射
 DWORD inotify_from_linux(uint32_t mask) ;
-uint32_t inotify_to_linux(DWORD fiter) ;
+uint32_t inotify_to_linux(DWORD action) ;
 
 int inotify_read(inotify_mgr_t * mgr , char * buffer , int bufsize) ;
 
