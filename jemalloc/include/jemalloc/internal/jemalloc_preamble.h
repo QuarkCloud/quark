@@ -9,21 +9,6 @@
 #endif
 
 #define JEMALLOC_NO_DEMANGLE
-#ifdef JEMALLOC_JET
-#  undef JEMALLOC_IS_MALLOC
-#  define JEMALLOC_N(n) jet_##n
-#  include "jemalloc/internal/public_namespace.h"
-#  define JEMALLOC_NO_RENAME
-#  include "../jemalloc@install_suffix@.h"
-#  undef JEMALLOC_NO_RENAME
-#else
-#  define JEMALLOC_N(n) @private_namespace@##n
-#  include "../jemalloc@install_suffix@.h"
-#endif
-
-#if (defined(JEMALLOC_OSATOMIC) || defined(JEMALLOC_OSSPIN))
-#include <libkern/OSAtomic.h>
-#endif
 
 #ifdef JEMALLOC_ZONE
 #include <mach/mach_error.h>

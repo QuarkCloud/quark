@@ -22,5 +22,7 @@ typedef int64_t                 intptr_t  ;
 typedef uint64_t                uintptr_t ;
 #endif
 
+typedef unsigned int    size_t ;
+
 
 #endif  /** __QKC_STDINT_H */

@@ -207,6 +207,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\dummy.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\extent.c"
 				>
 			</File>

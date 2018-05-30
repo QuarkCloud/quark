@@ -14,10 +14,10 @@ extern "C" {
 
 
 /* pthread attrs暂不实现 ，用得不多*/
-typedef struct __st_pthread_attr{} pthread_attr_t;
-typedef struct __st_pthread_mutex_attr{} pthread_mutexattr_t;
-typedef struct __st_pthread_rwlock_attr{} pthread_rwlockattr_t;
-typedef struct __st_pthread_cond_attr{} pthread_condattr_t;
+typedef struct __st_pthread_attr{int dummy ;} pthread_attr_t;
+typedef struct __st_pthread_mutex_attr{int dummy ;} pthread_mutexattr_t;
+typedef struct __st_pthread_rwlock_attr{int dummy ;} pthread_rwlockattr_t;
+typedef struct __st_pthread_cond_attr{int dummy ;} pthread_condattr_t;
 
 
 typedef int pthread_t;

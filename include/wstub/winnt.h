@@ -52,11 +52,6 @@ typedef long LONG;
 typedef int INT;
 #endif
 
-/**
-#ifndef wchar_t
-typedef short wchar_t;
-#endif
-*/
 typedef SHORT *PSHORT;  
 typedef LONG *PLONG;   
 
