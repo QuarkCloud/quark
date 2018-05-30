@@ -51,6 +51,7 @@
 				WarningLevel="3"
 				DebugInformationFormat="4"
 				DisableSpecificWarnings="4996"
+				ShowIncludes="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -207,10 +208,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\dummy.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\extent.c"
 				>
 			</File>
@@ -232,10 +229,6 @@
 			</File>
 			<File
 				RelativePath=".\src\jemalloc.c"
-				>
-			</File>
-			<File
-				RelativePath=".\src\jemalloc_cpp.cpp"
 				>
 			</File>
 			<File

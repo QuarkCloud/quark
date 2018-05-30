@@ -395,6 +395,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\ctype.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\dirent.h"
 				>
 			</File>
@@ -455,6 +459,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\stdbool.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\stddef.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\stdint.h"
 				>
 			</File>
@@ -468,6 +480,10 @@
 			</File>
 			<File
 				RelativePath="..\include\string.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\strings.h"
 				>
 			</File>
 			<File

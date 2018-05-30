@@ -166,16 +166,12 @@ typedef int malloc_cpuid_t;
 
 /* Declare a variable-length array. */
 #if __STDC_VERSION__ < 199901L
-#  ifdef _MSC_VER
-#    include <malloc.h>
-#    define alloca _alloca
-#  else
 #    ifdef JEMALLOC_HAS_ALLOCA_H
 #      include <alloca.h>
 #    else
 #      include <stdlib.h>
 #    endif
-#  endif
+
 #  define VARIABLE_ARRAY(type, name, count) \
 	type *name = alloca(sizeof(type) * (count))
 #else

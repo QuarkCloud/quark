@@ -301,7 +301,7 @@
 /* #undef JEMALLOC_THP */
 
 /* Define if operating system has alloca.h header. */
-#define JEMALLOC_HAS_ALLOCA_H 1
+#undef JEMALLOC_HAS_ALLOCA_H
 
 /* C99 restrict keyword supported. */
 #define JEMALLOC_HAS_RESTRICT 1
