@@ -43,7 +43,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)include\wstub&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;QKC_EXPORTS"
-				IgnoreStandardIncludePath="false"
+				IgnoreStandardIncludePath="true"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -511,6 +511,10 @@
 				</File>
 				<File
 					RelativePath="..\include\sys\mman.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\sys\param.h"
 					>
 				</File>
 				<File
