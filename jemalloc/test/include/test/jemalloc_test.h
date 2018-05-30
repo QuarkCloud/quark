@@ -55,7 +55,7 @@ extern "C" {
 #elif defined(JEMALLOC_INTEGRATION_TEST) || \
     defined(JEMALLOC_INTEGRATION_CPP_TEST)
 #  define JEMALLOC_MANGLE
-#  include "jemalloc/jemalloc@install_suffix@.h"
+#  include "jemalloc/jemalloc.h"
 #  include "jemalloc/internal/jemalloc_internal_defs.h"
 #  include "jemalloc/internal/jemalloc_internal_macros.h"
 
@@ -67,7 +67,7 @@ static const bool config_debug =
 #endif
     ;
 
-#  define JEMALLOC_N(n) @private_namespace@##n
+#  define JEMALLOC_N(n) je_##n
 #  include "jemalloc/internal/private_namespace.h"
 #  include "jemalloc/internal/test_hooks.h"
 
@@ -89,7 +89,7 @@ static const bool config_debug =
  * a separate allocator for their internal data structures.
  */
 #elif defined(JEMALLOC_STRESS_TEST)
-#  include "jemalloc/jemalloc@install_suffix@.h"
+#  include "jemalloc/jemalloc.h"
 
 #  include "jemalloc/jemalloc_protos_jet.h"
 
