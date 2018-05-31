@@ -51,7 +51,7 @@
 				WarningLevel="3"
 				DebugInformationFormat="4"
 				DisableSpecificWarnings="4996"
-				ShowIncludes="true"
+				ShowIncludes="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -176,131 +176,131 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\arena.c"
+				RelativePath=".\src\arena.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\background_thread.c"
+				RelativePath=".\src\background_thread.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\base.c"
+				RelativePath=".\src\base.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\bin.c"
+				RelativePath=".\src\bin.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\bitmap.c"
+				RelativePath=".\src\bitmap.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\ckh.c"
+				RelativePath=".\src\ckh.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\ctl.c"
+				RelativePath=".\src\ctl.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\div.c"
+				RelativePath=".\src\div.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\extent.c"
+				RelativePath=".\src\extent.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\extent_dss.c"
+				RelativePath=".\src\extent_dss.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\extent_mmap.c"
+				RelativePath=".\src\extent_mmap.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\hash.c"
+				RelativePath=".\src\hash.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\hook.c"
+				RelativePath=".\src\hook.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\jemalloc.c"
+				RelativePath=".\src\jemalloc.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\large.c"
+				RelativePath=".\src\large.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\log.c"
+				RelativePath=".\src\log.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\malloc_io.c"
+				RelativePath=".\src\malloc_io.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\mutex.c"
+				RelativePath=".\src\mutex.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\mutex_pool.c"
+				RelativePath=".\src\mutex_pool.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\nstime.c"
+				RelativePath=".\src\nstime.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\pages.c"
+				RelativePath=".\src\pages.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\prng.c"
+				RelativePath=".\src\prng.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\prof.c"
+				RelativePath=".\src\prof.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\rtree.c"
+				RelativePath=".\src\rtree.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\stats.c"
+				RelativePath=".\src\stats.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\sz.c"
+				RelativePath=".\src\sz.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\tcache.c"
+				RelativePath=".\src\tcache.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\test_hooks.c"
+				RelativePath=".\src\test_hooks.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\ticker.c"
+				RelativePath=".\src\ticker.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\tsd.c"
+				RelativePath=".\src\tsd.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\witness.c"
+				RelativePath=".\src\witness.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\zone.c"
+				RelativePath=".\src\zone.cpp"
 				>
 			</File>
 		</Filter>
