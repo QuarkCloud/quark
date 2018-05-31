@@ -1,6 +1,7 @@
 #ifndef __QKC_SYS_INOTIFY_H
 #define __QKC_SYS_INOTIFY_H 1
 
+#include <quark_compile.h>
 #include <stdint.h>
 
 

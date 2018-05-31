@@ -45,21 +45,13 @@
 /* Set error code. */
 UTIL_INLINE void
 set_errno(int errnum) {
-#ifdef _WIN32
-	SetLastError(errnum);
-#else
 	errno = errnum;
-#endif
 }
 
 /* Get last error code. */
 UTIL_INLINE int
 get_errno(void) {
-#ifdef _WIN32
-	return GetLastError();
-#else
 	return errno;
-#endif
 }
 
 #undef UTIL_INLINE

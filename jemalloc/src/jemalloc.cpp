@@ -2015,9 +2015,7 @@ imalloc(static_opts_t *sopts, dynamic_opts_t *dopts) {
  * Begin malloc(3)-compatible functions.
  */
 
-JEMALLOC_EXPORT JEMALLOC_ALLOCATOR JEMALLOC_RESTRICT_RETURN
-void JEMALLOC_NOTHROW *
-JEMALLOC_ATTR(malloc) JEMALLOC_ALLOC_SIZE(1)
+void *
 je_malloc(size_t size) {
 	void *ret;
 	static_opts_t sopts;

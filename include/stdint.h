@@ -2,7 +2,7 @@
 #ifndef __QKC_STDINT_H
 #define __QKC_STDINT_H 1
 
-#include <quark_compile.h>
+#include <bits/wordsize.h>
 
 typedef char                    int8_t    ;
 typedef unsigned char           uint8_t   ;
@@ -21,6 +21,9 @@ typedef uint32_t                uintptr_t ;
 typedef int64_t                 intptr_t  ;
 typedef uint64_t                uintptr_t ;
 #endif
+
+typedef int64_t                 intmax_t ;
+typedef uint64_t                uintmax_t ;
 
 
 #endif  /** __QKC_STDINT_H */

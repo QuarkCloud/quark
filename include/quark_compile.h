@@ -6,12 +6,6 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#if defined(_WIN32) || defined(WIN32)
-	#define __WORDSIZE 32
-#elif defined(_WIN64) || defined(WIN64)
-	#define __WORDSIZE 64
-#endif
-
 #ifndef NULL
 #ifdef __cplusplus
 #define NULL    0

@@ -37,7 +37,7 @@ extern "C" {
  * with C++.  The only justification for this is to match the prototypes that
  * glibc defines.
  */
-#define JEMALLOC_USE_CXX_THROW
+//#define JEMALLOC_USE_CXX_THROW
 
 #ifdef _MSC_VER
 #  ifdef _WIN64
@@ -211,12 +211,15 @@ extern "C" {
 extern JEMALLOC_EXPORT const char	*je_malloc_conf;
 extern JEMALLOC_EXPORT void		(*je_malloc_message)(void *cbopaque,
     const char *s);
+/**
+JEMALLOC_EXPORT JEMALLOC_ALLOCATOR JEMALLOC_RESTRICT_RETURN
+    void JEMALLOC_NOTHROW	*je_malloc(size_t size) 
+    JEMALLOC_CXX_THROW JEMALLOC_ATTR(malloc) JEMALLOC_ALLOC_SIZE(1);
+*/
+JEMALLOC_EXPORT void *je_malloc(size_t size) ;
 
 JEMALLOC_EXPORT JEMALLOC_ALLOCATOR JEMALLOC_RESTRICT_RETURN
-    void JEMALLOC_NOTHROW	*je_malloc(size_t size)
-    JEMALLOC_CXX_THROW JEMALLOC_ATTR(malloc) JEMALLOC_ALLOC_SIZE(1);
-JEMALLOC_EXPORT JEMALLOC_ALLOCATOR JEMALLOC_RESTRICT_RETURN
-    void JEMALLOC_NOTHROW	*je_calloc(size_t num, size_t size)
+    void JEMALLOC_NOTHROW	*je_calloc(size_t num, size_t size) ;
     JEMALLOC_CXX_THROW JEMALLOC_ATTR(malloc) JEMALLOC_ALLOC_SIZE2(1, 2);
 JEMALLOC_EXPORT int JEMALLOC_NOTHROW	je_posix_memalign(void **memptr,
     size_t alignment, size_t size) JEMALLOC_CXX_THROW JEMALLOC_ATTR(nonnull(1));

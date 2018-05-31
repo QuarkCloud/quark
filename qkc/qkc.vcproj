@@ -41,6 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)include\wstub&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;QKC_EXPORTS"
 				IgnoreStandardIncludePath="true"
@@ -182,6 +183,10 @@
 			>
 			<File
 				RelativePath=".\arpa_inet.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\builtin.cpp"
 				>
 			</File>
 			<File
@@ -390,6 +395,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\include\builtin.h"
+				>
+			</File>
 			<File
 				RelativePath="..\include\byteswap.h"
 				>
@@ -666,6 +675,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\internal\intrin.h"
+					>
+				</File>
+				<File
 					RelativePath=".\internal\iocp_mgr.h"
 					>
 				</File>
@@ -683,6 +696,14 @@
 				</File>
 				<File
 					RelativePath=".\internal\rxtree.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="bits"
+				>
+				<File
+					RelativePath="..\include\bits\wordsize.h"
 					>
 				</File>
 			</Filter>
