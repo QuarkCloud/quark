@@ -357,23 +357,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\include\jemalloc\internal\atomic.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\jemalloc\internal\atomic_c11.h"
-					>
-				</File>
-				<File
 					RelativePath=".\include\jemalloc\internal\atomic_gcc_atomic.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\jemalloc\internal\atomic_gcc_sync.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\jemalloc\internal\atomic_msvc.h"
 					>
 				</File>
 				<File

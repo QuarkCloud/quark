@@ -2,6 +2,7 @@
 #define JEMALLOC_INTERNAL_BIT_UTIL_H
 
 #include "jemalloc/internal/assert.h"
+#include <builtin.h>
 
 #define BIT_UTIL_INLINE static inline
 
@@ -96,50 +97,6 @@ pow2_ceil_zu(size_t x) {
 #endif
 }
 
-#if (defined(__i386__) || defined(__amd64__) || defined(__x86_64__))
-BIT_UTIL_INLINE unsigned
-lg_floor(size_t x) {
-	size_t ret;
-	assert(x != 0);
-
-	asm ("bsr %1, %0"
-	    : "=r"(ret) // Outputs.
-	    : "r"(x)    // Inputs.
-	    );
-	assert(ret < UINT_MAX);
-	return (unsigned)ret;
-}
-#elif (defined(_MSC_VER))
-BIT_UTIL_INLINE unsigned
-lg_floor(size_t x) {
-	unsigned long ret;
-
-	assert(x != 0);
-
-#if (LG_SIZEOF_PTR == 3)
-	_BitScanReverse64(&ret, x);
-#elif (LG_SIZEOF_PTR == 2)
-	_BitScanReverse(&ret, x);
-#else
-#  error "Unsupported type size for lg_floor()"
-#endif
-	assert(ret < UINT_MAX);
-	return (unsigned)ret;
-}
-#elif (defined(JEMALLOC_HAVE_BUILTIN_CLZ))
-BIT_UTIL_INLINE unsigned
-lg_floor(size_t x) {
-	assert(x != 0);
-
-#if (LG_SIZEOF_PTR == LG_SIZEOF_INT)
-	return ((8 << LG_SIZEOF_PTR) - 1) - __builtin_clz(x);
-#elif (LG_SIZEOF_PTR == LG_SIZEOF_LONG)
-	return ((8 << LG_SIZEOF_PTR) - 1) - __builtin_clzl(x);
-#else
-#  error "Unsupported type size for lg_floor()"
-#endif
-}
-#else
 BIT_UTIL_INLINE unsigned
 lg_floor(size_t x) {
 	assert(x != 0);
@@ -158,7 +115,7 @@ lg_floor(size_t x) {
 	x++;
 	return ffs_zu(x) - 2;
 }
-#endif
+
 
 #undef BIT_UTIL_INLINE
 

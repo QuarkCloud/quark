@@ -6,6 +6,9 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
+//#if (defined(__i386__) || defined(__amd64__) || defined(__x86_64__))
+#define __i386__
+
 #ifndef NULL
 #ifdef __cplusplus
 #define NULL    0
