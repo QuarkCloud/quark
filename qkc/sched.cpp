@@ -269,3 +269,8 @@ int _sched_affinitycpuequal (const cpu_set_t *pset1, const cpu_set_t *pset2)
 
 }
 
+int sched_getcpu()
+{
+    return (int)::GetCurrentProcessorNumber() ;
+}
+

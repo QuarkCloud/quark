@@ -29,13 +29,7 @@ struct malloc_mutex_s {
 			 * unlocking thread).
 			 */
 			mutex_prof_data_t	prof_data;
-#ifdef _WIN32
-#  if _WIN32_WINNT >= 0x0600
-			SRWLOCK         	lock;
-#  else
-			CRITICAL_SECTION	lock;
-#  endif
-#elif (defined(JEMALLOC_OS_UNFAIR_LOCK))
+#if (defined(JEMALLOC_OS_UNFAIR_LOCK))
 			os_unfair_lock		lock;
 #elif (defined(JEMALLOC_OSSPIN))
 			OSSpinLock		lock;
@@ -70,17 +64,7 @@ struct malloc_mutex_s {
  */
 #define MALLOC_MUTEX_MAX_SPIN 250
 
-#ifdef _WIN32
-#  if _WIN32_WINNT >= 0x0600
-#    define MALLOC_MUTEX_LOCK(m)    AcquireSRWLockExclusive(&(m)->lock)
-#    define MALLOC_MUTEX_UNLOCK(m)  ReleaseSRWLockExclusive(&(m)->lock)
-#    define MALLOC_MUTEX_TRYLOCK(m) (!TryAcquireSRWLockExclusive(&(m)->lock))
-#  else
-#    define MALLOC_MUTEX_LOCK(m)    EnterCriticalSection(&(m)->lock)
-#    define MALLOC_MUTEX_UNLOCK(m)  LeaveCriticalSection(&(m)->lock)
-#    define MALLOC_MUTEX_TRYLOCK(m) (!TryEnterCriticalSection(&(m)->lock))
-#  endif
-#elif (defined(JEMALLOC_OS_UNFAIR_LOCK))
+#if (defined(JEMALLOC_OS_UNFAIR_LOCK))
 #    define MALLOC_MUTEX_LOCK(m)    os_unfair_lock_lock(&(m)->lock)
 #    define MALLOC_MUTEX_UNLOCK(m)  os_unfair_lock_unlock(&(m)->lock)
 #    define MALLOC_MUTEX_TRYLOCK(m) (!os_unfair_lock_trylock(&(m)->lock))

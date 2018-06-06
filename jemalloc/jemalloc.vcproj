@@ -625,10 +625,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\include\jemalloc\internal\tsd_generic.h"
-					>
-				</File>
-				<File
 					RelativePath=".\include\jemalloc\internal\tsd_malloc_thread_cleanup.h"
 					>
 				</File>
@@ -638,10 +634,6 @@
 				</File>
 				<File
 					RelativePath=".\include\jemalloc\internal\tsd_types.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\jemalloc\internal\tsd_win.h"
 					>
 				</File>
 				<File

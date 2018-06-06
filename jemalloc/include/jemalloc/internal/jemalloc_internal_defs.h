@@ -42,7 +42,7 @@
  * total number of bits in a pointer, e.g. on x64, for which the uppermost 16
  * bits are the same as bit 47.
  */
-#define LG_VADDR 48
+#define LG_VADDR 32
 
 /* Defined if C11 atomics are available. */
 /* #undef JEMALLOC_C11_ATOMICS */

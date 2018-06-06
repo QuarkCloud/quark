@@ -83,26 +83,26 @@ extent_state_get(const extent_t *extent) {
 
 static inline bool
 extent_zeroed_get(const extent_t *extent) {
-	return (bool)((extent->e_bits & EXTENT_BITS_ZEROED_MASK) >>
-	    EXTENT_BITS_ZEROED_SHIFT);
+	return (bool)(((extent->e_bits & EXTENT_BITS_ZEROED_MASK) >>
+	    EXTENT_BITS_ZEROED_SHIFT) != 0);
 }
 
 static inline bool
 extent_committed_get(const extent_t *extent) {
-	return (bool)((extent->e_bits & EXTENT_BITS_COMMITTED_MASK) >>
-	    EXTENT_BITS_COMMITTED_SHIFT);
+	return (bool)(((extent->e_bits & EXTENT_BITS_COMMITTED_MASK) >>
+	    EXTENT_BITS_COMMITTED_SHIFT) != 0);
 }
 
 static inline bool
 extent_dumpable_get(const extent_t *extent) {
-	return (bool)((extent->e_bits & EXTENT_BITS_DUMPABLE_MASK) >>
-	    EXTENT_BITS_DUMPABLE_SHIFT);
+	return (bool)(((extent->e_bits & EXTENT_BITS_DUMPABLE_MASK) >>
+	    EXTENT_BITS_DUMPABLE_SHIFT) != 0);
 }
 
 static inline bool
 extent_slab_get(const extent_t *extent) {
-	return (bool)((extent->e_bits & EXTENT_BITS_SLAB_MASK) >>
-	    EXTENT_BITS_SLAB_SHIFT);
+	return (bool)(((extent->e_bits & EXTENT_BITS_SLAB_MASK) >>
+	    EXTENT_BITS_SLAB_SHIFT) != 0);
 }
 
 static inline unsigned

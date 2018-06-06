@@ -1,6 +1,7 @@
 
 #include <builtin.h>
 #include "internal/intrin.h"
+#include <stdlib.h>
 
 #pragma intrinsic(_alloca)
 #pragma intrinsic(abs)
@@ -55,6 +56,11 @@
 #pragma intrinsic(_InterlockedDecrement16)
 #pragma intrinsic(_InterlockedCompareExchange16)
 
+#pragma intrinsic(_ReadBarrier)
+#pragma intrinsic(_WriteBarrier)
+#pragma intrinsic(_ReadWriteBarrier)
+
+
 #if (__MACHINEW64 == __MACHINEZ)
 unsigned char _BitScanForward64(unsigned long* index, unsigned __int64 mask)
 {
@@ -94,4 +100,68 @@ int __builtin_ffsll (long long x)
     unsigned char result = _BitScanForward64(&index , (unsigned __int64)x) ;
     return ((result == 0) ? 0 : (int)(index + 1)) ;
 }
+
+void __builtin_unreachable() 
+{
+    ::abort() ;
+}
+
+void __atomic_thread_fence(int mo) 
+{
+    _ReadWriteBarrier() ;
+#if defined(_M_IX86) || defined(_M_X64)
+    if(mo != __ATOMIC_RELAXED)
+        ::_WriteBarrier() ;
+#endif
+    _ReadWriteBarrier() ;
+}
+
+void __atomic_load_impl(const void * ptr , void * ret , int memorder , size_t size) 
+{
+    //::InterlockedExchange
+}
+
+void __atomic_store_impl(const void * ptr , void *ret , int memorder , size_t size)
+{
+    //
+}
+
+void __atomic_exchange_impl(const void *ptr, void *val, void *ret, int memorder , size_t size)
+{
+    //
+}
+
+bool __atomic_compare_exchange_impl(const void *ptr, void *expected, void *desired, 
+                      bool weak, int success_memorder, int failure_memorder , size_t size)
+{
+    return false ;
+}
+
+
+void __atomic_fetch_add_impl(void *ptr, const void * val, int memorder, void *result, size_t size)
+{
+
+}
+
+void __atomic_fetch_sub_impl(void *ptr, const void * val, int memorder, void *result, size_t size) 
+{
+
+}
+
+void __atomic_fetch_and_impl(void *ptr, const void * val, int memorder, void *result, size_t size)
+{
+
+}
+
+void __atomic_fetch_xor_impl(void *ptr, const void * val, int memorder, void *result, size_t size)
+{
+
+}
+
+void __atomic_fetch_or_impl(void *ptr, const void * val, int memorder, void *result, size_t size)
+{
+
+}
+
+
 

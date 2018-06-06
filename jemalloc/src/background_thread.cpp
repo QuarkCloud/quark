@@ -152,7 +152,7 @@ arena_decay_compute_purge_interval_impl(tsdn_t *tsdn, arena_decay_t *decay,
 		goto label_done;
 	}
 
-	size_t lb = BACKGROUND_THREAD_MIN_INTERVAL_NS / decay_interval_ns;
+	size_t lb = (size_t)(BACKGROUND_THREAD_MIN_INTERVAL_NS / decay_interval_ns);
 	size_t ub = SMOOTHSTEP_NSTEPS;
 	/* Minimal 2 intervals to ensure reaching next epoch deadline. */
 	lb = (lb < 2) ? 2 : lb;

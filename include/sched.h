@@ -59,6 +59,12 @@ QKCAPI void _sched_affinitycpuxor(cpu_set_t *pdestset, const cpu_set_t *psrcset1
 
 QKCAPI int _sched_affinitycpuequal (const cpu_set_t *pset1, const cpu_set_t *pset2);
 
+
+/**
+    2018-06-06 int sched_getcpu(void); 新增函数，返回当前线程所运行的cpu标号
+*/
+QKCAPI int sched_getcpu();
+
 #ifdef	__cplusplus
 }
 #endif
