@@ -57,9 +57,70 @@ extern "C" {
 
 typedef void (*__sighandler_t) (int);
 
+//typedef int __sig_atomic_t;
+
+/* A `sigset_t' has a bit for each signal.  */
+#define _SIGSET_NWORDS (1024 / (8 * sizeof (unsigned long int)))
+typedef struct
+{
+    unsigned long int __val[_SIGSET_NWORDS];
+} __sigset_t;
+typedef __sigset_t sigset_t ;
+
+
+struct sigaction
+{
+    /* Signal handler.  */
+    __sighandler_t sa_handler;
+
+    /* Additional set of signals to be blocked.  */
+    __sigset_t sa_mask;
+
+    /* Special flags.  */
+    int sa_flags;
+
+    /* Restore handler.  */
+    void (*sa_restorer) (void);
+};
+
+/* Bits in `sa_flags'.  */
+#define SA_NOCLDSTOP  1          /* Don't send SIGCHLD when children stop.  */
+#define SA_NOCLDWAIT  2          /* Don't create zombie on child death.  */
+#define SA_SIGINFO    4          /* Invoke signal-catching function with
+                                    three arguments instead of one.  */
+
+/* Values for the HOW argument to `sigprocmask'.  */
+#define SIG_BLOCK     0          /* Block signals.  */
+#define SIG_UNBLOCK   1          /* Unblock signals.  */
+#define SIG_SETMASK   2          /* Set the set of blocked signals.  */
+
 QUARK_LINKAGE __sighandler_t signal (int sig, __sighandler_t handler) ;
 QKCAPI int kill (pid_t pid, int sig) ;
 QUARK_LINKAGE int raise (int sig) ;
+
+
+QKCAPI int sigemptyset (sigset_t * sigs) ;
+
+QKCAPI int sigfillset (sigset_t *sigs) ;
+
+//Add SIGNO to SET.
+QKCAPI int sigaddset (sigset_t *sigs, int signo) ;
+
+//Remove SIGNO from SET.
+QKCAPI int sigdelset (sigset_t *sigs, int signo) ;
+
+//Return 1 if SIGNO is in SET, 0 if not. 
+QKCAPI int sigismember (const sigset_t *sigs, int signo) ;
+
+//Return non-empty value is SET is not empty. 
+QKCAPI int sigisemptyset (const sigset_t *sigs) ;
+
+//Build new signal set by combining the two inputs set using logical AND. 
+QKCAPI int sigandset (sigset_t *sigs, const sigset_t *left, const sigset_t * right) ;
+
+//Build new signal set by combining the two inputs set using logical OR.  
+QKCAPI int sigorset (sigset_t *sigs, const sigset_t *left , const sigset_t *right) ;
+
 
 #ifdef	__cplusplus
 }

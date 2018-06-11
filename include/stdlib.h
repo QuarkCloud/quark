@@ -4,6 +4,8 @@
 
 #include <quark_compile.h>
 
+#include <alloca.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -35,6 +37,9 @@ QUARK_LINKAGE void abort (void) ;
 QUARK_LINKAGE int on_exit (void (* func) (int status, void * arg), void * arg) ;
 QUARK_LINKAGE void exit (int status ) ;
 QUARK_LINKAGE int system (const char * command) ;
+
+QUARK_LINKAGE char * getenv(const char * name);
+QKCAPI char * secure_getenv (const char *name) ;
 
 #ifdef __cplusplus
 }

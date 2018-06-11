@@ -132,7 +132,7 @@ static malloc_mutex_t	init_lock;
 static bool init_lock_initialized = false;
 
 JEMALLOC_ATTR(constructor)
-static void WINAPI
+static void __stdcall
 _init_init_lock(void) {
 	/*
 	 * If another constructor in the same binary is using mallctl to e.g.
@@ -152,9 +152,12 @@ _init_init_lock(void) {
 }
 
 #ifdef _MSC_VER
-#  pragma section(".CRT$XCU", read)
-JEMALLOC_SECTION(".CRT$XCU") JEMALLOC_ATTR(used)
-static const void (WINAPI *init_init_lock)(void) = _init_init_lock;
+
+//#pragma section(".CRT$XCU", read)
+#pragma section(".CRT$XCU")
+
+typedef void (__stdcall *init_init_lock_t)(void) ;
+JEMALLOC_SECTION(".CRT$XCU") static const init_init_lock_t init_init_lock = _init_init_lock ;
 #endif
 #endif
 #else
@@ -713,27 +716,7 @@ static unsigned
 malloc_ncpus(void) {
 	long result;
 
-#ifdef _WIN32
-	SYSTEM_INFO si;
-	GetSystemInfo(&si);
-	result = si.dwNumberOfProcessors;
-#elif defined(JEMALLOC_GLIBC_MALLOC_HOOK) && defined(CPU_COUNT)
-	/*
-	 * glibc >= 2.6 has the CPU_COUNT macro.
-	 *
-	 * glibc's sysconf() uses isspace().  glibc allocates for the first time
-	 * *before* setting up the isspace tables.  Therefore we need a
-	 * different method to get the number of CPUs.
-	 */
-	{
-		cpu_set_t set;
-
-		pthread_getaffinity_np(pthread_self(), sizeof(set), &set);
-		result = CPU_COUNT(&set);
-	}
-#else
 	result = sysconf(_SC_NPROCESSORS_ONLN);
-#endif
 	return ((result == -1) ? 1 : (unsigned)result);
 }
 
@@ -1057,7 +1040,7 @@ malloc_conf_init(void) {
 				for (i = 0; i < metadata_thp_mode_limit; i++) {
 					if (strncmp(metadata_thp_mode_names[i],
 					    v, vlen) == 0) {
-						opt_metadata_thp = i;
+						opt_metadata_thp = (metadata_thp_mode_t)i;
 						match = true;
 						break;
 					}
@@ -1075,7 +1058,7 @@ malloc_conf_init(void) {
 				for (i = 0; i < dss_prec_limit; i++) {
 					if (strncmp(dss_prec_names[i], v, vlen)
 					    == 0) {
-						if (extent_dss_prec_set(i)) {
+						if (extent_dss_prec_set((dss_prec_t)i)) {
 							malloc_conf_error(
 							    "Error setting dss",
 							    k, klen, v, vlen);
@@ -1158,7 +1141,7 @@ malloc_conf_init(void) {
 							    "No getcpu support",
 							    k, klen, v, vlen);
 						}
-						opt_percpu_arena = i;
+						opt_percpu_arena = (percpu_arena_mode_t)i;
 						match = true;
 						break;
 					}
@@ -1213,7 +1196,7 @@ malloc_conf_init(void) {
 							    "No THP support",
 							    k, klen, v, vlen);
 						}
-						opt_thp = i;
+						opt_thp = (thp_mode_t)i;
 						match = true;
 						break;
 					}
@@ -1391,7 +1374,7 @@ percpu_arena_as_initialized(percpu_arena_mode_t mode) {
 	assert(mode <= percpu_arena_disabled);
 
 	if (mode != percpu_arena_disabled) {
-		mode += percpu_arena_mode_enabled_base;
+		mode = (percpu_arena_mode_t)((int)mode + (int)percpu_arena_mode_enabled_base);
 	}
 
 	return mode;
@@ -2578,7 +2561,8 @@ JEMALLOC_EXPORT void *(*__memalign_hook)(size_t alignment, size_t size) =
  * be implemented also, so none of glibc's malloc.o functions are added to the
  * link.
  */
-#    define ALIAS(je_fn)	__attribute__((alias (#je_fn), used))
+//#    define ALIAS(je_fn)	__attribute__((alias (#je_fn), used))
+#    define ALIAS(je_fn)	
 /* To force macro expansion of je_ prefix before stringification. */
 #    define PREALIAS(je_fn)	ALIAS(je_fn)
 #    ifdef JEMALLOC_OVERRIDE___LIBC_CALLOC
@@ -2640,7 +2624,7 @@ je_mallocx(size_t size, int flags) {
 			dopts.alignment = MALLOCX_ALIGN_GET_SPECIFIED(flags);
 		}
 
-		dopts.zero = MALLOCX_ZERO_GET(flags);
+		dopts.zero = (MALLOCX_ZERO_GET(flags) != 0);
 
 		if ((flags & MALLOCX_TCACHE_MASK) != 0) {
 			if ((flags & MALLOCX_TCACHE_MASK)
@@ -2741,7 +2725,7 @@ je_rallocx(void *ptr, size_t size, int flags) {
 	size_t usize;
 	size_t old_usize;
 	size_t alignment = MALLOCX_ALIGN_GET(flags);
-	bool zero = flags & MALLOCX_ZERO;
+	bool zero = ((flags & MALLOCX_ZERO) != 0);
 	arena_t *arena;
 	tcache_t *tcache;
 
@@ -2910,7 +2894,7 @@ je_xallocx(void *ptr, size_t size, size_t extra, int flags) {
 	tsd_t *tsd;
 	size_t usize, old_usize;
 	size_t alignment = MALLOCX_ALIGN_GET(flags);
-	bool zero = flags & MALLOCX_ZERO;
+	bool zero = ((flags & MALLOCX_ZERO) != 0);
 
 	LOG("core.xallocx.entry", "ptr: %p, size: %zu, extra: %zu, "
 	    "flags: %d", ptr, size, extra, flags);

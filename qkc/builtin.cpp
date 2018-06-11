@@ -101,6 +101,11 @@ int __builtin_ffsll (long long x)
     return ((result == 0) ? 0 : (int)(index + 1)) ;
 }
 
+long __builtin_expect(long exp, long c)
+{
+    return exp ;
+}
+
 void __builtin_unreachable() 
 {
     ::abort() ;

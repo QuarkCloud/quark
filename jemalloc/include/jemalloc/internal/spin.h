@@ -27,11 +27,7 @@ spin_adaptive(spin_t *spin) {
 		}
 		spin->iteration++;
 	} else {
-#ifdef _WIN32
-		SwitchToThread();
-#else
 		sched_yield();
-#endif
 	}
 }
 

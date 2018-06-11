@@ -4,7 +4,6 @@
 
 #include <bits/wordsize.h>
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,6 +29,7 @@ typedef uint64_t                uintptr_t ;
 typedef int64_t                 intmax_t ;
 typedef uint64_t                uintmax_t ;
 
+typedef intptr_t                ptrdiff_t ;
 
 /* Signed.  */
 # define INT8_C(c)      c
@@ -92,6 +92,15 @@ typedef uint64_t                uintmax_t ;
 # define UINT16_MAX             (65535)
 # define UINT32_MAX             (4294967295U)
 # define UINT64_MAX             (__UINT64_C(18446744073709551615))
+
+
+/* Minimum for largest signed integral type.  */
+# define INTMAX_MIN             (-__INT64_C(9223372036854775807)-1)
+/* Maximum for largest signed integral type.  */
+# define INTMAX_MAX             (__INT64_C(9223372036854775807))
+
+/* Maximum for largest unsigned integral type.  */
+# define UINTMAX_MAX            (__UINT64_C(18446744073709551615))
 
 
 

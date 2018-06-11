@@ -5,6 +5,7 @@
 #include <quark_compile.h>
 #include <time.h>
 #include <sched.h>
+#include <signal.h>
 #include <sys/types.h>
 
 
@@ -108,6 +109,15 @@ QKCAPI void *pthread_getspecific(pthread_key_t key) ;
 QKCAPI int pthread_setspecific(pthread_key_t key , const void *pointer) ;
 
 QKCAPI int pthread_getcpuclockid(pthread_t thread_id , clockid_t *clock_id);
+
+
+/* Modify the signal mask for the calling thread.  The arguments have
+   the same meaning as for sigprocmask(2). */
+QKCAPI int pthread_sigmask (int how , const sigset_t * newmask, sigset_t * oldmask) ;
+
+/* Send signal SIGNO to the given thread. */
+QKCAPI int pthread_kill (pthread_t threadid, int signo) ;
+
 
 #ifdef	__cplusplus
 }

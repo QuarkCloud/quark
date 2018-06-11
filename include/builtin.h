@@ -18,6 +18,10 @@ QKCAPI int __builtin_ffsl(long x)  ;
 QKCAPI int __builtin_ffsll(long long x) ;
 
 QKCAPI void __builtin_unreachable() ;
+QKCAPI long __builtin_expect(long exp, long c);
+
+#define __builtin_alloca    _alloca
+
 
 static const int __ATOMIC_RELAXED = 1 ;    //No barriers or synchronization.
 static const int __ATOMIC_CONSUME = 2 ;    //Data dependency only for both barrier and synchronization with another thread.
@@ -45,7 +49,8 @@ QKCAPI void __atomic_fetch_or_impl(void *ptr, const void * val, int memorder, vo
 #endif
 
 /**
-    __atomic_xxx是泛型函数，和c函数是不一样的
+    __atomic_xxx是泛型函数，和c函数是不一样的。
+    包括其他内建函数，需要用C++的技术来实现
 */
 #ifdef __cplusplus
 
@@ -112,6 +117,7 @@ type __atomic_fetch_or (type *ptr, const type val, int memorder)
     __atomic_fetch_or_impl(ptr , &val , memorder , &result , sizeof(type)) ;
     return result ;
 }
+
 #endif
 
 #endif /* __QKC_BUILTIN_H */

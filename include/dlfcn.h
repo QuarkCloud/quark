@@ -23,6 +23,8 @@ extern "C" {
    visible as if the object were linked directly into the program.  */
 #define RTLD_GLOBAL	0x00100
 
+# define RTLD_NEXT      ((void *) -1l)
+# define RTLD_DEFAULT   ((void *) 0)
 
 
 QKCAPI void *dlopen (const char * file, int mode) ;

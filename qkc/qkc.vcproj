@@ -396,6 +396,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\include\alloca.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\builtin.h"
 				>
 			</File>
@@ -702,6 +706,10 @@
 			<Filter
 				Name="bits"
 				>
+				<File
+					RelativePath="..\include\bits\confname.h"
+					>
+				</File>
 				<File
 					RelativePath="..\include\bits\wordsize.h"
 					>

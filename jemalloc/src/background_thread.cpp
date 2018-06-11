@@ -30,8 +30,10 @@ bool can_enable_background_thread;
 #ifdef JEMALLOC_PTHREAD_CREATE_WRAPPER
 #include <dlfcn.h>
 
-static int (*pthread_create_fptr)(pthread_t *__restrict, const pthread_attr_t *,
+typedef int (*pthread_create_t)(pthread_t *__restrict, const pthread_attr_t *,
     void *(*)(void *), void *__restrict);
+
+static pthread_create_t pthread_create_fptr ;
 
 static void
 pthread_create_wrapper_init(void) {
@@ -699,7 +701,7 @@ background_thread_interval_check(tsdn_t *tsdn, arena_t *arena,
 			    h_steps[SMOOTHSTEP_NSTEPS - 1 - n_epoch]);
 			npurge_new >>= SMOOTHSTEP_BFP;
 		}
-		info->npages_to_purge_new += npurge_new;
+		info->npages_to_purge_new += (size_t)npurge_new;
 	}
 
 	bool should_signal;
@@ -812,7 +814,7 @@ pthread_create_fptr_init(void) {
 	if (pthread_create_fptr != NULL) {
 		return false;
 	}
-	pthread_create_fptr = dlsym(RTLD_NEXT, "pthread_create");
+	pthread_create_fptr = (pthread_create_t)dlsym(RTLD_NEXT, "pthread_create");
 	if (pthread_create_fptr == NULL) {
 		can_enable_background_thread = false;
 		if (config_lazy_lock || opt_background_thread) {

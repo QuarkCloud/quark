@@ -2160,7 +2160,7 @@ arena_i_dss_ctl(tsd_t *tsd, const size_t *mib, size_t miblen, void *oldp,
 
 		for (i = 0; i < dss_prec_limit; i++) {
 			if (strcmp(dss_prec_names[i], dss) == 0) {
-				dss_prec = i;
+				dss_prec = (dss_prec_t)i;
 				match = true;
 				break;
 			}

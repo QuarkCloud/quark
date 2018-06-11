@@ -40,7 +40,7 @@ typedef int malloc_cpuid_t;
 #define MALLOCX_ALIGN_GET(flags)					\
     (MALLOCX_ALIGN_GET_SPECIFIED(flags) & (SIZE_T_MAX-1))
 #define MALLOCX_ZERO_GET(flags)						\
-    ((bool)(flags & MALLOCX_ZERO))
+    ((bool)((flags & MALLOCX_ZERO) != 0))
 
 #define MALLOCX_TCACHE_GET(flags)					\
     (((unsigned)((flags & MALLOCX_TCACHE_MASK) >> MALLOCX_TCACHE_SHIFT)) - 2)
@@ -173,7 +173,7 @@ typedef int malloc_cpuid_t;
 #    endif
 
 #  define VARIABLE_ARRAY(type, name, count) \
-	type *name = alloca(sizeof(type) * (count))
+	type *name = (type *)alloca(sizeof(type) * (count))
 #else
 #  define VARIABLE_ARRAY(type, name, count) type name[(count)]
 #endif

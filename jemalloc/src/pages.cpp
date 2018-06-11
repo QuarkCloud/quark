@@ -61,14 +61,7 @@ os_pages_map(void *addr, size_t size, size_t alignment, bool *commit) {
 	}
 
 	void *ret;
-#ifdef _WIN32
-	/*
-	 * If VirtualAlloc can't allocate at the given address when one is
-	 * given, it fails and returns NULL.
-	 */
-	ret = VirtualAlloc(addr, size, MEM_RESERVE | (*commit ? MEM_COMMIT : 0),
-	    PAGE_READWRITE);
-#else
+
 	/*
 	 * We don't use MAP_FIXED here, because it can cause the *replacement*
 	 * of existing mappings, and we only want to create new mappings.
@@ -89,7 +82,7 @@ os_pages_map(void *addr, size_t size, size_t alignment, bool *commit) {
 		os_pages_unmap(ret, size);
 		ret = NULL;
 	}
-#endif
+
 	assert(ret == NULL || (addr == NULL && ret != addr) || (addr != NULL &&
 	    ret == addr));
 	return ret;

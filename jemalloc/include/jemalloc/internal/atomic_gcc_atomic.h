@@ -29,6 +29,7 @@ atomic_enum_to_builtin(atomic_memory_order_t mo) {
 	}
 	/* Can't happen; the switch is exhaustive. */
 	not_reached();
+    return 0 ;
 }
 
 ATOMIC_INLINE void

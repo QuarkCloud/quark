@@ -25,7 +25,7 @@ struct {								\
 
 /* Root structure. */
 #define ph(a_type)							\
-struct {								\
+struct {			\
 	a_type	*ph_root;						\
 }
 
@@ -211,7 +211,7 @@ a_attr void	a_prefix##remove(a_ph_type *ph, a_type *phn);
 #define ph_gen(a_attr, a_prefix, a_ph_type, a_type, a_field, a_cmp)	\
 a_attr void								\
 a_prefix##new(a_ph_type *ph) {						\
-	memset(ph, 0, sizeof(ph(a_type)));				\
+	memset(ph, 0, sizeof(a_ph_type));				\
 }									\
 a_attr bool								\
 a_prefix##empty(a_ph_type *ph) {					\
@@ -238,7 +238,8 @@ a_prefix##any(a_ph_type *ph) {						\
 }									\
 a_attr void								\
 a_prefix##insert(a_ph_type *ph, a_type *phn) {				\
-	memset(&phn->a_field, 0, sizeof(phn(a_type)));			\
+    typedef phn(a_type) __tmp_phn_a_type_t__ ;              \
+	memset(&phn->a_field, 0, sizeof(__tmp_phn_a_type_t__));	\
 									\
 	/*								\
 	 * Treat the root as an aux list during insertion, and lazily	\

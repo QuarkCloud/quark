@@ -4,6 +4,7 @@
 
 #include <quark_compile.h>
 #include <sys/types.h>
+#include <bits/confname.h>
 
 /* Values for the second argument to access.
   These may be OR'd together. */

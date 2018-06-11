@@ -9,6 +9,10 @@
 //#if (defined(__i386__) || defined(__amd64__) || defined(__x86_64__))
 #define __i386__
 
+#define __GNUC__
+//#define __STDC_VERSION__  199409L
+#define __asm__ __asm
+
 #ifndef NULL
 #ifdef __cplusplus
 #define NULL    0

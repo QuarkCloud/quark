@@ -798,3 +798,13 @@ int pthread_getcpuclockid(pthread_t thread_id , clockid_t *clock_id)
     return -1 ;
 }
 
+int pthread_sigmask (int how , const sigset_t * newmask, sigset_t * oldmask)
+{
+    return 0 ;
+}
+
+int pthread_kill (pthread_t threadid, int signo)
+{
+    return 0 ;
+}
+
