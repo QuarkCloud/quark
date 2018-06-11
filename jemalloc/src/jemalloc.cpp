@@ -2767,8 +2767,7 @@ je_rallocx(void *ptr, size_t size, int flags) {
 	old_usize = sz_index2size(alloc_ctx.szind);
 	assert(old_usize == isalloc(tsd_tsdn(tsd), ptr));
 
-	hook_ralloc_args_t hook_args = {false, {(uintptr_t)ptr, size, flags,
-		0}};
+	hook_ralloc_args_t hook_args = {false, {(uintptr_t)ptr, size, flags,0}};
 	if (config_prof && opt_prof) {
 		usize = (alignment == 0) ?
 		    sz_s2u(size) : sz_sa2u(size, alignment);
@@ -2801,7 +2800,8 @@ je_rallocx(void *ptr, size_t size, int flags) {
 
 	LOG("core.rallocx.exit", "result: %p", p);
 	return p;
-label_oom:
+
+label_oom :
 	if (config_xmalloc && unlikely(opt_xmalloc)) {
 		malloc_write("<jemalloc>: Error in rallocx(): out of memory\n");
 		abort();

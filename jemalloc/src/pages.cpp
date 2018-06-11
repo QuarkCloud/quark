@@ -122,21 +122,13 @@ os_pages_unmap(void *addr, size_t size) {
 	assert(ALIGNMENT_ADDR2BASE(addr, os_page) == addr);
 	assert(ALIGNMENT_CEILING(size, os_page) == size);
 
-#ifdef _WIN32
-	if (VirtualFree(addr, 0, MEM_RELEASE) == 0)
-#else
 	if (munmap(addr, size) == -1)
-#endif
 	{
 		char buf[BUFERROR_BUF];
 
 		buferror(get_errno(), buf, sizeof(buf));
 		malloc_printf("<jemalloc>: Error in "
-#ifdef _WIN32
-		    "VirtualFree"
-#else
 		    "munmap"
-#endif
 		    "(): %s\n", buf);
 		if (opt_abort) {
 			abort();
@@ -218,10 +210,6 @@ pages_commit_impl(void *addr, size_t size, bool commit) {
 		return true;
 	}
 
-#ifdef _WIN32
-	return (commit ? (addr != VirtualAlloc(addr, size, MEM_COMMIT,
-	    PAGE_READWRITE)) : (!VirtualFree(addr, size, MEM_DECOMMIT)));
-#else
 	{
 		int prot = commit ? PAGES_PROT_COMMIT : PAGES_PROT_DECOMMIT;
 		void *result = mmap(addr, size, prot, mmap_flags | MAP_FIXED,
@@ -239,7 +227,6 @@ pages_commit_impl(void *addr, size_t size, bool commit) {
 		}
 		return false;
 	}
-#endif
 }
 
 bool
