@@ -89,8 +89,8 @@ mutex_stats_init_cols(emitter_row_t *row, const char *table_name,
     emitter_col_t *name,
     emitter_col_t col_uint64_t[mutex_prof_num_uint64_t_counters],
     emitter_col_t col_uint32_t[mutex_prof_num_uint32_t_counters]) {
-	mutex_prof_uint64_t_counter_ind_t k_uint64_t = 0;
-	mutex_prof_uint32_t_counter_ind_t k_uint32_t = 0;
+	mutex_prof_uint64_t_counter_ind_t k_uint64_t = (mutex_prof_uint64_t_counter_ind_t)0;
+	mutex_prof_uint32_t_counter_ind_t k_uint32_t = (mutex_prof_uint32_t_counter_ind_t)0;
 
 	emitter_col_t *col;
 
@@ -106,7 +106,7 @@ mutex_stats_init_cols(emitter_row_t *row, const char *table_name,
 #define WIDTH_uint64_t 16
 #define OP(counter, counter_type, human)				\
 	col = &col_##counter_type[k_##counter_type];			\
-	++k_##counter_type;						\
+    k_##counter_type = (mutex_prof_##counter_type##_counter_ind_t)((int)k_##counter_type + 1); \
 	emitter_col_init(col, row);					\
 	col->justify = emitter_justify_right;				\
 	col->width = WIDTH_##counter_type;				\
@@ -197,8 +197,8 @@ mutex_stats_emit(emitter_t *emitter, emitter_row_t *row,
 		emitter_table_row(emitter, row);
 	}
 
-	mutex_prof_uint64_t_counter_ind_t k_uint64_t = 0;
-	mutex_prof_uint32_t_counter_ind_t k_uint32_t = 0;
+	mutex_prof_uint64_t_counter_ind_t k_uint64_t = (mutex_prof_uint64_t_counter_ind_t)0;
+	mutex_prof_uint32_t_counter_ind_t k_uint32_t = (mutex_prof_uint32_t_counter_ind_t)0;
 
 	emitter_col_t *col;
 
@@ -206,7 +206,7 @@ mutex_stats_emit(emitter_t *emitter, emitter_row_t *row,
 #define EMITTER_TYPE_uint64_t emitter_type_uint64
 #define OP(counter, type, human)					\
 	col = &col_##type[k_##type];						\
-	++k_##type;							\
+    k_##type = (mutex_prof_##type##_counter_ind_t)((int)k_##type + 1) ; \
 	emitter_json_kv(emitter, #counter, EMITTER_TYPE_##type,		\
 	    (const void *)&col->bool_val);
 	MUTEX_PROF_COUNTERS;
@@ -507,11 +507,11 @@ stats_arena_mutexes_print(emitter_t *emitter, unsigned arena_ind) {
 	emitter_json_dict_begin(emitter, "mutexes");
 	emitter_table_row(emitter, &row);
 
-	for (mutex_prof_arena_ind_t i = 0; i < mutex_prof_num_arena_mutexes;
-	    i++) {
+	for (int i = 0; i < (int)mutex_prof_num_arena_mutexes;i++) 
+    {
 		const char *name = arena_mutex_names[i];
 		emitter_json_dict_begin(emitter, name);
-		mutex_stats_read_arena(arena_ind, i, name, &col_name, col64,
+		mutex_stats_read_arena(arena_ind, (mutex_prof_arena_ind_t)i, name, &col_name, col64,
 		    col32);
 		mutex_stats_emit(emitter, &row, col64, col32);
 		emitter_json_dict_end(emitter); /* Close the mutex dict. */

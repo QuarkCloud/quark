@@ -94,7 +94,7 @@ malloc_write(const char *s) {
  */
 int
 buferror(int err, char *buf, size_t buflen) {
-#if defined(JEMALLOC_STRERROR_R_RETURNS_CHAR_WITH_GNU_SOURCE) && defined(_GNU_SOURCE)
+#if defined(JEMALLOC_STRERROR_R_RETURNS_CHAR_WITH_GNU_SOURCE)
 	char *b = strerror_r(err, buf, buflen);
 	if (b != buf) {
 		strncpy(buf, b, buflen);

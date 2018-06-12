@@ -21,11 +21,10 @@
 /* Actual operating system page size, detected during bootstrap, <= PAGE. */
 static size_t	os_page;
 
-#ifndef _WIN32
 #  define PAGES_PROT_COMMIT (PROT_READ | PROT_WRITE)
 #  define PAGES_PROT_DECOMMIT (PROT_NONE)
 static int	mmap_flags;
-#endif
+
 static bool	os_overcommits;
 
 const char *thp_mode_names[] = {
@@ -255,23 +254,7 @@ pages_purge_lazy(void *addr, size_t size) {
 		return true;
 	}
 
-#ifdef _WIN32
-	VirtualAlloc(addr, size, MEM_RESET, PAGE_READWRITE);
-	return false;
-#elif defined(JEMALLOC_PURGE_MADVISE_FREE)
-	return (madvise(addr, size,
-#  ifdef MADV_FREE
-	    MADV_FREE
-#  else
-	    JEMALLOC_MADV_FREE
-#  endif
-	    ) != 0);
-#elif defined(JEMALLOC_PURGE_MADVISE_DONTNEED) && \
-    !defined(JEMALLOC_PURGE_MADVISE_DONTNEED_ZEROS)
-	return (madvise(addr, size, MADV_DONTNEED) != 0);
-#else
-	not_reached();
-#endif
+    return false ;
 }
 
 bool
@@ -366,11 +349,14 @@ pages_dodump(void *addr, size_t size) {
 
 static size_t
 os_page_detect(void) {
+/**
 #ifdef _WIN32
 	SYSTEM_INFO si;
 	GetSystemInfo(&si);
 	return si.dwPageSize;
-#elif defined(__FreeBSD__)
+#el
+*/
+#if defined(__FreeBSD__)
 	return getpagesize();
 #else
 	long result = sysconf(_SC_PAGESIZE);
@@ -440,9 +426,9 @@ os_overcommits_proc(void) {
 	#endif
 #else
 	#if defined(O_CLOEXEC)
-		fd = open("/proc/sys/vm/overcommit_memory", O_RDONLY | O_CLOEXEC);
+		fd = open("/proc/sys/vm/overcommit_memory", O_RDONLY | O_CLOEXEC , 0);
 	#else
-		fd = open("/proc/sys/vm/overcommit_memory", O_RDONLY);
+		fd = open("/proc/sys/vm/overcommit_memory", O_RDONLY , 0);
 		if (fd != -1) {
 			fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | FD_CLOEXEC);
 		}
@@ -511,7 +497,7 @@ init_thp_state(void) {
 	int fd = (int)syscall(SYS_open,
 	    "/sys/kernel/mm/transparent_hugepage/enabled", O_RDONLY);
 #else
-	int fd = open("/sys/kernel/mm/transparent_hugepage/enabled", O_RDONLY);
+	int fd = open("/sys/kernel/mm/transparent_hugepage/enabled", O_RDONLY , 0);
 #endif
 	if (fd == -1) {
 		goto label_error;

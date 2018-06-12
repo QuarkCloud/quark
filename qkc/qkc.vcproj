@@ -194,6 +194,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ctype.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dirent.cpp"
 				>
 			</File>
@@ -386,6 +390,10 @@
 				</File>
 				<File
 					RelativePath=".\internal\rxtree.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\internal\sysconf.cpp"
 					>
 				</File>
 			</Filter>
@@ -700,6 +708,10 @@
 				</File>
 				<File
 					RelativePath=".\internal\rxtree.h"
+					>
+				</File>
+				<File
+					RelativePath=".\internal\sysconf.h"
 					>
 				</File>
 			</Filter>

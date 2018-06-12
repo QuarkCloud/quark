@@ -35,6 +35,8 @@ QUARK_LINKAGE char *strerror (int errnum) ;
 QUARK_LINKAGE size_t wcslen(const wchar_t * s);
 QUARK_LINKAGE size_t wcsnlen(const wchar_t * s, size_t max_count);
 
+QKCAPI char *strerror_r (int errnum , char * buf, size_t buflen);
+
 #ifdef __cplusplus
 }
 #endif

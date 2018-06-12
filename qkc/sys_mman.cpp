@@ -190,6 +190,16 @@ int msync (void *addr, size_t len, int flags)
         return -1 ;
 }
 
+int madvise (void *addr, size_t len, int advice)
+{
+    return -1 ;
+}
+
+int posix_madvise (void *addr, size_t len, int advice)
+{
+    return -1 ;
+}
+
 int mlock (const void *addr, size_t len)
 {
     return (::VirtualLock((PVOID)addr , len) == TRUE ? 0 : -1);

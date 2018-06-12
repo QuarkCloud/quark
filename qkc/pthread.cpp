@@ -808,3 +808,65 @@ int pthread_kill (pthread_t threadid, int signo)
     return 0 ;
 }
 
+
+int pthread_mutexattr_init (pthread_mutexattr_t * attr)
+{
+    return 0 ;
+}
+
+int pthread_mutexattr_destroy (pthread_mutexattr_t *attr)
+{
+    return 0 ;
+}
+
+int pthread_mutexattr_getpshared (const pthread_mutexattr_t * attr, int * pshared)
+{
+    return 0 ;
+}
+
+int pthread_mutexattr_setpshared (pthread_mutexattr_t * attr, int pshared)
+{
+    return 0 ;
+}
+
+int pthread_mutexattr_gettype (const pthread_mutexattr_t * attr, int * kind)
+{
+    return 0 ;
+}
+
+int pthread_mutexattr_settype (pthread_mutexattr_t * attr, int kind)
+{
+    return 0 ;
+}
+
+int pthread_mutexattr_getprotocol (const pthread_mutexattr_t * attr , int * protocol)
+{
+    return 0 ;
+}
+
+int pthread_mutexattr_setprotocol (pthread_mutexattr_t * attr, int protocol)
+{
+    return 0 ;
+}
+
+int pthread_mutexattr_getprioceiling (const pthread_mutexattr_t * attr, int * prioceiling)
+{
+    return 0 ;
+}
+
+int pthread_mutexattr_setprioceiling (pthread_mutexattr_t * attr, int prioceiling)
+{
+    return 0 ;
+}
+
+int pthread_mutexattr_getrobust_np (const pthread_mutexattr_t * attr, int * robustness)
+{
+    return 0 ;
+}
+
+int pthread_mutexattr_setrobust_np (pthread_mutexattr_t * attr, int robustness)
+{
+    return 0 ;
+}
+
+

@@ -107,7 +107,7 @@
 /*
  * Defined if clock_gettime(CLOCK_MONOTONIC_COARSE, ...) is available.
  */
-#define JEMALLOC_HAVE_CLOCK_MONOTONIC_COARSE 1
+//#define JEMALLOC_HAVE_CLOCK_MONOTONIC_COARSE 1
 
 /*
  * Defined if clock_gettime(CLOCK_MONOTONIC, ...) is available.
@@ -143,7 +143,7 @@
 /* #undef JEMALLOC_MUTEX_INIT_CB */
 
 /* Non-empty if the tls_model attribute is supported. */
-#define JEMALLOC_TLS_MODEL __attribute__((tls_model("initial-exec")))
+#define JEMALLOC_TLS_MODEL //__attribute__((tls_model("initial-exec")))
 
 /*
  * JEMALLOC_DEBUG enables assertions and other sanity checks, and disables
@@ -267,7 +267,7 @@
  * Defined if transparent huge pages are supported via the MADV_[NO]HUGEPAGE
  * arguments to madvise(2).
  */
-#define JEMALLOC_HAVE_MADVISE_HUGE 
+//#define JEMALLOC_HAVE_MADVISE_HUGE 
 
 /*
  * Methods for purging unused pages differ between operating systems.
@@ -292,7 +292,7 @@
 /*
  * Defined if MADV_DO[NT]DUMP is supported as an argument to madvise.
  */
-#define JEMALLOC_MADVISE_DONTDUMP 
+//#define JEMALLOC_MADVISE_DONTDUMP 
 
 /*
  * Defined if transparent huge pages (THPs) are supported via the

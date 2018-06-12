@@ -97,7 +97,7 @@ nstime_divide(const nstime_t *time, const nstime_t *divisor) {
 
 	return time->ns / divisor->ns;
 }
-
+/**
 #ifdef _WIN32
 #  define NSTIME_MONOTONIC true
 static void
@@ -110,7 +110,9 @@ nstime_get(nstime_t *time) {
 
 	nstime_init(time, ticks_100ns * 100);
 }
-#elif defined(JEMALLOC_HAVE_CLOCK_MONOTONIC_COARSE)
+#el
+*/
+#if defined(JEMALLOC_HAVE_CLOCK_MONOTONIC_COARSE)
 #  define NSTIME_MONOTONIC true
 static void
 nstime_get(nstime_t *time) {

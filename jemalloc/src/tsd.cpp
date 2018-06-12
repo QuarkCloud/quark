@@ -17,7 +17,7 @@ __thread tsd_t JEMALLOC_TLS_MODEL tsd_tls = TSD_INITIALIZER;
 __thread bool JEMALLOC_TLS_MODEL tsd_initialized = false;
 bool tsd_booted = false;
 #elif (defined(JEMALLOC_TLS))
-__thread tsd_t JEMALLOC_TLS_MODEL tsd_tls = TSD_INITIALIZER;
+tsd_t JEMALLOC_TLS_MODEL tsd_tls = TSD_INITIALIZER;
 pthread_key_t tsd_tsd;
 bool tsd_booted = false;
 #elif (defined(_WIN32))
@@ -430,50 +430,7 @@ malloc_tsd_boot1(void) {
 	*tsd_arenas_tdata_bypassp_get(tsd) = false;
 }
 
-#ifdef _WIN32
-static BOOL WINAPI
-_tls_callback(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
-	switch (fdwReason) {
-#ifdef JEMALLOC_LAZY_LOCK
-	case DLL_THREAD_ATTACH:
-		isthreaded = true;
-		break;
-#endif
-	case DLL_THREAD_DETACH:
-		_malloc_thread_cleanup();
-		break;
-	default:
-		break;
-	}
-	return true;
-}
-
-/*
- * We need to be able to say "read" here (in the "pragma section"), but have
- * hooked "read". We won't read for the rest of the file, so we can get away
- * with unhooking.
- */
-#ifdef read
-#  undef read
-#endif
-
-#ifdef _MSC_VER
-#  ifdef _M_IX86
-#    pragma comment(linker, "/INCLUDE:__tls_used")
-#    pragma comment(linker, "/INCLUDE:_tls_callback")
-#  else
-#    pragma comment(linker, "/INCLUDE:_tls_used")
-#    pragma comment(linker, "/INCLUDE:tls_callback")
-#  endif
-#  pragma section(".CRT$XLY",long,read)
-#endif
-JEMALLOC_SECTION(".CRT$XLY") JEMALLOC_ATTR(used)
-BOOL	(WINAPI *const tls_callback)(HINSTANCE hinstDLL,
-    DWORD fdwReason, LPVOID lpvReserved) = _tls_callback;
-#endif
-
-#if (!defined(JEMALLOC_MALLOC_THREAD_CLEANUP) && !defined(JEMALLOC_TLS) && \
-    !defined(_WIN32))
+#if (!defined(JEMALLOC_MALLOC_THREAD_CLEANUP) && !defined(JEMALLOC_TLS))
 void *
 tsd_init_check_recursion(tsd_init_head_t *head, tsd_init_block_t *block) {
 	pthread_t self = pthread_self();

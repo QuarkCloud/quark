@@ -2716,6 +2716,19 @@ irallocx_prof(tsd_t *tsd, void *old_ptr, size_t old_usize, size_t size,
 	return p;
 }
 
+void * je_lable_oom(void *ptr, size_t size , tsd_t *tsd)
+{
+	if (config_xmalloc && unlikely(opt_xmalloc)) {
+		malloc_write("<jemalloc>: Error in rallocx(): out of memory\n");
+		abort();
+	}
+	UTRACE(ptr, size, 0);
+	check_entry_exit_locking(tsd_tsdn(tsd));
+
+	LOG("core.rallocx.exit", "result: %p", NULL);
+	return NULL;
+}
+
 JEMALLOC_EXPORT JEMALLOC_ALLOCATOR JEMALLOC_RESTRICT_RETURN
 void JEMALLOC_NOTHROW *
 JEMALLOC_ALLOC_SIZE(2)
@@ -2743,7 +2756,8 @@ je_rallocx(void *ptr, size_t size, int flags) {
 		unsigned arena_ind = MALLOCX_ARENA_GET(flags);
 		arena = arena_get(tsd_tsdn(tsd), arena_ind, true);
 		if (unlikely(arena == NULL)) {
-			goto label_oom;
+			//goto label_oom;
+            return je_lable_oom(ptr , size , tsd) ;
 		}
 	} else {
 		arena = NULL;
@@ -2772,18 +2786,21 @@ je_rallocx(void *ptr, size_t size, int flags) {
 		usize = (alignment == 0) ?
 		    sz_s2u(size) : sz_sa2u(size, alignment);
 		if (unlikely(usize == 0 || usize > LARGE_MAXCLASS)) {
-			goto label_oom;
+			//goto label_oom;
+            return je_lable_oom(ptr , size , tsd) ;
 		}
 		p = irallocx_prof(tsd, ptr, old_usize, size, alignment, &usize,
 		    zero, tcache, arena, &alloc_ctx, &hook_args);
 		if (unlikely(p == NULL)) {
-			goto label_oom;
+			//goto label_oom;
+            return je_lable_oom(ptr , size , tsd) ;
 		}
 	} else {
 		p = iralloct(tsd_tsdn(tsd), ptr, old_usize, size, alignment,
 		    zero, tcache, arena, &hook_args);
 		if (unlikely(p == NULL)) {
-			goto label_oom;
+			//goto label_oom;
+            return je_lable_oom(ptr , size , tsd) ;
 		}
 		if (config_stats) {
 			usize = isalloc(tsd_tsdn(tsd), p);
@@ -2800,7 +2817,7 @@ je_rallocx(void *ptr, size_t size, int flags) {
 
 	LOG("core.rallocx.exit", "result: %p", p);
 	return p;
-
+/**
 label_oom :
 	if (config_xmalloc && unlikely(opt_xmalloc)) {
 		malloc_write("<jemalloc>: Error in rallocx(): out of memory\n");
@@ -2811,6 +2828,7 @@ label_oom :
 
 	LOG("core.rallocx.exit", "result: %p", NULL);
 	return NULL;
+*/
 }
 
 JEMALLOC_ALWAYS_INLINE size_t

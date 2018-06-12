@@ -106,7 +106,7 @@ int creat(const char * file , mode_t mode)
     return ::_creat(file , mode) ;
 }
 
-int open(const char * file , int flag,mode_t mode)
+int open(const char * file , int flag , mode_t mode)
 {
     return ::_open(file , flag , mode) ;
 }

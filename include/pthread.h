@@ -13,6 +13,28 @@
 extern "C" {
 #endif
 
+enum
+{
+  PTHREAD_CREATE_JOINABLE,
+#define PTHREAD_CREATE_JOINABLE PTHREAD_CREATE_JOINABLE
+  PTHREAD_CREATE_DETACHED
+#define PTHREAD_CREATE_DETACHED PTHREAD_CREATE_DETACHED
+};
+
+/* Mutex types.  */
+enum
+{
+  PTHREAD_MUTEX_TIMED_NP,
+  PTHREAD_MUTEX_RECURSIVE_NP,
+  PTHREAD_MUTEX_ERRORCHECK_NP,
+  PTHREAD_MUTEX_ADAPTIVE_NP,
+  PTHREAD_MUTEX_NORMAL = PTHREAD_MUTEX_TIMED_NP,
+  PTHREAD_MUTEX_RECURSIVE = PTHREAD_MUTEX_RECURSIVE_NP,
+  PTHREAD_MUTEX_ERRORCHECK = PTHREAD_MUTEX_ERRORCHECK_NP,
+  PTHREAD_MUTEX_DEFAULT = PTHREAD_MUTEX_NORMAL, 
+  PTHREAD_MUTEX_FAST_NP = PTHREAD_MUTEX_TIMED_NP
+};
+
 
 /* pthread attrs暂不实现 ，用得不多*/
 typedef struct __st_pthread_attr{int dummy ;} pthread_attr_t;
@@ -54,6 +76,7 @@ typedef struct st_pthread_spinlock{
 } pthread_spinlock_t;
 
 typedef int pthread_key_t;
+
 
 //1、线程本身，直接使用windows的线程
 QKCAPI int pthread_create(pthread_t * newthread , const pthread_attr_t * attr , void *(*start_routine)(void *) , void * arg) ;
@@ -117,6 +140,20 @@ QKCAPI int pthread_sigmask (int how , const sigset_t * newmask, sigset_t * oldma
 
 /* Send signal SIGNO to the given thread. */
 QKCAPI int pthread_kill (pthread_t threadid, int signo) ;
+
+
+QKCAPI int pthread_mutexattr_init (pthread_mutexattr_t * attr) ;
+QKCAPI int pthread_mutexattr_destroy (pthread_mutexattr_t *attr);
+QKCAPI int pthread_mutexattr_getpshared (const pthread_mutexattr_t * attr, int * pshared);
+QKCAPI int pthread_mutexattr_setpshared (pthread_mutexattr_t * attr, int pshared);
+QKCAPI int pthread_mutexattr_gettype (const pthread_mutexattr_t * attr, int * kind);
+QKCAPI int pthread_mutexattr_settype (pthread_mutexattr_t * attr, int kind);
+QKCAPI int pthread_mutexattr_getprotocol (const pthread_mutexattr_t * attr , int * protocol);
+QKCAPI int pthread_mutexattr_setprotocol (pthread_mutexattr_t * attr, int protocol);
+QKCAPI int pthread_mutexattr_getprioceiling (const pthread_mutexattr_t * attr, int * prioceiling);
+QKCAPI int pthread_mutexattr_setprioceiling (pthread_mutexattr_t * attr, int prioceiling);
+QKCAPI int pthread_mutexattr_getrobust_np (const pthread_mutexattr_t * attr, int * robustness) ;
+QKCAPI int pthread_mutexattr_setrobust_np (pthread_mutexattr_t * attr, int robustness);
 
 
 #ifdef	__cplusplus

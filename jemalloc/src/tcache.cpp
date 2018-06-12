@@ -353,8 +353,9 @@ tsd_tcache_enabled_data_init(tsd_t *tsd) {
 
 /* Initialize auto tcache (embedded in TSD). */
 static void
-tcache_init(tsd_t *tsd, tcache_t *tcache, void *avail_stack) {
-	memset(&tcache->link, 0, sizeof(ql_elm(tcache_t)));
+tcache_init(tsd_t *tsd, tcache_t *tcache, void *avail_stack) 
+{
+    memset(&tcache->link, 0, sizeof(tcache->link));
 	tcache->prof_accumbytes = 0;
 	tcache->next_gc_bin = 0;
 	tcache->arena = NULL;
@@ -441,7 +442,7 @@ tcache_create_explicit(tsd_t *tsd) {
 	/* Avoid false cacheline sharing. */
 	size = sz_sa2u(size, CACHELINE);
 
-	tcache = ipallocztm(tsd_tsdn(tsd), size, CACHELINE, true, NULL, true,
+	tcache = (tcache_t *)ipallocztm(tsd_tsdn(tsd), size, CACHELINE, true, NULL, true,
 	    arena_get(TSDN_NULL, 0, true));
 	if (tcache == NULL) {
 		return NULL;
@@ -556,7 +557,7 @@ tcaches_create_prep(tsd_t *tsd) {
 	malloc_mutex_lock(tsd_tsdn(tsd), &tcaches_mtx);
 
 	if (tcaches == NULL) {
-		tcaches = base_alloc(tsd_tsdn(tsd), b0get(), sizeof(tcache_t *)
+		tcaches = (tcaches_t *)base_alloc(tsd_tsdn(tsd), b0get(), sizeof(tcache_t *)
 		    * (MALLOCX_TCACHE_MAX+1), CACHELINE);
 		if (tcaches == NULL) {
 			err = true;

@@ -66,6 +66,13 @@ int clock_getres (clockid_t clock_id, struct timespec * res)
 
 int clock_gettime (clockid_t clock_id, struct timespec * tp) 
 {
+	FILETIME ft;
+	uint64_t ticks_100ns;
+	GetSystemTimeAsFileTime(&ft);
+	ticks_100ns = (((uint64_t)ft.dwHighDateTime) << 32) | ft.dwLowDateTime;
+
+    tp->tv_sec = ticks_100ns / 10000000 ;
+    tp->tv_nsec = (ticks_100ns % 10000000) * 100 ;
     return 0 ;
 }
 

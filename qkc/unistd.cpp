@@ -5,6 +5,7 @@
 #include <wintf/wobj.h>
 #include <winsock2.h>
 #include "internal/inotify_mgr.h"
+#include "internal/sysconf.h"
 
 off_t lseek(int fd , off_t offset , int whence)
 {
@@ -111,6 +112,8 @@ int dup2(int fd1 , int fd2)
 
 long int sysconf(int name)
 {
+    if(name == _SC_PAGESIZE)
+        return __get_pagesize() ;
     return 0 ;
 }
 

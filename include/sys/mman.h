@@ -49,6 +49,25 @@
 
 #define MAP_FAILED	((void *) -1)
 
+
+/* Advice to `madvise'.  */
+# define MADV_NORMAL     0      /* No further special treatment.  */
+# define MADV_RANDOM     1      /* Expect random page references.  */
+# define MADV_SEQUENTIAL 2      /* Expect sequential page references.  */
+# define MADV_WILLNEED   3      /* Will need these pages.  */
+# define MADV_DONTNEED   4      /* Don't need these pages.  */
+# define MADV_REMOVE     9      /* Remove these pages and resources.  */
+# define MADV_DONTFORK   10     /* Do not inherit across fork.  */
+# define MADV_DOFORK     11     /* Do inherit across fork.  */
+
+/* The POSIX people had to invent similar names for the same things.  */
+# define POSIX_MADV_NORMAL      0 /* No further special treatment.  */
+# define POSIX_MADV_RANDOM      1 /* Expect random page references.  */
+# define POSIX_MADV_SEQUENTIAL  2 /* Expect sequential page references.  */
+# define POSIX_MADV_WILLNEED    3 /* Will need these pages.  */
+# define POSIX_MADV_DONTNEED    4 /* Don't need these pages.  */
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -61,6 +80,10 @@ QKCAPI int munmap (void *addr, size_t len) ;
 QKCAPI int mprotect (void *addr, size_t len, int prot) ;
 
 QKCAPI int msync (void *addr, size_t len, int flags);
+
+QKCAPI int madvise (void *addr, size_t len, int advice);
+
+QKCAPI int posix_madvise (void *addr, size_t len, int advice);
 
 QKCAPI int mlock (const void *addr, size_t len) ;
 
