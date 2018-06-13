@@ -41,8 +41,8 @@
 #ifndef JEMALLOC_NO_PRIVATE_NAMESPACE
 #  ifndef JEMALLOC_JET
 #    include "jemalloc/internal/private_namespace.h"
-#  else
-#    include "jemalloc/internal/private_namespace_jet.h"
+//#  else
+//#    include "jemalloc/internal/private_namespace_jet.h"
 #  endif
 #endif
 #include "jemalloc/internal/test_hooks.h"

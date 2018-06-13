@@ -1,6 +1,4 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 #include <limits.h>
 #ifndef SIZE_T_MAX
@@ -12,16 +10,8 @@ extern "C" {
 #include <errno.h>
 #include <math.h>
 #include <string.h>
-#ifdef _WIN32
-#  include "msvc_compat/strings.h"
-#endif
 
-#ifdef _WIN32
-#  include <windows.h>
-#  include "msvc_compat/windows_extra.h"
-#else
 #  include <pthread.h>
-#endif
 
 #include "test/jemalloc_test_defs.h"
 
@@ -167,7 +157,3 @@ static const bool config_debug =
 		not_implemented();					\
 	}								\
 } while (0)
-
-#ifdef __cplusplus
-}
-#endif

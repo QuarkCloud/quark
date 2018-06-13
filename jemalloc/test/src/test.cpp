@@ -3,7 +3,7 @@
 /* Test status state. */
 
 static unsigned		test_count = 0;
-static test_status_t	test_counts[test_status_count] = {0, 0, 0};
+static test_status_t	test_counts[test_status_count] = {test_status_pass, test_status_pass, test_status_pass};
 static test_status_t	test_status = test_status_pass;
 static const char *	test_name = "";
 
@@ -32,6 +32,8 @@ reentrancy_t_str(reentrancy_t r) {
 	default:
 		unreachable();
 	}
+
+    return "" ;
 }
 
 static void
@@ -94,6 +96,8 @@ test_status_string(test_status_t test_status) {
 	case test_status_fail: return "fail";
 	default: not_reached();
 	}
+
+    return "" ;
 }
 
 void
@@ -105,7 +109,7 @@ p_test_init(const char *name) {
 
 void
 p_test_fini(void) {
-	test_counts[test_status]++;
+	test_counts[test_status] = (test_status_t)((int)test_counts[test_status] + 1);
 	malloc_printf("%s (%s): %s\n", test_name, reentrancy_t_str(reentrancy),
 	    test_status_string(test_status));
 }

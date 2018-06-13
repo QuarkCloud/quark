@@ -6,12 +6,7 @@
 
 bool
 mtx_init(mtx_t *mtx) {
-#ifdef _WIN32
-	if (!InitializeCriticalSectionAndSpinCount(&mtx->lock,
-	    _CRT_SPINCOUNT)) {
-		return true;
-	}
-#elif (defined(JEMALLOC_OS_UNFAIR_LOCK))
+#if (defined(JEMALLOC_OS_UNFAIR_LOCK))
 	mtx->lock = OS_UNFAIR_LOCK_INIT;
 #elif (defined(JEMALLOC_OSSPIN))
 	mtx->lock = 0;
@@ -43,9 +38,7 @@ mtx_fini(mtx_t *mtx) {
 
 void
 mtx_lock(mtx_t *mtx) {
-#ifdef _WIN32
-	EnterCriticalSection(&mtx->lock);
-#elif (defined(JEMALLOC_OS_UNFAIR_LOCK))
+#if (defined(JEMALLOC_OS_UNFAIR_LOCK))
 	os_unfair_lock_lock(&mtx->lock);
 #elif (defined(JEMALLOC_OSSPIN))
 	OSSpinLockLock(&mtx->lock);
@@ -56,9 +49,7 @@ mtx_lock(mtx_t *mtx) {
 
 void
 mtx_unlock(mtx_t *mtx) {
-#ifdef _WIN32
-	LeaveCriticalSection(&mtx->lock);
-#elif (defined(JEMALLOC_OS_UNFAIR_LOCK))
+#if (defined(JEMALLOC_OS_UNFAIR_LOCK))
 	os_unfair_lock_unlock(&mtx->lock);
 #elif (defined(JEMALLOC_OSSPIN))
 	OSSpinLockUnlock(&mtx->lock);

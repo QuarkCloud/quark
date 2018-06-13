@@ -21,6 +21,11 @@
 #endif
 #endif
 
+#ifndef __cplusplus
+typedef unsigned int size_t ;
+typedef unsigned short wchar_t ;
+#endif
+
 #ifndef QUARK_IMPORT
 #define QUARK_IMPORT   __declspec(dllimport)
 #endif

@@ -8,9 +8,6 @@ void
 mq_nanosleep(unsigned ns) {
 	assert(ns <= 1000*1000*1000);
 
-#ifdef _WIN32
-	Sleep(ns / 1000);
-#else
 	{
 		struct timespec timeout;
 
@@ -23,5 +20,4 @@ mq_nanosleep(unsigned ns) {
 		}
 		nanosleep(&timeout, NULL);
 	}
-#endif
 }
