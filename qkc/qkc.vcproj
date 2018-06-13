@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)include\wstub&quot;"
+				AdditionalIncludeDirectories="&quot;$(QUARK_ROOT)include&quot;;&quot;$(QUARK_ROOT)include\wstub&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;QKC_EXPORTS"
 				IgnoreStandardIncludePath="true"
 				MinimalRebuild="true"
