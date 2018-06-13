@@ -7,10 +7,21 @@
 #endif
 
 //#if (defined(__i386__) || defined(__amd64__) || defined(__x86_64__))
+#if defined(_M_IX86)
 #define __i386__
+#endif
+
+#if defined(_M_AMD64)
+#define __amd64__
+#endif
+
+#if defined(_M_X64)
+#define __x86_64__
+#endif
 
 #define __GNUC__
 //#define __STDC_VERSION__  199409L
+//#define __STDC_VERSION__  199901L
 #define __asm__ __asm
 
 #ifndef NULL
