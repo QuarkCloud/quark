@@ -456,7 +456,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\netdb.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\poll.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\pthread.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\pwd.h"
 				>
 			</File>
 			<File
@@ -516,6 +528,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\termios.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\time.h"
 				>
 			</File>
@@ -552,6 +568,10 @@
 				</File>
 				<File
 					RelativePath="..\include\sys\param.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\sys\poll.h"
 					>
 				</File>
 				<File
@@ -720,6 +740,18 @@
 				>
 				<File
 					RelativePath="..\include\bits\confname.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\bits\sockaddr.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\bits\socket.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\bits\termios.h"
 					>
 				</File>
 				<File

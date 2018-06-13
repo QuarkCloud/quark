@@ -388,7 +388,8 @@ VOID _imp_GetAcceptExSockaddrs(PVOID lpOutputBuffer,DWORD dwReceiveDataLength,DW
 /*
  * Structure used for manipulating linger option.
  */
-struct  linger {
+
+struct  linger_w {
         u_short l_onoff;                /* option on/off */
         u_short l_linger;               /* linger time */
 };

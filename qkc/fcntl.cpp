@@ -106,8 +106,14 @@ int creat(const char * file , mode_t mode)
     return ::_creat(file , mode) ;
 }
 
-int open(const char * file , int flag , mode_t mode)
+int open(const char * file , int flag , ...)
 {
+    mode_t mode = 0 ;
+    va_list args ;
+    va_start(args , flag) ;
+    mode = va_arg(args , mode_t) ;
+    va_end(args) ;
+
     return ::_open(file , flag , mode) ;
 }
 

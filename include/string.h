@@ -24,6 +24,9 @@ QUARK_LINKAGE int strcmp (const char *s1, const char *s2) ;
 QUARK_LINKAGE int strncmp (const char *s1, const char *s2, size_t n) ;
 QUARK_LINKAGE char *strdup (const char *s) ;
 QUARK_LINKAGE char *strchr (const char *s, int c) ;
+
+QUARK_LINKAGE char *strrchr (const char *s, int c);
+
 QUARK_LINKAGE char *strstr (const char *haystack, const char *needle) ;
 QUARK_LINKAGE char *strtok (char * s, const char * delim) ;
 

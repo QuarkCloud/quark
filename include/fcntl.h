@@ -110,7 +110,7 @@ QKCAPI int fcntl (int fd , int cmd , ...);
 
 QKCAPI int creat(const char * file , mode_t mode) ;
 
-QKCAPI int open(const char * file , int flag , mode_t mode = 0) ;
+QKCAPI int open(const char * file , int flag , ...) ;
 
 #ifdef __cplusplus
 }

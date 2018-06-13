@@ -136,8 +136,7 @@ void __atomic_exchange_impl(const void *ptr, void *val, void *ret, int memorder 
     //
 }
 
-bool __atomic_compare_exchange_impl(const void *ptr, void *expected, void *desired, 
-                      bool weak, int success_memorder, int failure_memorder , size_t size)
+bool __atomic_cax_impl(const void *ptr, void * ex , void *de , size_t size)
 {
     return false ;
 }

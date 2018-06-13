@@ -122,6 +122,24 @@ struct in_addr
     in_addr_t s_addr;
 };
 
+/* IPv6 address */
+struct in6_addr
+{
+    union
+    {
+        uint8_t u6_addr8[16];
+        uint16_t u6_addr16[8];
+        uint32_t u6_addr32[4];
+    } in6_u;
+#define s6_addr                 in6_u.u6_addr8
+#define s6_addr16               in6_u.u6_addr16
+#define s6_addr32               in6_u.u6_addr32
+};
+
+extern const struct in6_addr in6addr_any;        /* :: */
+extern const struct in6_addr in6addr_loopback;   /* ::1 */
+
+
 #define	IN_CLASSA(a)		((((in_addr_t)(a)) & 0x80000000) == 0)
 #define	IN_CLASSA_NET		0xff000000
 #define	IN_CLASSA_NSHIFT	24
@@ -166,13 +184,40 @@ struct in_addr
 
 
 /* Structure describing an Internet socket address.  */
+/**
 struct sockaddr_in
 {
     sa_family_t         sin_family;
-    in_port_t           sin_port;			/* Port number.  */
-    struct in_addr      sin_addr;		/* Internet address.  */
+    in_port_t           sin_port;			
+    struct in_addr      sin_addr;		
     unsigned char sin_zero[sizeof (struct sockaddr) - sizeof(sa_family_t) -  sizeof (in_port_t) - sizeof (struct in_addr)];
 };
+*/
+
+#include <bits/socket.h>
+
+
+/* Structure describing an Internet socket address.  */
+struct sockaddr_in
+{
+    __SOCKADDR_COMMON (sin_);
+    in_port_t sin_port;                 /* Port number.  */
+    struct in_addr sin_addr;            /* Internet address.  */
+    unsigned char sin_zero[sizeof (struct sockaddr) - __SOCKADDR_COMMON_SIZE -
+                           sizeof (in_port_t) -  sizeof (struct in_addr)];
+};
+
+/* Ditto, for IPv6.  */
+struct sockaddr_in6
+  {
+    __SOCKADDR_COMMON (sin6_);
+    in_port_t sin6_port;        /* Transport layer port # */
+    uint32_t sin6_flowinfo;     /* IPv6 flow information */
+    struct in6_addr sin6_addr;  /* IPv6 address */
+    uint32_t sin6_scope_id;     /* IPv6 scope-id */
+  };
+
+
 
 QKCAPI uint32_t ntohl (uint32_t netlong);
 QKCAPI uint16_t ntohs (uint16_t netshort) ;
