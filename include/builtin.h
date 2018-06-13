@@ -3,6 +3,8 @@
 #define __QKC_BUILTIN_H 1
 
 #include <quark_compile.h>
+#include <stdbool.h>
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,7 +37,8 @@ QKCAPI void __atomic_load_impl(const void * ptr , void * ret , int memorder , si
 QKCAPI void __atomic_store_impl(const void * ptr , void *ret , int memorder , size_t size) ;
 QKCAPI void __atomic_exchange_impl(const void *ptr, void *val, void * ret, int memorder , size_t size) ;
 
-//QKCAPI bool __atomic_cax_impl(const void *ptr, void * ex , void *de , size_t size) ;
+QKCAPI bool __atomic_compare_exchange_impl(const void *ptr, void *expected, void *desired, bool weak, 
+                                      int success_memorder, int failure_memorder , size_t size) ;
 
 QKCAPI void __atomic_fetch_add_impl(void *ptr, const void * val, int memorder, void *result, size_t size) ;
 QKCAPI void __atomic_fetch_sub_impl(void *ptr, const void * val, int memorder, void *result, size_t size) ;
@@ -75,8 +78,7 @@ void __atomic_exchange(const type *ptr, type *val, type *ret, int memorder)
 template<typename type> 
 bool __atomic_compare_exchange (const type *ptr, type *expected, type *desired, bool weak, int success_memorder, int failure_memorder)
 {
-    //return __atomic_cax_impl(ptr , expected , desired , sizeof(type)) ;
-    return false ;
+    return __atomic_compare_exchange_impl(ptr , expected , desired , weak , success_memorder , failure_memorder , sizeof(type)) ;
 }
 
 template<typename type> 
