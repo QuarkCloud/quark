@@ -34,6 +34,8 @@ QUARK_LINKAGE double  ceil(double x);
 QUARK_LINKAGE double  floor(double x);
 QUARK_LINKAGE double  frexp(double x, int * y);
 
+QKCAPI double round(double x) ;
+
 #ifdef	__cplusplus
 }
 #endif

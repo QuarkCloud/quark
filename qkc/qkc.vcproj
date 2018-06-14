@@ -218,6 +218,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\math.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\netinet_in.cpp"
 				>
 			</File>
