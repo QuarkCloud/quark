@@ -6,7 +6,6 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-//#if (defined(__i386__) || defined(__amd64__) || defined(__x86_64__))
 #if defined(_M_IX86)
 #define __i386__
 #endif
@@ -35,6 +34,7 @@
 #ifndef __cplusplus
 typedef unsigned int size_t ;
 typedef unsigned short wchar_t ;
+typedef int     ssize_t ;
 #endif
 
 #ifndef QUARK_IMPORT

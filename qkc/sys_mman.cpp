@@ -124,15 +124,25 @@ mmap_info_t * mmap_find(void * map_addr)
 
 void *mmap (void * addr, size_t len, int prot, int flags, int fd, off_t offset)
 {
-    //1、先定位到文件中对应的偏移量
-    ::lseek(fd , offset , SEEK_SET) ;
+    HANDLE hfile = INVALID_HANDLE_VALUE ;
+    if(fd != -1)
+    {
+        //1、先定位到文件中对应的偏移量
+        ::lseek(fd , offset , SEEK_SET) ;
 
-    //fd是linux系统的句柄，需要转译成windows的句柄HANDLE
-    HANDLE hfile = (HANDLE)::_get_osfhandle(fd) ;
+        //fd是linux系统的句柄，需要转译成windows的句柄HANDLE
+        hfile = (HANDLE)::_get_osfhandle(fd) ;
+    }
     DWORD wprot = __mmap_prot_to_win(prot) ;
     DWORD wflags = __mmap_flag_to_win(flags) ;
-    wprot |= wflags ;
+    wprot |= wflags ;   
+    wprot = PAGE_READWRITE | SEC_COMMIT;
     HANDLE hmap = ::CreateFileMappingA(hfile , NULL , wprot , 0 , (DWORD)len , NULL) ;
+    if(hmap == NULL)
+    {
+        DWORD errcode = ::GetLastError() ;
+        return NULL ;
+    }
 
     void * map_addr = ::MapViewOfFile(hmap , FILE_MAP_ALL_ACCESS , 0 , 0 , len) ;
 
