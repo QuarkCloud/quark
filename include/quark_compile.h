@@ -37,6 +37,14 @@ typedef unsigned short wchar_t ;
 typedef int     ssize_t ;
 #endif
 
+#ifdef __cplusplus
+    #define __BEGIN_DECLS extern "C" {
+    #define __END_DECLS } 
+#else
+    #define __BEGIN_DECLS
+    #define __END_DECLS 
+#endif
+
 #ifndef QUARK_IMPORT
 #define QUARK_IMPORT   __declspec(dllimport)
 #endif

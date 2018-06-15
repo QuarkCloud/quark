@@ -7,6 +7,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qkw", "qkw\qkw.vcproj", "{6
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qkn", "qkn\qkn.vcproj", "{D6504F8D-6F55-4E84-9924-5E12680571E1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcproj", "{E653A20F-4BF2-4CBA-9C5C-136A73F4BFE7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A08041CF-81D7-4A5C-A1D1-216FA37D2D46} = {A08041CF-81D7-4A5C-A1D1-216FA37D2D46}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -25,6 +30,10 @@ Global
 		{D6504F8D-6F55-4E84-9924-5E12680571E1}.Debug|Win32.Build.0 = Debug|Win32
 		{D6504F8D-6F55-4E84-9924-5E12680571E1}.Release|Win32.ActiveCfg = Release|Win32
 		{D6504F8D-6F55-4E84-9924-5E12680571E1}.Release|Win32.Build.0 = Release|Win32
+		{E653A20F-4BF2-4CBA-9C5C-136A73F4BFE7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E653A20F-4BF2-4CBA-9C5C-136A73F4BFE7}.Debug|Win32.Build.0 = Debug|Win32
+		{E653A20F-4BF2-4CBA-9C5C-136A73F4BFE7}.Release|Win32.ActiveCfg = Release|Win32
+		{E653A20F-4BF2-4CBA-9C5C-136A73F4BFE7}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

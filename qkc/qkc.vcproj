@@ -186,6 +186,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\assert.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\builtin.cpp"
 				>
 			</File>
@@ -409,6 +413,10 @@
 			>
 			<File
 				RelativePath="..\include\alloca.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\assert.h"
 				>
 			</File>
 			<File
