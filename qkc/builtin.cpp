@@ -56,6 +56,12 @@
 #pragma intrinsic(_InterlockedDecrement16)
 #pragma intrinsic(_InterlockedCompareExchange16)
 
+#pragma intrinsic(_InterlockedIncrement)
+#pragma intrinsic(_InterlockedDecrement)
+#pragma intrinsic(_InterlockedCompareExchange)
+
+#pragma intrinsic(_InterlockedCompareExchange64)
+
 #pragma intrinsic(_ReadBarrier)
 #pragma intrinsic(_WriteBarrier)
 #pragma intrinsic(_ReadWriteBarrier)
@@ -124,7 +130,7 @@ void __atomic_thread_fence(int mo)
 void __atomic_load_impl(const void * ptr , void * ret , int memorder , size_t size) 
 {
     //if(size == 1)
-    //::InterlockedExchange
+     //   ::InterlockedCompareExchange
 }
 
 void __atomic_store_impl(const void * ptr , void *ret , int memorder , size_t size)
