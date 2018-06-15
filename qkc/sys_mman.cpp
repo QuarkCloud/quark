@@ -67,6 +67,10 @@ typedef struct __st_mmap_info{
     HANDLE map_handle ;
     void * map_addr ;
 
+    //ÓÃÓÚmunmap
+    void * use_addr ;
+    size_t use_size ;
+
     char * name ;
 } mmap_info_t ;
 
@@ -75,8 +79,15 @@ static rlist_t __mmap_info_list__ = {&__mmap_info_list__ , &__mmap_info_list__} 
 static SRWLOCK __mmap_access_guard__ = SRWLOCK_INIT ;
 
 bool mmap_insert(mmap_info_t * info) ;
-mmap_info_t * mmap_delete(void * map_addr) ;
-mmap_info_t * mmap_find(void * map_addr) ;
+
+bool mmap_delete(mmap_info_t *& info , void * addr , size_t size) ;
+mmap_info_t * mmap_find(void * addr) ;
+
+static inline bool mmap_inside(mmap_info_t * info , void * addr)
+{
+    return (((uintptr_t)info->map_addr < (uintptr_t)addr) && 
+        ((uintptr_t)info->map_addr + info->use_size > (uintptr_t)addr)) ;
+}
 
 bool mmap_insert(mmap_info_t * info)
 {
@@ -88,20 +99,46 @@ bool mmap_insert(mmap_info_t * info)
     return true ;
 }
 
-mmap_info_t * mmap_delete(void * map_addr) 
+bool mmap_delete(mmap_info_t *& info , void * addr , size_t size) 
 {
-    mmap_info_t * info = mmap_find(map_addr) ;
-    if(info != NULL)
-    {
-        ::AcquireSRWLockExclusive(&__mmap_access_guard__) ;
-        rlist_init(&info->link) ;
-        ::ReleaseSRWLockExclusive(&__mmap_access_guard__) ;
-    }
+    info = NULL ;
 
-    return info ;
+    mmap_info_t * finfo = mmap_find(addr) ;
+    if(finfo == NULL)
+        return false ;
+
+    bool result = true ;
+    uintptr_t use_addr = (uintptr_t)finfo->use_addr ;
+    uintptr_t del_addr = (uintptr_t)addr ;
+    size_t use_size = finfo->use_size ;
+
+    ::AcquireSRWLockExclusive(&__mmap_access_guard__) ;
+    if(del_addr == use_addr)
+    {
+        if(size >= use_size)
+        {
+            rlist_del(NULL ,&finfo->link) ;
+            info = finfo ;
+        }
+        else 
+        {
+            finfo->use_addr = (void *)(use_addr + size) ;
+            finfo->use_size -= size ;
+        }
+    }
+    else if(use_addr + use_size == del_addr + size)
+    {
+        finfo->use_size -= size ;        
+    }
+    else
+        result = false ;
+
+    ::ReleaseSRWLockExclusive(&__mmap_access_guard__) ;
+
+    return result ;
 }
 
-mmap_info_t * mmap_find(void * map_addr)
+mmap_info_t * mmap_find(void * addr)
 {
     mmap_info_t * info = NULL , * cur = NULL;    
     ::AcquireSRWLockShared(&__mmap_access_guard__) ;
@@ -109,7 +146,7 @@ mmap_info_t * mmap_find(void * map_addr)
     while(next != &__mmap_info_list__)
     {
         cur = (mmap_info_t *)next ;
-        if(cur->map_addr == map_addr)
+        if((cur->use_addr == addr) || mmap_inside(cur , addr) == true)
         {
             info = cur ;
             break ;
@@ -136,7 +173,8 @@ void *mmap (void * addr, size_t len, int prot, int flags, int fd, off_t offset)
     DWORD wprot = __mmap_prot_to_win(prot) ;
     DWORD wflags = __mmap_flag_to_win(flags) ;
     wprot |= wflags ;   
-    wprot = PAGE_READWRITE | SEC_COMMIT;
+    if(wprot == 0)
+        wprot = PAGE_READWRITE | SEC_COMMIT;
     HANDLE hmap = ::CreateFileMappingA(hfile , NULL , wprot , 0 , (DWORD)len , NULL) ;
     if(hmap == NULL)
     {
@@ -162,6 +200,8 @@ void *mmap (void * addr, size_t len, int prot, int flags, int fd, off_t offset)
     info->file_handle = hfile ;
     info->map_handle = hmap ;
     info->map_addr = map_addr ;
+    info->use_addr = map_addr ;
+    info->use_size = len ;
 
     mmap_insert(info) ;    
     return map_addr ;
@@ -169,20 +209,23 @@ void *mmap (void * addr, size_t len, int prot, int flags, int fd, off_t offset)
 
 int munmap (void *addr, size_t len)
 {
-    mmap_info_t * info = mmap_delete(addr) ;
-    if(info == NULL)
+    mmap_info_t * info = NULL ;
+    if(mmap_delete(info , addr , len) == false)
         return -1 ;
 
-    if(info->map_addr != NULL)
-        ::UnmapViewOfFile(addr) ;
+    if(info != NULL)
+    {
+        if(info->map_addr != NULL)
+            ::UnmapViewOfFile(info->map_addr) ;
 
-    if(info->map_handle != NULL)
-        ::CloseHandle(info->map_handle) ;
+        if(info->map_handle != NULL)
+            ::CloseHandle(info->map_handle) ;
 
-    if(info->name != NULL)
-        ::free(info->name) ;
+        if(info->name != NULL)
+            ::free(info->name) ;
 
-    ::free(info) ;
+        ::free(info) ;
+    }
     return 0 ;
 }
 

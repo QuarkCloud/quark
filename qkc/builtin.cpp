@@ -123,6 +123,7 @@ void __atomic_thread_fence(int mo)
 
 void __atomic_load_impl(const void * ptr , void * ret , int memorder , size_t size) 
 {
+    //if(size == 1)
     //::InterlockedExchange
 }
 

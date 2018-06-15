@@ -73,6 +73,13 @@ extern "C" {
 #endif
 
 
+/**
+    2018-06-15
+    mmap的fd可以是正常的文件句柄，也可以shm_open的句柄，用于共享内存。
+    这两个特性可以用windows的文件映射来处理。
+    在处理jemalloc的时候，munmap居然可以释放一个整块的内存中，某个特定
+    连续区间的内存块。这个特性在windows没有对应的函数。
+*/
 QKCAPI void *mmap (void * addr, size_t len, int prot, int flags, int fd , off_t offset) ;
 
 QKCAPI int munmap (void *addr, size_t len) ;

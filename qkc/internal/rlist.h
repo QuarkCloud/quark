@@ -24,6 +24,7 @@ static inline void rlist_add_tail(rlist_t * rlist , rlist_t * entry)
     rlist_t * last = rlist->prev ;
     last->next = entry ;
     entry->prev = last ;
+    entry->next = rlist ;
     rlist->prev = entry ;
 }
 
