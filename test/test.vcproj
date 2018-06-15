@@ -178,15 +178,11 @@
 				RelativePath=".\main.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\test-skeleton.c"
-				>
-			</File>
 			<Filter
 				Name="time"
 				>
 				<File
-					RelativePath=".\time\tst-mktime.c"
+					RelativePath=".\time\tst-mktime.cpp"
 					>
 				</File>
 			</Filter>

@@ -10,12 +10,17 @@
 
 __BEGIN_DECLS
 
-typedef static int (*test_case_t)(void) ;
+typedef struct __st_test_case{
+    int (*func)(void) ;
+    const char * name ;
+} test_case_t ;
 
-static test_cast_t __test_cases__[] = {
+#define TEST_CASE(func) {func , #func} 
 
+static test_case_t __test_cases__[] = {
+    TEST_CASE(do_test_mktime) ,
 
-    NULL 
+    {NULL , NULL}
 } ;
 
 __END_DECLS

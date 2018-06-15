@@ -8,7 +8,7 @@
 
 __BEGIN_DECLS
 
-static int do_test_mktime(void) ;
+extern int do_test_mktime(void) ;
 
 __END_DECLS
 

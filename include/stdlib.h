@@ -41,6 +41,9 @@ QUARK_LINKAGE int system (const char * command) ;
 QUARK_LINKAGE char * getenv(const char * name);
 QKCAPI char * secure_getenv (const char *name) ;
 
+QKCAPI int putenv(char *str);
+QKCAPI int setenv(const char *envname, const char *envval, int overwrite) ;
+
 #ifdef __cplusplus
 }
 #endif

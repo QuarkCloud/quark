@@ -10,6 +10,11 @@ extern "C" {
 QUARK_LINKAGE errno_t rand_s (unsigned int * value);
 QUARK_LINKAGE errno_t getenv_s(size_t * return_size , char * dst_buf , size_t dst_size, const char * name);
 
+
+QUARK_LINKAGE int _putenv(char *str);
+QUARK_LINKAGE int _putenv_s(const char *envname, const char *envval) ;
+
+
 #ifdef __cplusplus
 }
 #endif
@@ -26,3 +31,14 @@ char * secure_getenv (const char *name)
     //TO-DO
     return NULL ;
 }
+
+int putenv(char *str)
+{
+    return _putenv(str) ;
+}
+
+int setenv(const char *envname, const char *envval, int overwrite)
+{
+    return _putenv_s(envname , envval) ;
+}
+
