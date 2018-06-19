@@ -55,6 +55,7 @@ QKCAPI void __atomic_fetch_or_impl(void *ptr, const void * val, int memorder, vo
     __atomic_xxx是泛型函数，和c函数是不一样的。
     包括其他内建函数，需要用C++的技术来实现
 */
+/**
 #ifdef __cplusplus
 
 template<typename type> 
@@ -122,5 +123,6 @@ type __atomic_fetch_or (type *ptr, const type val, int memorder)
 }
 
 #endif
+*/
 
 #endif /* __QKC_BUILTIN_H */

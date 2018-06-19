@@ -190,6 +190,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\atomic.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\builtin.cpp"
 				>
 			</File>
@@ -417,6 +421,10 @@
 			</File>
 			<File
 				RelativePath="..\include\assert.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\atomic.h"
 				>
 			</File>
 			<File
