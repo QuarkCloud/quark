@@ -86,7 +86,7 @@ mmap_info_t * mmap_find(void * addr) ;
 static inline bool mmap_inside(mmap_info_t * info , void * addr)
 {
     return (((uintptr_t)info->map_addr < (uintptr_t)addr) && 
-        ((uintptr_t)info->map_addr + info->use_size > (uintptr_t)addr)) ;
+        ((uintptr_t)info->map_addr + info->len > (uintptr_t)addr)) ;
 }
 
 bool mmap_insert(mmap_info_t * info)

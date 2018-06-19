@@ -558,7 +558,7 @@ int pthread_cond_init(pthread_cond_t * cond , const pthread_condattr_t * cond_at
 {
     cond->flag = 1 ;
     cond->pad = 0 ;
-    ::InitializeConditionVariable((PCONDITION_VARIABLE)cond->locker) ;
+    ::InitializeConditionVariable((PCONDITION_VARIABLE)&cond->locker) ;
     return 0 ;
 }
 
@@ -566,7 +566,7 @@ int pthread_cond_destroy(pthread_cond_t *cond)
 {
     if(cond->flag == 1)
     {
-        ::WakeAllConditionVariable((PCONDITION_VARIABLE)cond->locker) ;
+        ::WakeAllConditionVariable((PCONDITION_VARIABLE)&cond->locker) ;
         cond->flag = 0 ;        
         cond->locker = 0 ;
         return 0 ;
@@ -582,7 +582,7 @@ int pthread_cond_signal(pthread_cond_t *cond)
 
     if(cond->flag == 1)
     {
-        ::WakeConditionVariable((PCONDITION_VARIABLE)cond->locker) ;
+        ::WakeConditionVariable((PCONDITION_VARIABLE)&cond->locker) ;
         return 0 ;
     }
     else
@@ -596,7 +596,7 @@ int pthread_cond_broadcast(pthread_cond_t *cond)
 
     if(cond->flag == 1)
     {
-        ::WakeAllConditionVariable((PCONDITION_VARIABLE)cond->locker) ;
+        ::WakeAllConditionVariable((PCONDITION_VARIABLE)&cond->locker) ;
         return 0 ;
     }
     else
@@ -624,7 +624,7 @@ int pthread_cond_wait(pthread_cond_t * cond , pthread_mutex_t * mutex)
     ::ReleaseMutex(obj->handle) ;
 
 
-    BOOL result = ::SleepConditionVariableCS((PCONDITION_VARIABLE)cond->locker , data->handle_critical_section , INFINITE) ;
+    BOOL result = ::SleepConditionVariableCS((PCONDITION_VARIABLE)&cond->locker , data->handle_critical_section , INFINITE) ;
 
     ::WaitForSingleObject(obj->handle , INFINITE) ;
     ::LeaveCriticalSection(data->handle_critical_section) ;
@@ -653,7 +653,7 @@ int pthread_cond_timedwait(pthread_cond_t * cond , pthread_mutex_t * mutex , con
     ::ReleaseMutex(obj->handle) ;
 
     uint64_t timeout = ElapseToMSec(abstime) ;
-    BOOL result = ::SleepConditionVariableCS((PCONDITION_VARIABLE)cond->locker , data->handle_critical_section , (DWORD)timeout) ;
+    BOOL result = ::SleepConditionVariableCS((PCONDITION_VARIABLE)&cond->locker , data->handle_critical_section , (DWORD)timeout) ;
 
     ::WaitForSingleObject(obj->handle , INFINITE) ;
     ::LeaveCriticalSection(data->handle_critical_section) ;

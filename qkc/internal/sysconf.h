@@ -12,6 +12,9 @@ extern "C" {
 //_SC_PAGESIZE
 int __get_pagesize() ;
 
+//_SC_NPROCESSORS_ONLN
+int __get_num_of_processor() ;
+
 #ifdef	__cplusplus
 }
 #endif

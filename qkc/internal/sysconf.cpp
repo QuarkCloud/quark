@@ -9,3 +9,10 @@ int __get_pagesize()
 	GetSystemInfo(&si);
 	return si.dwPageSize;
 }
+
+int __get_num_of_processor() 
+{
+	SYSTEM_INFO si;
+	GetSystemInfo(&si);
+	return si.dwNumberOfProcessors ;
+}

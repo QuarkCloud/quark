@@ -114,6 +114,9 @@ long int sysconf(int name)
 {
     if(name == _SC_PAGESIZE)
         return __get_pagesize() ;
+    else if(name == _SC_NPROCESSORS_ONLN)
+        return __get_num_of_processor() ;
+
     return 0 ;
 }
 
