@@ -127,53 +127,5 @@ void __atomic_thread_fence(int mo)
     _ReadWriteBarrier() ;
 }
 
-void __atomic_load_impl(const void * ptr , void * ret , int memorder , size_t size) 
-{
-    //if(size == 1)
-     //   ::InterlockedCompareExchange
-}
-
-void __atomic_store_impl(const void * ptr , void *ret , int memorder , size_t size)
-{
-    //
-}
-
-void __atomic_exchange_impl(const void *ptr, void *val, void *ret, int memorder , size_t size)
-{
-    //
-}
-
-bool __atomic_compare_exchange_impl(const void *ptr, void *expected, void *desired, bool weak, 
-                                      int success_memorder, int failure_memorder , size_t size) 
-{
-    return false ;
-}
-
-
-void __atomic_fetch_add_impl(void *ptr, const void * val, int memorder, void *result, size_t size)
-{
-
-}
-
-void __atomic_fetch_sub_impl(void *ptr, const void * val, int memorder, void *result, size_t size) 
-{
-
-}
-
-void __atomic_fetch_and_impl(void *ptr, const void * val, int memorder, void *result, size_t size)
-{
-
-}
-
-void __atomic_fetch_xor_impl(void *ptr, const void * val, int memorder, void *result, size_t size)
-{
-
-}
-
-void __atomic_fetch_or_impl(void *ptr, const void * val, int memorder, void *result, size_t size)
-{
-
-}
-
 
 
