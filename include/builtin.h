@@ -6,6 +6,8 @@
 #include <stdbool.h>
 
 
+#define __func__ __FUNCTION__ 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
