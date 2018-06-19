@@ -14,11 +14,11 @@ QKCAPI uint32_t atomic_store32(uint32_t volatile * target , uint32_t value) ;
 QKCAPI uint32_t atomic_exchange32(uint32_t volatile * target, uint32_t value) ;
 QKCAPI bool atomic_compare_exchange32(uint32_t volatile * target, uint32_t exchange , uint32_t comparand) ;
 
-QKCAPI uint32_t atomic_fetch_add32(uint32_t * volatile target , uint32_t value) ;
-QKCAPI uint32_t atomic_fetch_sub32(uint32_t * volatile target , uint32_t value) ;
-QKCAPI uint32_t atomic_fetch_and32(uint32_t * volatile target , uint32_t value) ;
-QKCAPI uint32_t atomic_fetch_xor32(uint32_t * volatile target , uint32_t value) ;
-QKCAPI uint32_t atomic_fetch_or32 (uint32_t * volatile target , uint32_t value) ;
+QKCAPI uint32_t atomic_fetch_add32(uint32_t volatile * target , uint32_t value) ;
+QKCAPI uint32_t atomic_fetch_sub32(uint32_t volatile * target , uint32_t value) ;
+QKCAPI uint32_t atomic_fetch_and32(uint32_t volatile * target , uint32_t value) ;
+QKCAPI uint32_t atomic_fetch_xor32(uint32_t volatile * target , uint32_t value) ;
+QKCAPI uint32_t atomic_fetch_or32 (uint32_t volatile * target , uint32_t value) ;
 
 
 //÷∏’Î
@@ -33,11 +33,11 @@ QKCAPI uint64_t atomic_store64(uint64_t volatile * target , uint64_t value) ;
 QKCAPI uint64_t atomic_exchange64(uint64_t volatile * target, uint64_t value) ;
 QKCAPI bool atomic_compare_exchange64(uint64_t volatile * target, uint64_t exchange , uint64_t comparand) ;
 
-QKCAPI uint64_t atomic_fetch_add64(uint64_t * volatile target , uint64_t value) ;
-QKCAPI uint64_t atomic_fetch_sub64(uint64_t * volatile target , uint64_t value) ;
-QKCAPI uint64_t atomic_fetch_and64(uint64_t * volatile target , uint64_t value) ;
-QKCAPI uint64_t atomic_fetch_xor64(uint64_t * volatile target , uint64_t value) ;
-QKCAPI uint64_t atomic_fetch_or64 (uint64_t * volatile target , uint64_t value) ;
+QKCAPI uint64_t atomic_fetch_add64(uint64_t volatile * target , uint64_t value) ;
+QKCAPI uint64_t atomic_fetch_sub64(uint64_t volatile * target , uint64_t value) ;
+QKCAPI uint64_t atomic_fetch_and64(uint64_t volatile * target , uint64_t value) ;
+QKCAPI uint64_t atomic_fetch_xor64(uint64_t volatile * target , uint64_t value) ;
+QKCAPI uint64_t atomic_fetch_or64 (uint64_t volatile * target , uint64_t value) ;
 
 #ifdef __cplusplus
 }

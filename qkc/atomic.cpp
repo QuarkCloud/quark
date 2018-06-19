@@ -16,37 +16,37 @@ uint32_t atomic_store32(uint32_t volatile * target , uint32_t value)
 
 uint32_t atomic_exchange32(uint32_t volatile * target, uint32_t value) 
 {
-    return ::InterlockedExchange((volatile LONG *)target , value) ;
+    return ::InterlockedExchange((LONG volatile *)target , value) ;
 }
 
 bool atomic_compare_exchange32(uint32_t volatile * target, uint32_t exchange , uint32_t comparand)
 {
-    return (::InterlockedCompareExchange((volatile LONG *)target , exchange , comparand) == comparand);
+    return (::InterlockedCompareExchange((LONG volatile *)target , exchange , comparand) == comparand);
 }
 
-uint32_t atomic_fetch_add32(uint32_t * volatile target , uint32_t value)
+uint32_t atomic_fetch_add32(uint32_t volatile * target , uint32_t value)
 {
-    return ::InterlockedExchangeAdd((volatile LONG *)target , value) ;
+    return ::InterlockedExchangeAdd((LONG volatile *)target , value) ;
 }
 
-uint32_t atomic_fetch_sub32(uint32_t * volatile target , uint32_t value)
+uint32_t atomic_fetch_sub32(uint32_t volatile * target , uint32_t value)
 {
-    return ::InterlockedExchangeAdd((volatile LONG *)target , -(LONG)value) ;
+    return ::InterlockedExchangeAdd((LONG volatile *)target , -(LONG)value) ;
 }
 
-uint32_t atomic_fetch_and32(uint32_t * volatile target , uint32_t value)
+uint32_t atomic_fetch_and32(uint32_t volatile * target , uint32_t value)
 {
-    return ::_InterlockedAnd((volatile LONG *)target , value) ;
+    return ::_InterlockedAnd((LONG volatile *)target , value) ;
 }
 
-uint32_t atomic_fetch_xor32(uint32_t * volatile target , uint32_t value)
+uint32_t atomic_fetch_xor32(uint32_t volatile * target , uint32_t value)
 {
-    return ::_InterlockedXor((volatile LONG *)target , value) ;
+    return ::_InterlockedXor((LONG volatile *)target , value) ;
 }
 
-uint32_t atomic_fetch_or32 (uint32_t * volatile target , uint32_t value)
+uint32_t atomic_fetch_or32 (uint32_t volatile * target , uint32_t value)
 {
-    return ::_InterlockedOr((volatile LONG *)target , value) ;
+    return ::_InterlockedOr((LONG volatile *)target , value) ;
 }
 
 
@@ -125,27 +125,27 @@ bool atomic_compare_exchange64(uint64_t volatile * target, uint64_t exchange , u
     return (::InterlockedCompareExchange64((LONGLONG volatile *)target , exchange , comparand) == comparand) ;
 }
 
-uint64_t atomic_fetch_add64(uint64_t * volatile target , uint64_t value)
+uint64_t atomic_fetch_add64(uint64_t volatile * target , uint64_t value)
 {
     return ::InterlockedExchangeAdd64((LONGLONG volatile *)target , value) ;
 }
 
-uint64_t atomic_fetch_sub64(uint64_t * volatile target , uint64_t value) 
+uint64_t atomic_fetch_sub64(uint64_t volatile * target , uint64_t value) 
 {
     return ::InterlockedExchangeAdd64((LONGLONG volatile *)target , value) ;
 }
 
-uint64_t atomic_fetch_and64(uint64_t * volatile target , uint64_t value)
+uint64_t atomic_fetch_and64(uint64_t volatile * target , uint64_t value)
 {
     return ::InterlockedAnd64((LONGLONG volatile *)target , value) ;
 }
 
-uint64_t atomic_fetch_xor64(uint64_t * volatile target , uint64_t value)
+uint64_t atomic_fetch_xor64(uint64_t volatile * target , uint64_t value)
 {
     return ::InterlockedXor64((LONGLONG volatile *)target , value) ;
 }
 
-uint64_t atomic_fetch_or64 (uint64_t * volatile target , uint64_t value)
+uint64_t atomic_fetch_or64 (uint64_t volatile * target , uint64_t value)
 {
     return ::InterlockedOr64((LONGLONG volatile *)target , value) ;
 }
