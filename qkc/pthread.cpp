@@ -13,7 +13,6 @@ typedef struct _st_wthr_start_data
 {
 	void * (*start_routine)(void *) ;
     void * param ;
-    HANDLE waiter ;
     wthr_info_t * info ;
 } wthr_start_data_t;
 
@@ -21,10 +20,6 @@ typedef struct _st_wthr_start_data
 DWORD WINAPI WinThreadFunction(LPVOID lpParam )
 {
     wthr_start_data_t * data = (wthr_start_data_t *)lpParam ;
-    wthr_info_t * info  = ::wthr_info_get() ;
-    info->wid  = ::wobj_set(WOBJ_THRD , ::GetCurrentThread() , info) ;    
-    data->info = info ;
-    ::SetEvent(data->waiter) ;
     data->start_routine(data->param) ;
     return 0 ;
 }
@@ -38,23 +33,21 @@ int pthread_create(pthread_t * newthread , const pthread_attr_t * attr , void *(
 
 	data->param = arg ;
 	data->start_routine = start_routine ;
-    data->waiter = ::CreateEventA(NULL , TRUE , FALSE , NULL) ;
 
     DWORD tid = 0 ;
-	HANDLE handle = ::CreateThread(NULL , 0 , WinThreadFunction , data , 0 , &tid) ;
+	HANDLE handle = ::CreateThread(NULL , 0 , WinThreadFunction , data , CREATE_SUSPENDED , &tid) ;
 	if(handle == NULL || handle == INVALID_HANDLE_VALUE)
 	{
-        ::CloseHandle(data->waiter) ;
 		::HeapFree(::default_heap_get() , 0 , data) ;
 		return -1 ;
 	}
-    ::WaitForSingleObject(data->waiter , INFINITE) ;
-    ::CloseHandle(data->waiter) ;
-    data->waiter = NULL ;
 
-    wthr_info_t * info = data->info ;
-	info->handle = (uintptr_t)handle ;
+    wthr_info_t * info  = ::wthr_info_get() ;
+    info->handle = (uintptr_t)handle ;
+    info->wid  = ::wobj_set(WOBJ_THRD , handle , info) ;    
     info->tid = (int)tid ;
+
+    data->info = info ;
 
     if(newthread != NULL)
         *newthread = info->wid ;

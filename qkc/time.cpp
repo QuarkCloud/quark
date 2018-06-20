@@ -1,6 +1,7 @@
 
 #include <time.h>
 #include <wintf/wcrt.h>
+#include <windows.h>
 
 time_t time (time_t *ts)
 {
@@ -54,9 +55,29 @@ void tzset (void)
     _tzset() ;
 }
 
-int nanosleep (const struct timespec * ts ,    struct timespec * remaining)
+int nanosleep (const struct timespec * ts , struct timespec * remaining)
 {
-    return 0 ;
+    int64_t sec = ts->tv_sec  , nsec = ts->tv_nsec ;
+    int64_t elapse = (sec * 1000000000LL + nsec) / 100 ;
+    if(elapse == 0)
+        return 0 ;
+
+    FILETIME start_time ;
+    ::GetSystemTimeAsFileTime(&start_time) ;
+
+    HANDLE hTimer = ::CreateWaitableTimer(NULL , TRUE , NULL) ;
+    if(hTimer == NULL)
+        return -1 ;
+
+    LARGE_INTEGER due ;
+    due.QuadPart = elapse ;
+
+    if(::SetWaitableTimer(hTimer , &due , 0 , NULL , NULL , 0) == FALSE)
+        return -1 ;
+
+    if(::WaitForSingleObject(hTimer , INFINITE) == WAIT_OBJECT_0)
+        return 0 ;    
+    return -1 ;
 }
 
 int clock_getres (clockid_t clock_id, struct timespec * res)

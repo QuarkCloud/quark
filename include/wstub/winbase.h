@@ -2264,6 +2264,71 @@ WINBASEAPI int WINAPI WideCharToMultiByte(UINT     CodePage,DWORD    dwFlags,
     LPCSTR   lpDefaultChar, LPBOOL  lpUsedDefaultChar);
 
 
+
+typedef
+VOID
+(APIENTRY *PTIMERAPCROUTINE)(
+    LPVOID lpArgToCompletionRoutine,
+    DWORD dwTimerLowValue,
+    DWORD dwTimerHighValue
+    );
+
+WINBASEAPI
+HANDLE
+WINAPI
+CreateWaitableTimerA(
+    LPSECURITY_ATTRIBUTES lpTimerAttributes,
+    BOOL bManualReset,
+    LPCSTR lpTimerName
+    );
+WINBASEAPI
+HANDLE
+WINAPI
+CreateWaitableTimerW(
+    LPSECURITY_ATTRIBUTES lpTimerAttributes,
+    BOOL bManualReset,
+    LPCWSTR lpTimerName
+    );
+#define CreateWaitableTimer DECLEAR_FUNC_AW(CreateWaitableTimer)
+
+
+WINBASEAPI
+HANDLE
+WINAPI
+OpenWaitableTimerA(
+    DWORD dwDesiredAccess,
+    BOOL bInheritHandle,
+    LPCSTR lpTimerName
+    );
+WINBASEAPI
+HANDLE
+WINAPI
+OpenWaitableTimerW(
+    DWORD dwDesiredAccess,
+    BOOL bInheritHandle,
+    LPCWSTR lpTimerName
+    );
+#define OpenWaitableTimer DECLEAR_FUNC_AW(OpenWaitableTimer)
+
+WINBASEAPI
+BOOL
+WINAPI
+SetWaitableTimer(
+    HANDLE hTimer,
+    const LARGE_INTEGER *lpDueTime,
+    LONG lPeriod,
+    PTIMERAPCROUTINE pfnCompletionRoutine,
+    LPVOID lpArgToCompletionRoutine,
+    BOOL fResume
+    );
+
+WINBASEAPI
+BOOL
+WINAPI
+CancelWaitableTimer(
+    HANDLE hTimer
+    );
+
 #ifdef __cplusplus
 }
 #endif
