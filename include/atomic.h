@@ -12,7 +12,7 @@ extern "C" {
 QKCAPI uint32_t atomic_load32(uint32_t volatile * target) ;
 QKCAPI uint32_t atomic_store32(uint32_t volatile * target , uint32_t value) ;
 QKCAPI uint32_t atomic_exchange32(uint32_t volatile * target, uint32_t value) ;
-QKCAPI bool atomic_compare_exchange32(uint32_t volatile * target, uint32_t exchange , uint32_t comparand) ;
+QKCAPI uint32_t atomic_compare_exchange32(uint32_t volatile * target, uint32_t expected , uint32_t desired) ;
 
 QKCAPI uint32_t atomic_fetch_add32(uint32_t volatile * target , uint32_t value) ;
 QKCAPI uint32_t atomic_fetch_sub32(uint32_t volatile * target , uint32_t value) ;
@@ -25,13 +25,13 @@ QKCAPI uint32_t atomic_fetch_or32 (uint32_t volatile * target , uint32_t value) 
 QKCAPI void * atomic_load_ptr(void * volatile * target) ;
 QKCAPI void * atomic_store_ptr(void * volatile * target , void * value) ;
 QKCAPI void * atomic_exchange_ptr(void * volatile * target, void * value) ;
-QKCAPI bool atomic_compare_exchange_ptr(void * volatile * target, void * exchange , void * comparand) ;
+QKCAPI void * atomic_compare_exchange_ptr(void * volatile * target, void * expected , void * desired) ;
 
 //64λ
 QKCAPI uint64_t atomic_load64(uint64_t volatile * target) ;
 QKCAPI uint64_t atomic_store64(uint64_t volatile * target , uint64_t value) ;
 QKCAPI uint64_t atomic_exchange64(uint64_t volatile * target, uint64_t value) ;
-QKCAPI bool atomic_compare_exchange64(uint64_t volatile * target, uint64_t exchange , uint64_t comparand) ;
+QKCAPI uint64_t atomic_compare_exchange64(uint64_t volatile * target, uint64_t expected , uint64_t desired) ;
 
 QKCAPI uint64_t atomic_fetch_add64(uint64_t volatile * target , uint64_t value) ;
 QKCAPI uint64_t atomic_fetch_sub64(uint64_t volatile * target , uint64_t value) ;

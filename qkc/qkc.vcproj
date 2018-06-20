@@ -460,6 +460,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\float.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\getopt.h"
 				>
 			</File>

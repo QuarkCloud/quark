@@ -62,6 +62,15 @@ typedef intptr_t                ptrdiff_t ;
 
 
 # if __WORDSIZE == 64
+#  define PTRDIFF_MIN           (-9223372036854775807L-1)
+#  define PTRDIFF_MAX           (9223372036854775807L)
+# else
+#  define PTRDIFF_MIN           (-2147483647-1)
+#  define PTRDIFF_MAX           (2147483647)
+# endif
+
+
+# if __WORDSIZE == 64
 #  define SIZE_MAX              (18446744073709551615UL)
 # else
 #  define SIZE_MAX              (4294967295U)

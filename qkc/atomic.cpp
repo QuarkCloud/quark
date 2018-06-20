@@ -19,9 +19,9 @@ uint32_t atomic_exchange32(uint32_t volatile * target, uint32_t value)
     return ::InterlockedExchange((LONG volatile *)target , value) ;
 }
 
-bool atomic_compare_exchange32(uint32_t volatile * target, uint32_t exchange , uint32_t comparand)
+uint32_t atomic_compare_exchange32(uint32_t volatile * target, uint32_t expected , uint32_t desired) 
 {
-    return (::InterlockedCompareExchange((LONG volatile *)target , exchange , comparand) == comparand);
+    return ::InterlockedCompareExchange((LONG volatile *)target , desired , expected);
 }
 
 uint32_t atomic_fetch_add32(uint32_t volatile * target , uint32_t value)
@@ -120,9 +120,9 @@ uint64_t atomic_exchange64(uint64_t volatile * target, uint64_t value)
     return ::InterlockedExchange64((LONGLONG volatile *)target , value) ;
 }
 
-bool atomic_compare_exchange64(uint64_t volatile * target, uint64_t exchange , uint64_t comparand)
+uint64_t atomic_compare_exchange64(uint64_t volatile * target, uint64_t expected , uint64_t desired)
 {
-    return (::InterlockedCompareExchange64((LONGLONG volatile *)target , exchange , comparand) == comparand) ;
+    return ::InterlockedCompareExchange64((LONGLONG volatile *)target , desired , expected) ;
 }
 
 uint64_t atomic_fetch_add64(uint64_t volatile * target , uint64_t value)
@@ -167,9 +167,9 @@ void * atomic_exchange_ptr(void * volatile * target, void * value)
     return (void *)::InterlockedExchange((LONG volatile *)target , (LONG)value) ;
 }
 
-bool atomic_compare_exchange_ptr(void * volatile * target, void * exchange , void * comparand)
+void * atomic_compare_exchange_ptr(void * volatile * target, void * expected , void * desired) 
 {
-    return (::InterlockedCompareExchange((LONG volatile *)target , (LONG)exchange , (LONG)comparand) == (LONG)comparand);
+    return (void *)::InterlockedCompareExchange((LONG volatile *)target , (LONG)desired , (LONG)expected) ;
 }
 
 #else
@@ -190,9 +190,9 @@ void * atomic_exchange_ptr(void * volatile * target, void * value)
     return (void *)::InterlockedExchange64((LONGLONG volatile *)target , (LONGLONG)value) ;
 }
 
-bool atomic_compare_exchange_ptr(void * volatile * target, void * exchange , void * comparand)
+void * atomic_compare_exchange_ptr(void * volatile * target, void * expected , void * desired) 
 {
-    return (void *)(::InterlockedCompareExchange64((LONGLONG volatile *)target , (LONGLONG)exchange , (LONGLONG)comparand) == (LONGLONG)comparand);
+    return (void *)::InterlockedCompareExchange64((LONGLONG volatile *)target , (LONGLONG)desired , (LONGLONG)expected) ;
 }
 
 #endif
