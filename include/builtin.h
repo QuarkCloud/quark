@@ -12,7 +12,6 @@
 extern "C" {
 #endif
 
-#define __thread
 
 /**
     实现gcc内建函数，这在很多linux下源码用到，必须支持。

@@ -117,13 +117,15 @@ bool wobj_del(int wid)
     wobj_t * ko = __wobjs__ + xid ;
     if(ko->wid == wid)
     {
+        /**
         HANDLE handle = ko->handle ;
         if(handle != NULL && handle != INVALID_HANDLE_VALUE)
         {
             ::CloseHandle(handle) ;
             result = true ;
         }
-
+        */
+        result = true ;
         ::memset(ko , 0 , sizeof(wobj_t)) ;
     }
 

@@ -183,6 +183,12 @@ void *mmap (void * addr, size_t len, int prot, int flags, int fd, off_t offset)
     }
 
     void * map_addr = ::MapViewOfFile(hmap , FILE_MAP_ALL_ACCESS , 0 , 0 , len) ;
+    if(map_addr == NULL)
+    {
+        DWORD errcode = ::GetLastError() ;
+        ::CloseHandle(hmap) ;
+        return NULL ;
+    }
 
     //2°¢±£¥Ê–≈œ¢
     size_t info_size = sizeof(mmap_info_t) ;
