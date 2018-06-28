@@ -32,6 +32,22 @@ QKCAPI void wthr_info_init(wthr_info_t * info) ;
 
 QKCAPI void wthr_info_free(wthr_info_t * info) ;
 
+//线程变量的管理
+typedef void (*tls_cleanup_t)(int tls) ;
+
+QKCAPI int whtr_tls_alloc(tls_cleanup_t cleanup) ;
+
+QKCAPI void whtr_tls_delete(int tls) ;
+
+QKCAPI void whtr_tls_cleanup() ;
+
+QKCAPI int whtr_tls_first() ;
+
+QKCAPI int whtr_tls_next() ;
+
+QKCAPI int whtr_tls_set_val(int pid , int key , void * val) ;
+
+QKCAPI void * whtr_tls_get_val(int pid , int key) ;
 
 #ifdef	__cplusplus
 }

@@ -3,10 +3,28 @@
 #include <wintf/wobj.h>
 #include <windows.h>
 #include <string.h>
+#include "../internal/rlist.h"
 
 SRWLOCK __default_tlsidx_rwlock__ =  SRWLOCK_INIT ;
 static bool __default_tlsidx_inited__ = false ;
 static DWORD __default_tlsidx__ = TLS_OUT_OF_INDEXES ;
+
+typedef struct __st_tls_node{
+    rlist_t link ;
+    void * value ;
+}tls_node_t ;
+
+typedef struct __st_wthr_tls{
+    bool            inited ;
+    DWORD           key ;
+    tls_cleanup_t   cleanup ;
+    rlist_t         nodes ;
+}wthr_tls_t ;
+
+static const int kTLSMaxSize = 1024 ;
+static wthr_tls_t   __tls_nodes__[kTLSMaxSize] ;
+static bool __tls_inited__ = false ;
+
 
 DWORD default_tlsidx_alloc()
 {
@@ -101,5 +119,40 @@ bool wthr_thread_detach()
         ::TlsSetValue(default_tlsidx_alloc() , NULL) ;
     }
     return true ;
+}
+
+int whtr_tls_alloc(tls_cleanup_t cleanup)
+{
+
+}
+
+void whtr_tls_delete(int tls)
+{
+
+}
+
+void whtr_tls_cleanup()
+{
+
+}
+
+int whtr_tls_first()
+{
+
+}
+
+int whtr_tls_next()
+{
+
+}
+
+int whtr_tls_set_val(int pid , int key , void * val)
+{
+
+}
+
+void * whtr_tls_get_val(int pid , int key)
+{
+
 }
 
