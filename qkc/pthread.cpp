@@ -21,6 +21,9 @@ DWORD WINAPI WinThreadFunction(LPVOID lpParam )
 {
     wthr_start_data_t * data = (wthr_start_data_t *)lpParam ;
     data->start_routine(data->param) ;
+
+    //在最后阶段，需要回收资源
+    wthr_tls_cleanup_vals()  ;
     return 0 ;
 }
 
@@ -758,38 +761,30 @@ int pthread_spin_unlock(pthread_spinlock_t *lock)
 
 int pthread_key_create(pthread_key_t *key , void(*destr_function)(void *)) 
 {
-    DWORD tls = TlsAlloc() ;
-    if(tls == TLS_OUT_OF_INDEXES)
+    int tls = wthr_tls_alloc(destr_function) ;
+    if(tls > 0)
     {
-        errno = ENOMEM ;
-        return -1 ;
+        *key = tls ;
+        return 0 ;
     }
-
-    *key = (pthread_key_t)tls;
-    return 0 ;
+    else
+        return -1 ;
 }
 
 int pthread_key_delete(pthread_key_t key) 
 {
-    DWORD tls = (DWORD)key ;
-    if(tls == TLS_OUT_OF_INDEXES)
-        return -1 ;
-
-    ::TlsFree(tls) ;
+    wthr_tls_delete(key) ;
     return 0 ;
 }
 
 void *pthread_getspecific(pthread_key_t key) 
 {
-    return ::TlsGetValue((DWORD)key) ;
+    return wthr_tls_get_val(key) ;
 }
 
 int pthread_setspecific(pthread_key_t key , const void *pointer) 
 {
-    if(::TlsSetValue((DWORD)key , (LPVOID)pointer) == TRUE)
-        return 0 ;
-    else
-        return -1 ;
+    return wthr_tls_set_val(key , (void *)pointer) ;
 }
 
 
