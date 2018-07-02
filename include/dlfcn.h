@@ -31,6 +31,9 @@ QKCAPI void *dlopen (const char * file, int mode) ;
 
 QKCAPI int dlclose (void * handle) ;
 
+/**
+    RTLD_DEFAULT/RTLD_NEXT需要特殊处理
+*/
 QKCAPI void *dlsym (void * handle , const char * name) ;
 
 QKCAPI char *dlerror (void) ;
