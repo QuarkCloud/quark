@@ -5,6 +5,8 @@
 
 BOOL WINAPI DllMain (HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved)
 {
+    dll_handle_set((uintptr_t)hinstDll) ;
+
     bool result = true ;
     switch (fdwReason)
     {

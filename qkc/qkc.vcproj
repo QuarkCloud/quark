@@ -658,6 +658,10 @@
 					RelativePath="..\include\sys\unistd.h"
 					>
 				</File>
+				<File
+					RelativePath="..\include\sys\wait.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="wintf"

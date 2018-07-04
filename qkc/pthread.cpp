@@ -20,6 +20,8 @@ typedef struct _st_wthr_start_data
 DWORD WINAPI WinThreadFunction(LPVOID lpParam )
 {
     wthr_start_data_t * data = (wthr_start_data_t *)lpParam ;
+    wthr_info_save(data->info) ;
+
     data->start_routine(data->param) ;
 
     //在最后阶段，需要回收资源
@@ -45,7 +47,7 @@ int pthread_create(pthread_t * newthread , const pthread_attr_t * attr , void *(
 		return -1 ;
 	}
 
-    wthr_info_t * info  = ::wthr_info_get() ;
+    wthr_info_t * info  = ::wthr_info_alloc() ;
     info->handle = (uintptr_t)handle ;
     info->wid  = ::wobj_set(WOBJ_THRD , handle , info) ;    
     info->tid = (int)tid ;
@@ -66,6 +68,9 @@ void pthread_exit(void *retval)
 
 int pthread_join(pthread_t th , void **thread_return)
 {
+    if(thread_return != NULL)
+        *thread_return = NULL ;
+
     wobj_t * obj = wobj_get(th) ;
     if(obj == NULL || obj->type != WOBJ_THRD)
         return -1 ;
@@ -73,7 +78,16 @@ int pthread_join(pthread_t th , void **thread_return)
     HANDLE handle = obj->handle ;
     DWORD ret = WaitForSingleObject(handle , INFINITE) ;
     if(ret == WAIT_OBJECT_0)
+    {
+        if(thread_return != NULL)
+        {
+            DWORD exit_code = 0 ;
+            if(::GetExitCodeThread(handle , &exit_code) == TRUE)
+                *thread_return = (void *)exit_code ;
+        }
+
         return 0 ;
+    }
     else
         return -1 ;
 }
@@ -85,7 +99,7 @@ int pthread_detach(pthread_t th)
 
 pthread_t pthread_self(void) 
 {
-    wthr_info_t * info = wthr_info_get() ;
+    wthr_info_t * info = wthr_info_load() ;
     if(info == NULL)
         return 0 ;
     else

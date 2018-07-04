@@ -1,6 +1,7 @@
 
 #include <dlfcn.h>
 #include <windows.h>
+#include <wintf/wthr.h>
 
 void *dlopen (const char * file, int mode)
 {
@@ -17,7 +18,11 @@ int dlclose (void * handle)
 
 void *dlsym_default(const char * name)
 {
-    return NULL ;
+    HMODULE handle = (HMODULE)dll_handle_get() ;
+    if(handle == NULL)
+        return NULL ;
+
+    return ::GetProcAddress(handle , name) ;
 }
 
 void *dlsym_special(void * handle , const char * name)
@@ -27,8 +32,7 @@ void *dlsym_special(void * handle , const char * name)
 
 void *dlsym (void * handle , const char * name)
 {
-    intptr_t ih = (intptr_t)handle ;
-    if(ih == RTLD_DEFAULT || ih == RTLD_NEXT)
+    if(handle == RTLD_DEFAULT || handle == RTLD_NEXT)
         return dlsym_default(name) ;
     else
         return dlsym_special(handle , name) ;

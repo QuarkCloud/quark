@@ -34,6 +34,8 @@ void tls_nodes_init()
 
 int default_tlsidx_alloc()
 {
+    tls_nodes_init() ;
+
     wthr_tls_t& tls = __tls_nodes__[0] ;
 
     ::AcquireSRWLockExclusive(&__tlsidx_rwlock__) ;
@@ -53,6 +55,7 @@ int default_tlsidx_alloc()
 
 void default_tlsidx_free()
 {
+    tls_nodes_init() ;
     wthr_tls_t& tls = __tls_nodes__[0] ;
     if(tls.inited == true)
     {
@@ -69,19 +72,11 @@ void default_tlsidx_free()
     }
 }
 
-wthr_info_t * wthr_info_get()
+wthr_info_t * wthr_info_alloc()
 {
-    DWORD tlsidx = default_tlsidx_alloc() ;
-    wthr_info_t * info = (wthr_info_t *)::TlsGetValue(tlsidx) ;
-    if(info == NULL)
-    {
-        info = (wthr_info_t *)::HeapAlloc(::GetProcessHeap() , 0 , sizeof(wthr_info_t)) ;
-        if(info != NULL)
-        {
-            wthr_info_init(info) ;
-            ::TlsSetValue(tlsidx , info) ;
-        }
-    }
+    wthr_info_t * info = (wthr_info_t *)::HeapAlloc(::GetProcessHeap() , 0 , sizeof(wthr_info_t)) ;
+    if(info != NULL)
+        wthr_info_init(info) ;
 
     return info ;
 }
@@ -93,15 +88,69 @@ void wthr_info_init(wthr_info_t * info)
 
 void wthr_info_free(wthr_info_t * info)
 {
-    DWORD key = __tls_nodes__[0].key ;
-    if(key == TLS_OUT_OF_INDEXES)
-        return ;
-
-    ::TlsSetValue(key , NULL) ;
     if(info != NULL)
     {
         ::HeapFree(::GetProcessHeap() , 0 , info) ;
     }    
+}
+
+bool wthr_info_save(wthr_info_t * info) 
+{
+    if(::default_tlsidx_alloc() != 0)
+        return false ;
+
+    ::AcquireSRWLockExclusive(&__tlsidx_rwlock__) ;
+
+    void * data = ::TlsGetValue(__tls_nodes__[0].key) ;
+    if(data != NULL)
+    {
+        wthr_info_free((wthr_info_t *)data) ;
+    }
+
+    ::TlsSetValue(__tls_nodes__[0].key , info) ;
+
+    ::ReleaseSRWLockExclusive(&__tlsidx_rwlock__) ;
+
+    return true ;
+}
+
+void wthr_info_remove()
+{
+    wthr_info_t * info = NULL ;
+
+    ::AcquireSRWLockExclusive(&__tlsidx_rwlock__) ;
+
+    wthr_tls_t& tls = __tls_nodes__[0] ;
+    if(tls.inited == true)
+    {
+        info = (wthr_info_t *)::TlsGetValue(tls.key) ;
+        if(info != NULL)
+            ::TlsSetValue(tls.key , NULL) ;
+    }
+    ::ReleaseSRWLockExclusive(&__tlsidx_rwlock__) ;
+
+    wthr_info_free(info) ;
+}
+
+wthr_info_t * wthr_info_load()
+{   
+    return (wthr_info_t *)::TlsGetValue(__tls_nodes__[0].key) ;    
+}
+
+static HANDLE __dll_handle__ = NULL ;
+uintptr_t dll_handle() 
+{
+    return (uintptr_t)__dll_handle__ ;
+}
+
+uintptr_t dll_handle_get()
+{
+    return (uintptr_t)__dll_handle__ ;
+}
+
+void dll_handle_set(uintptr_t handle)
+{
+    __dll_handle__ = (HANDLE)handle;
 }
 
 

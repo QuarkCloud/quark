@@ -132,7 +132,7 @@ uint64_t atomic_fetch_add64(uint64_t volatile * target , uint64_t value)
 
 uint64_t atomic_fetch_sub64(uint64_t volatile * target , uint64_t value) 
 {
-    return ::InterlockedExchangeAdd64((LONGLONG volatile *)target , value) ;
+    return ::InterlockedExchangeAdd64((LONGLONG volatile *)target , 0 - value) ;
 }
 
 uint64_t atomic_fetch_and64(uint64_t volatile * target , uint64_t value)
