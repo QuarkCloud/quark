@@ -377,6 +377,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\internal\file_system.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\internal\fsocket.cpp"
 					>
 				</File>
@@ -724,6 +728,10 @@
 				</File>
 				<File
 					RelativePath=".\internal\bitop.h"
+					>
+				</File>
+				<File
+					RelativePath=".\internal\file_system.h"
 					>
 				</File>
 				<File

@@ -382,6 +382,8 @@ __MACHINEX64(unsigned __int64 __popcnt64(unsigned __int64))
 
 __MACHINEI(unsigned __int64 __rdtscp(unsigned int*))
 
+__MACHINEX86X_X64(void _mm_pause(void))
+
 #if defined(__cplusplus)
 }
 #endif

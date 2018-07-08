@@ -6,6 +6,7 @@
 #include <winsock2.h>
 #include "internal/inotify_mgr.h"
 #include "internal/sysconf.h"
+#include "internal/intrin.h"
 
 off_t lseek(int fd , off_t offset , int whence)
 {
@@ -80,8 +81,10 @@ int usleep(useconds_t useconds)
     return 0 ;
 }
 
+#pragma intrinsic(_mm_pause)
 int pause()
 {
+    _mm_pause() ;
     return 0 ;
 }
 
@@ -162,7 +165,9 @@ void sync(void)
 
 int getpagesize(void)
 {
-    return 0 ;
+    SYSTEM_INFO info ;
+    ::GetSystemInfo(&info) ;
+    return (int)info.dwPageSize ;
 }
 
 int truncate(const char * file , off_t length)
