@@ -6,6 +6,7 @@
 #include <wintf/wcrt.h>
 #include <wintf/wobj.h>
 #include "internal/fsocket.h"
+#include "internal/file_system.h"
 
 /**
     F_SETFD/F_GETFD只对FD_CLOEXEC有效，判断是否在exec()之后，关闭文件
@@ -103,7 +104,11 @@ int fcntl (int fd, int cmd , ...)
 
 int creat(const char * file , mode_t mode) 
 {
-    return ::_creat(file , mode) ;
+    file_system_t * file_system = file_system_find(file) ;
+    if(file_system != NULL)
+        return file_system->creat(file , mode) ;
+    else
+        return ::_creat(file , mode) ;
 }
 
 int open(const char * file , int flag , ...)
@@ -114,7 +119,11 @@ int open(const char * file , int flag , ...)
     mode = va_arg(args , mode_t) ;
     va_end(args) ;
 
-    return ::_open(file , flag , mode) ;
+    file_system_t * file_system = file_system_find(file) ;
+    if(file_system != NULL)
+        return file_system->open(file , flag , mode) ;
+    else
+        return ::_open(file , flag , mode) ;
 }
 
 

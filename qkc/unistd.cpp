@@ -7,6 +7,8 @@
 #include "internal/inotify_mgr.h"
 #include "internal/sysconf.h"
 #include "internal/intrin.h"
+#include "internal/file_system.h"
+
 
 off_t lseek(int fd , off_t offset , int whence)
 {
@@ -62,12 +64,30 @@ int close(int fd)
 
 ssize_t read(int fd , void * buf , size_t nbytes)
 {
-    return ::_read(fd , buf , nbytes) ;
+    if(fd < IOINFO_ARRAYS)
+        return ::_read(fd , buf , nbytes) ;
+
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->type != WOBJ_FILE || obj->addition == NULL)
+        return -1 ;
+
+    file_system_t * file_system = (file_system_t *)obj->addition ;
+    
+    return file_system->read(fd , buf , nbytes) ;
 }
 
-ssize_t write(int fd , const void * buf , size_t n)
+ssize_t write(int fd , const void * buf , size_t nbytes)
 {
-    return ::_write(fd , buf , n) ;
+    if(fd < IOINFO_ARRAYS)
+        return ::_write(fd , buf , nbytes) ;
+
+    wobj_t * obj = wobj_get(fd) ;
+    if(obj == NULL || obj->type != WOBJ_FILE || obj->addition == NULL)
+        return -1 ;
+
+    file_system_t * file_system = (file_system_t *)obj->addition ;
+    
+    return file_system->write(fd , buf , nbytes) ;
 }
 
 unsigned int sleep(unsigned int seconds)
@@ -155,12 +175,29 @@ int daemon(int nochdir , int noclose)
 
 int fsync(int fd)
 {
-    return 0 ;
+    HANDLE handle = (HANDLE)::_get_osfhandle(fd) ;
+    if(handle == NULL || handle == INVALID_HANDLE_VALUE)
+    {
+        errno = EINVAL ;
+        return -1 ;
+    }
+
+    if(::FlushFileBuffers(handle) == TRUE)
+        return 0 ;
+    else
+        return -1 ;
 }
 
 void sync(void)
 {
-    //
+    for(int fd = 3 ; fd < 256 ; ++fd)
+    {
+        HANDLE handle = (HANDLE)::_get_osfhandle(fd) ;
+        if(handle == NULL || handle == INVALID_HANDLE_VALUE)
+            continue ;
+
+        ::FlushFileBuffers(handle) ;    
+    }
 }
 
 int getpagesize(void)
@@ -172,12 +209,18 @@ int getpagesize(void)
 
 int truncate(const char * file , off_t length)
 {
-    return 0 ;
+    int fd = ::_open(file , 0 , 0) ;
+    int result = ftruncate(fd , length) ;
+    ::_close(fd) ;
+    return result ;
 }
 
 int truncate64(const char * file , off64_t length)
 {
-    return 0 ;
+    int fd = ::_open(file , 0 , 0) ;
+    int result = ftruncate64(fd , length) ;
+    ::_close(fd) ;
+    return result ;
 }
 
 int ftruncate(int fd , off_t length) 

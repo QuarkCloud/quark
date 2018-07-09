@@ -49,7 +49,7 @@ QKCAPI off64_t lseek64(int fd , off64_t offset , int whence) ;
 
 QKCAPI int close(int fd) ;
 QKCAPI ssize_t read(int fd , void * buf , size_t nbytes) ;
-QKCAPI ssize_t write(int fd , const void * buf , size_t n) ;
+QKCAPI ssize_t write(int fd , const void * buf , size_t nbytes) ;
 
 QKCAPI unsigned int sleep(unsigned int seconds) ;
 QKCAPI int usleep(useconds_t useconds) ;
@@ -60,6 +60,14 @@ QKCAPI int chdir(const char * path) ;
 QKCAPI char *getcwd(char * buf , size_t size) ;
 QKCAPI int dup(int fd) ;
 QKCAPI int dup2(int fd1 , int fd2) ;
+QUARK_LINKAGE int _exit(int code) ;
+
+QUARK_LINKAGE int execl(const char * file_name, const char * args, ...);
+QUARK_LINKAGE int execle(const char * file_name, const char * args, ...);
+QUARK_LINKAGE int execlp(const char * file_name, const char * args, ...);
+QUARK_LINKAGE int execv(const char * file_name, const char * const * args);
+QUARK_LINKAGE int execve(const char * file_name, const char * const * args, const char * const * env);
+QUARK_LINKAGE int execvp(const char * file_name, const char * const * args);
 
 //太多了，需要的时候再实现
 QKCAPI long int sysconf(int name) ;
