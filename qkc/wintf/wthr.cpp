@@ -354,6 +354,10 @@ void * wthr_tls_get_val(int key)
 
  void wthr_tls_cleanup_vals() 
  {
+    void * values[kTLSMaxSize] ;
+    tls_cleanup_t cleanups[kTLSMaxSize] ;
+    int count = 0 ;
+
     ::AcquireSRWLockShared(&__tlsidx_rwlock__) ;
     for(int key = 1 ; key < kTLSMaxSize ; ++key)
     {
@@ -365,10 +369,20 @@ void * wthr_tls_get_val(int key)
             {
                 ::TlsSetValue(tls.key , NULL) ;
                 if(tls.cleanup != NULL)
-                    tls.cleanup(val) ;
+                {
+                    //tls.cleanup(val) ;
+                    values[count] = val ;
+                    cleanups[count] = tls.cleanup ;
+                    ++count ;
+                }
             }
         }
     }
     ::ReleaseSRWLockShared(&__tlsidx_rwlock__) ;
+
+    for(int idx = 0 ; idx < count ; ++idx)
+    {
+        cleanups[idx](values[idx]) ;
+    }
  }
 
