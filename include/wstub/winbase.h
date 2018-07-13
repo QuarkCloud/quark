@@ -2329,6 +2329,17 @@ CancelWaitableTimer(
     HANDLE hTimer
     );
 
+WINBASEAPI
+WORD  
+WINAPI
+RtlCaptureStackBackTrace(
+    DWORD FramesToSkip,
+    DWORD FramesToCapture,
+    PVOID *BackTrace,
+    PDWORD BackTraceHash
+   );
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -23,6 +23,9 @@ QKCAPI int __builtin_ffsll(long long x) ;
 QKCAPI void __builtin_unreachable() ;
 QKCAPI long __builtin_expect(long exp, long c);
 
+QKCAPI void * __builtin_return_address(unsigned int level);
+QKCAPI void * __builtin_frame_address(unsigned int level);
+
 #define __builtin_alloca    _alloca
 
 

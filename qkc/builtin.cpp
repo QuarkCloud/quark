@@ -2,6 +2,7 @@
 #include <builtin.h>
 #include "internal/intrin.h"
 #include <stdlib.h>
+#include <windows.h>
 
 #pragma intrinsic(_alloca)
 #pragma intrinsic(abs)
@@ -125,6 +126,27 @@ void __atomic_thread_fence(int mo)
         ::_WriteBarrier() ;
 #endif
     _ReadWriteBarrier() ;
+}
+
+
+void * __builtin_return_address(unsigned int level)
+{
+    void * stack[1] = {NULL} ;
+    DWORD depth = ::RtlCaptureStackBackTrace(level , 1 , stack , NULL) ;
+    if(depth == 0)
+        return NULL;
+    else
+        return stack[0] ;
+}
+
+void * __builtin_frame_address(unsigned int level)
+{
+    void * stack[1] = {NULL} ;
+    DWORD depth = ::RtlCaptureStackBackTrace(level , 1 , stack , NULL) ;
+    if(depth == 0)
+        return NULL;
+    else
+        return stack[0] ;
 }
 
 
