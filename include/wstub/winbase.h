@@ -2340,6 +2340,21 @@ RtlCaptureStackBackTrace(
    );
 
 
+
+WINBASEAPI
+HMODULE
+WINAPI
+GetModuleHandleA(
+    LPCSTR lpModuleName
+    );
+WINBASEAPI
+HMODULE
+WINAPI
+GetModuleHandleW(
+    LPCWSTR lpModuleName
+    );
+#define GetModuleHandle DECLEAR_FUNC_AW(GetModuleHandle)
+
 #ifdef __cplusplus
 }
 #endif
