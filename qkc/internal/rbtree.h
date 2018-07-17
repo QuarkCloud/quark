@@ -3,6 +3,7 @@
 #define __QKC_INTERNAL_RBTREE_H 1
 
 #include <quark_compile.h>
+#include <stddef.h>
 
 #ifdef	__cplusplus
 extern "C" {
@@ -24,10 +25,12 @@ typedef struct st_rb_tree {
 } rb_tree_t ;
 
 // Copy from linux kernel 2.6 source (kernel.h, stddef.h)
+/**
 #define container_of(ptr, type, member) ({      \
 	const typeof( ((type *)0)->member ) *__mptr = (ptr);  \
 	(type *)( (char *)__mptr - offsetof(type,member) );})
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+*/
 
 
 #define RB_ROOT { NULL , NULL}
