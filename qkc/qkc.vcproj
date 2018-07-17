@@ -230,6 +230,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\net_if.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\netinet_in.cpp"
 				>
 			</File>
@@ -808,6 +812,14 @@
 				</File>
 				<File
 					RelativePath="..\include\bits\wordsize.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="net"
+				>
+				<File
+					RelativePath="..\include\net\if.h"
 					>
 				</File>
 			</Filter>

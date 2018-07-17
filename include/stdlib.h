@@ -31,6 +31,7 @@ QKCAPI int rand_r (unsigned int * seed) ;
 
 QUARK_LINKAGE void *malloc (size_t size) ;
 QUARK_LINKAGE void *realloc (void * ptr, size_t size)  ;
+QUARK_LINKAGE void * calloc(size_t count , size_t size);
 QUARK_LINKAGE void free (void * ptr) ;
 
 QUARK_LINKAGE void abort (void) ;
