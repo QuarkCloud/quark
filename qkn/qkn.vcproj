@@ -179,6 +179,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\iphlpapi_imp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\qkn_init.cpp"
 				>
 			</File>
@@ -195,6 +199,10 @@
 			<Filter
 				Name="wstub"
 				>
+				<File
+					RelativePath="..\include\wstub\iphlpapi.h"
+					>
+				</File>
 				<File
 					RelativePath="..\include\wstub\winsock2.h"
 					>

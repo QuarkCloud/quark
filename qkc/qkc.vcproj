@@ -226,6 +226,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\iphlpapi_imp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\math.cpp"
 				>
 			</File>
