@@ -239,4 +239,38 @@ struct linger
 #define SO_ERROR        0x1007          /* get error status and clear */
 #define SO_TYPE         0x1008          /* get socket type */
 
+
+
+
+
+/* Structure used for storage of ancillary data object information.  */
+struct cmsghdr
+{
+    size_t cmsg_len ;
+    int cmsg_level;
+    int cmsg_type;
+    unsigned char __cmsg_data ;
+} ;
+
+# define CMSG_DATA(cmsg) ((cmsg)->__cmsg_data)
+#define CMSG_NXTHDR(mhdr, cmsg) __cmsg_nxthdr (mhdr, cmsg)
+#define CMSG_FIRSTHDR(mhdr) \
+  ((size_t) (mhdr)->msg_controllen >= sizeof (struct cmsghdr)		      \
+   ? (struct cmsghdr *) (mhdr)->msg_control : (struct cmsghdr *) 0)
+#define CMSG_ALIGN(len) (((len) + sizeof (size_t) - 1) \
+			 & (size_t) ~(sizeof (size_t) - 1))
+#define CMSG_SPACE(len) (CMSG_ALIGN (len) \
+			 + CMSG_ALIGN (sizeof (struct cmsghdr)))
+#define CMSG_LEN(len)   (CMSG_ALIGN (sizeof (struct cmsghdr)) + (len))
+
+QKCAPI struct cmsghdr *__cmsg_nxthdr(struct msghdr * mhdr,struct cmsghdr * cmsg);
+
+enum
+{
+    SCM_RIGHTS = 0x01 ,		/* Transfer file descriptors.  */
+#define SCM_RIGHTS SCM_RIGHTS
+    SCM_CREDENTIALS = 0x02	/* Credentials passing.  */
+# define SCM_CREDENTIALS SCM_CREDENTIALS
+};
+
 #endif	/** __QUARK_BITS_SOCKET_H */

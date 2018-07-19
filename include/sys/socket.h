@@ -54,6 +54,11 @@ QKCAPI int accept(int fd , struct sockaddr * addr , socklen_t * addr_len);
 
 QKCAPI int shutdown(int fd , int how) ;
 
+QKCAPI ssize_t sendmsg (int fd, const struct msghdr *message, int flags);
+
+QKCAPI ssize_t recvmsg (int fd, struct msghdr *message, int flags);
+
+
 #ifdef __cplusplus
 }
 #endif

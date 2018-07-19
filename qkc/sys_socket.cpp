@@ -303,3 +303,30 @@ int shutdown(int fd , int how)
     socket_t * data = (socket_t *)obj->addition ;
     return ::_imp_shutdown(data->socket , how) ;
 }
+
+struct cmsghdr * __cmsg_nxthdr (struct msghdr * mhdr, struct cmsghdr * cmsg)
+{
+    if ((size_t) cmsg->cmsg_len < sizeof (struct cmsghdr))
+        return (struct cmsghdr *) 0;
+
+    cmsg = (struct cmsghdr *) ((unsigned char *) cmsg + CMSG_ALIGN (cmsg->cmsg_len));
+
+    if ((unsigned char *) (cmsg + 1) > ((unsigned char *) mhdr->msg_control 
+        + mhdr->msg_controllen)
+      || ((unsigned char *) cmsg + CMSG_ALIGN (cmsg->cmsg_len)
+      > ((unsigned char *) mhdr->msg_control + mhdr->msg_controllen)))
+        return (struct cmsghdr *) 0;
+    else
+        return cmsg;
+}
+
+ssize_t sendmsg (int fd, const struct msghdr *message, int flags)
+{
+    return 0 ;
+}
+
+ssize_t recvmsg (int fd, struct msghdr *message, int flags)
+{
+    return 0 ;
+}
+

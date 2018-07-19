@@ -9,6 +9,9 @@
 extern "C" {
 #endif
 
+#define POLLIN      1
+#define POLLOUT     2
+
 typedef unsigned long int nfds_t;
 
 struct pollfd

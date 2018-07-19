@@ -282,11 +282,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sys_ioctl.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\sys_ipc.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\sys_mman.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sys_resource.cpp"
 				>
 			</File>
 			<File
@@ -500,6 +508,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\locale.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\math.h"
 				>
 			</File>
@@ -607,6 +619,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\include\sys\ioctl.h"
+					>
+				</File>
+				<File
 					RelativePath="..\include\sys\ipc.h"
 					>
 				</File>
@@ -620,6 +636,14 @@
 				</File>
 				<File
 					RelativePath="..\include\sys\poll.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\sys\prctl.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\sys\resource.h"
 					>
 				</File>
 				<File
@@ -672,6 +696,10 @@
 				</File>
 				<File
 					RelativePath="..\include\sys\uio.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\sys\un.h"
 					>
 				</File>
 				<File
