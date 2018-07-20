@@ -41,9 +41,8 @@
 extern "C" {
 #endif
 
-/**
-  被注释掉的函数，都是在vs中，已经被实现的
-*/
+QUARK_LINKAGE int access (const char * name, int type) ;
+
 QKCAPI off_t lseek(int fd , off_t offset , int whence) ;
 QKCAPI off64_t lseek64(int fd , off64_t offset , int whence) ;
 
@@ -72,7 +71,42 @@ QUARK_LINKAGE int execvp(const char * file_name, const char * const * args);
 //太多了，需要的时候再实现
 QKCAPI long int sysconf(int name) ;
 
-QKCAPI pid_t getpid(void) ;
+QKCAPI pid_t getpid() ;
+
+QKCAPI uid_t getuid () ;
+
+QKCAPI uid_t geteuid () ;
+
+QKCAPI gid_t getgid () ;
+
+QKCAPI gid_t getegid () ;
+
+QKCAPI int setuid (uid_t uid) ;
+
+QKCAPI int setreuid (uid_t ruid, uid_t euid) ;
+
+QKCAPI int seteuid (uid_t uid) ;
+
+QKCAPI int setgid (gid_t gid) ;
+
+QKCAPI int setegid (gid_t gid) ;
+
+QKCAPI ssize_t pread (int fd, void *buf, size_t nbytes, off_t offset) ;
+
+QKCAPI ssize_t pwrite (int fd, const void *buf, size_t n,off_t offset);
+
+QKCAPI long int pathconf (const char *path, int name);
+
+QKCAPI long int fpathconf (int fd, int name) ;
+
+QKCAPI int symlink (const char * from, const char * to);
+
+QKCAPI ssize_t readlink (const char *path, char *buf, size_t len);
+
+QUARK_LINKAGE int unlink (const char * name) ;
+
+
+QKCAPI int link (const char * from, const char * to);
 
 QKCAPI pid_t fork(void) ;
 
@@ -105,6 +139,8 @@ QKCAPI int lockf64(int fd , int cmd , off64_t len) ;
 QKCAPI char *crypt(const char *key , const char *salt) ;
 
 QKCAPI void encrypt(char *block , int edflag) ;
+
+QKCAPI int fchown (int fd, uid_t owner, gid_t group) ;
 
 #ifdef __cplusplus
 }

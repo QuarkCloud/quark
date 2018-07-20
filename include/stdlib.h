@@ -45,6 +45,11 @@ QKCAPI char * secure_getenv (const char *name) ;
 QKCAPI int putenv(char *str);
 QKCAPI int setenv(const char *envname, const char *envval, int overwrite) ;
 
+//最后六个字符必须是XXXXXX
+QKCAPI char *mkdtemp (char * template_str) ;
+
+QKCAPI char *realpath (const char * name, char *resolved) ;
+
 #ifdef __cplusplus
 }
 #endif

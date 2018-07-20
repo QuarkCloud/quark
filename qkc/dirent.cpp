@@ -110,4 +110,15 @@ int readdir_r(DIR * dir , struct dirent *ent ,  struct dirent **result)
     return 0 ;
 }
 
+int scandir (const char * dir, struct dirent ***namelist, int (*selector) (const struct dirent *),
+		    int (*cmp) (const struct dirent **,const struct dirent **) )
+{
+    return -1 ;
+}
 
+
+int scandir64 (const char * dir,struct dirent64 ***namelist, int (*selector) (const struct dirent64 *),
+		      int (*cmp) (const struct dirent64 **,const struct dirent64 **))
+{
+    return -1 ;
+}

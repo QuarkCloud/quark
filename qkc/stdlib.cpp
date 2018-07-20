@@ -42,3 +42,13 @@ int setenv(const char *envname, const char *envval, int overwrite)
     return _putenv_s(envname , envval) ;
 }
 
+char *mkdtemp (char * template_str) 
+{
+    return NULL ;
+}
+
+char *realpath (const char * name, char *resolved)
+{
+    return NULL ;
+}
+

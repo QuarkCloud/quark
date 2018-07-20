@@ -268,3 +268,84 @@ void encrypt(char *block , int edflag)
     //
 }
 
+
+uid_t getuid ()
+{
+    return 0 ;
+}
+
+uid_t geteuid ()
+{
+    return 0 ;
+}
+
+gid_t getgid ()
+{
+    return 0 ;
+}
+
+gid_t getegid ()
+{
+    return 0 ;
+}
+
+int setuid (uid_t uid)
+{
+    return 0 ;
+}
+
+int setreuid (uid_t ruid, uid_t euid)
+{
+    return 0 ;
+}
+
+int seteuid (uid_t uid)
+{
+    return 0 ;
+}
+
+int setgid (gid_t gid)
+{
+    return 0 ;
+}
+
+int setegid (gid_t gid)
+{
+    return 0 ;
+}
+
+ssize_t pread (int fd, void *buf, size_t nbytes, off_t offset) 
+{
+    return 0 ;
+}
+
+ssize_t pwrite (int fd, const void *buf, size_t n,off_t offset)
+{
+    return 0 ;
+}
+
+long int pathconf (const char *path, int name)
+{
+    return 0 ;
+}
+
+long int fpathconf (int fd, int name)
+{
+    return 0 ;
+}
+
+int symlink (const char * from, const char * to)
+{
+    return -1 ;
+}
+
+ssize_t readlink (const char *path, char *buf, size_t len)
+{
+    return -1 ;
+}
+
+int link (const char * from, const char * to)
+{
+    return -1 ;
+}
+

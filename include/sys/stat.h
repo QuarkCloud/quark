@@ -22,6 +22,9 @@ struct stat
     dev_t st_rdev;		/* Device number, if device.  */
 
     off64_t st_size;			/* Size of file, in bytes.  */
+    uint64_t st_blksize ;
+    uint64_t st_blocks ;
+
     time_t st_atime;			/* Time of last access.  */
     time_t st_mtime;			/* Time of last modification.  */
     time_t st_ctime;			/* Time of last status change.  */

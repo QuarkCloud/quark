@@ -226,6 +226,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ifaddrs.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\iphlpapi_imp.cpp"
 				>
 			</File>
@@ -238,11 +242,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\netdb.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\netinet_in.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\pthread.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\pwd.cpp"
 				>
 			</File>
 			<File
@@ -497,6 +509,10 @@
 			</File>
 			<File
 				RelativePath="..\include\iconv.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\ifaddrs.h"
 				>
 			</File>
 			<File

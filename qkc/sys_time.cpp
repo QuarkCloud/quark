@@ -16,4 +16,9 @@ int gettimeofday (struct timeval * tv , void * tz)
     return 0 ;
 }
 
+int utimes (const char * file, const struct timeval tvp[2])
+{
+    return 0 ;
+}
+
 

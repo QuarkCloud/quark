@@ -43,6 +43,13 @@ QKCAPI int closedir(DIR * dir);
 QKCAPI struct dirent *readdir(DIR * dir);
 QKCAPI int readdir_r(DIR * dir , struct dirent *ent ,  struct dirent **result);
 
+QKCAPI int scandir (const char * dir, struct dirent ***namelist, int (*selector) (const struct dirent *),
+		    int (*cmp) (const struct dirent **,const struct dirent **) );
+
+
+QKCAPI int scandir64 (const char * dir,struct dirent64 ***namelist, int (*selector) (const struct dirent64 *),
+		      int (*cmp) (const struct dirent64 **,const struct dirent64 **));
+
 #ifdef __cplusplus
 }
 #endif

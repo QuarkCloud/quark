@@ -21,6 +21,10 @@ QKCAPI ssize_t readv(int fd , const struct iovec * iovec , int count);
 
 QKCAPI ssize_t writev(int fd , const struct iovec * iovec , int count);
 
+QKCAPI ssize_t preadv (int fd, const struct iovec * iovec, int count, off_t offset) ;
+
+QKCAPI ssize_t pwritev (int fd, const struct iovec * iovec, int count, off_t offset) ;
+
 #ifdef __cplusplus
 }
 #endif

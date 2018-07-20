@@ -27,6 +27,9 @@ extern "C" {
 
 QKCAPI int gettimeofday (struct timeval * tv , void * tz) ;
 
+QKCAPI int utimes (const char * file, const struct timeval tvp[2]) ;
+
+
 #ifdef __cplusplus
 }
 #endif
