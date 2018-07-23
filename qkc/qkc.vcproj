@@ -867,6 +867,10 @@
 				Name="net"
 				>
 				<File
+					RelativePath="..\include\net\ethernet.h"
+					>
+				</File>
+				<File
 					RelativePath="..\include\net\if.h"
 					>
 				</File>
