@@ -195,6 +195,7 @@ struct sockaddr_in
 */
 
 #include <bits/socket.h>
+#include <bits/in.h>
 
 
 /* Structure describing an Internet socket address.  */

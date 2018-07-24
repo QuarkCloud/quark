@@ -30,6 +30,11 @@ int socket(int domain , int type , int protocol)
     return wobj_set(WOBJ_SOCK , (HANDLE)handle , s) ;
 }
 
+int socketpair (int domain, int type, int protocol, int fds[2])
+{
+    return -1 ;
+}
+
 int bind(int fd , const struct sockaddr * addr , socklen_t len)
 {
     wobj_t * obj = wobj_get(fd) ;

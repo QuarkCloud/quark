@@ -3,6 +3,7 @@
 
 #include <quark_compile.h>
 #include <sys/types.h>
+#include <bits/waitflags.h>
 
 #ifdef __cplusplus
 extern "C" {

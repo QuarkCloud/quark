@@ -252,7 +252,7 @@ struct cmsghdr
     unsigned char __cmsg_data ;
 } ;
 
-# define CMSG_DATA(cmsg) ((cmsg)->__cmsg_data)
+# define CMSG_DATA(cmsg) (&(cmsg)->__cmsg_data)
 #define CMSG_NXTHDR(mhdr, cmsg) __cmsg_nxthdr (mhdr, cmsg)
 #define CMSG_FIRSTHDR(mhdr) \
   ((size_t) (mhdr)->msg_controllen >= sizeof (struct cmsghdr)		      \

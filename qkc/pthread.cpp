@@ -699,6 +699,16 @@ int pthread_condattr_setpshared(pthread_condattr_t *attr , int pshared)
     return 0 ;
 }
 
+int pthread_condattr_getclock (const pthread_condattr_t * attr, clockid_t * clock_id)
+{
+    return -1 ;
+}
+
+int pthread_condattr_setclock (pthread_condattr_t *attr , clockid_t clock_id)
+{
+    return -1 ;
+}
+
 
 int pthread_spin_init(pthread_spinlock_t *lock , int pshared) 
 {
@@ -878,5 +888,123 @@ int pthread_mutexattr_setrobust_np (pthread_mutexattr_t * attr, int robustness)
 {
     return 0 ;
 }
+
+
+int pthread_attr_init (pthread_attr_t *attr) 
+{
+    return -1 ;
+}
+
+int pthread_attr_destroy (pthread_attr_t *attr)
+{
+    return -1 ;
+}
+
+int pthread_attr_getdetachstate (const pthread_attr_t *attr, int *detachstate)
+{
+    return -1 ;
+}
+
+int pthread_attr_setdetachstate (pthread_attr_t *attr, int detachstate)
+{
+    return -1 ;
+}
+
+int pthread_attr_getguardsize (const pthread_attr_t *attr, size_t *guardsize)
+{
+    return -1 ;
+}
+
+int pthread_attr_setguardsize (pthread_attr_t *attr, size_t guardsize)
+{
+    return -1 ;
+}
+
+int pthread_attr_getschedparam (const pthread_attr_t * attr, struct sched_param * param)
+{
+    return -1 ;
+}
+
+int pthread_attr_setschedparam (pthread_attr_t * attr, const struct sched_param * param)
+{
+    return -1 ;
+}
+
+int pthread_attr_getschedpolicy (const pthread_attr_t * attr, int * policy)
+{
+    return -1 ;
+}
+
+int pthread_attr_setschedpolicy (pthread_attr_t *attr, int policy)
+{
+    return -1 ;
+}
+
+int pthread_attr_getinheritsched (const pthread_attr_t * attr, int * inherit)
+{
+    return -1 ;
+}
+
+int pthread_attr_setinheritsched (pthread_attr_t *attr, int inherit)
+{
+    return -1 ;
+}
+
+int pthread_attr_getscope (const pthread_attr_t * attr, int * scope)
+{
+    return -1 ;
+}
+
+int pthread_attr_setscope (pthread_attr_t *attr, int scope)
+{
+    return -1 ;
+}
+
+int pthread_attr_getstackaddr (const pthread_attr_t * attr, void ** stackaddr)
+{
+    return -1 ;
+}
+
+int pthread_attr_setstackaddr (pthread_attr_t *attr, void *stackaddr)
+{
+    return -1 ;
+}
+
+int pthread_attr_getstacksize (const pthread_attr_t * attr, size_t * stacksize)
+{
+    return -1 ;
+}
+
+int pthread_attr_setstacksize (pthread_attr_t *attr, size_t stacksize)
+{
+    return -1 ;
+}
+
+int pthread_attr_getstack (const pthread_attr_t * attr, void ** stackaddr, size_t * stacksize)
+{
+    return -1 ;
+}
+
+int pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr, size_t stacksize)
+{
+    return -1 ;
+}
+
+int pthread_attr_setaffinity_np (pthread_attr_t *attr, size_t cpusetsize, const cpu_set_t *cpuset)
+{
+    return -1 ;
+}
+
+int pthread_attr_getaffinity_np (const pthread_attr_t *attr, size_t cpusetsize, cpu_set_t *cpuset)
+{
+    return -1 ;
+}
+
+int pthread_getattr_np (pthread_t th, pthread_attr_t *attr)
+{
+    return -1 ;
+}
+
+
 
 

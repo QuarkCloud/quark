@@ -108,6 +108,11 @@ int pause()
     return 0 ;
 }
 
+int pipe (int pipedes[2])
+{
+    return -1 ;
+}
+
 int chown(const char * file , uid_t owner , gid_t group)
 {
     return 0 ;
@@ -310,6 +315,11 @@ int setgid (gid_t gid)
 }
 
 int setegid (gid_t gid)
+{
+    return 0 ;
+}
+
+pid_t setsid (void)
 {
     return 0 ;
 }

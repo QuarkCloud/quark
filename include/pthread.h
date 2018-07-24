@@ -69,7 +69,7 @@ typedef struct __st_pthread_cond{
 } pthread_cond_t ;
 #define PTHREAD_COND_INITIALIZER {0 , 0 , 0}
 
-typedef struct st_pthread_spinlock{
+typedef struct __st_pthread_spinlock{
     volatile long token ;
     long allow ;
     pid_t owner ;
@@ -119,6 +119,9 @@ QKCAPI int pthread_condattr_init(pthread_condattr_t *attr) ;
 QKCAPI int pthread_condattr_destroy(pthread_condattr_t *attr) ;
 QKCAPI int pthread_condattr_getpshared(const pthread_condattr_t * attr , int * pshared) ;
 QKCAPI int pthread_condattr_setpshared(pthread_condattr_t *attr , int pshared) ;
+QKCAPI int pthread_condattr_getclock (const pthread_condattr_t * attr, clockid_t * clock_id) ;
+QKCAPI int pthread_condattr_setclock (pthread_condattr_t *attr , clockid_t clock_id) ;
+
 
 QKCAPI int pthread_spin_init(pthread_spinlock_t *lock , int pshared) ;
 QKCAPI int pthread_spin_destroy(pthread_spinlock_t *lock) ;
@@ -154,6 +157,32 @@ QKCAPI int pthread_mutexattr_getprioceiling (const pthread_mutexattr_t * attr, i
 QKCAPI int pthread_mutexattr_setprioceiling (pthread_mutexattr_t * attr, int prioceiling);
 QKCAPI int pthread_mutexattr_getrobust_np (const pthread_mutexattr_t * attr, int * robustness) ;
 QKCAPI int pthread_mutexattr_setrobust_np (pthread_mutexattr_t * attr, int robustness);
+
+
+QKCAPI int pthread_attr_init (pthread_attr_t *attr) ;
+QKCAPI int pthread_attr_destroy (pthread_attr_t *attr);
+QKCAPI int pthread_attr_getdetachstate (const pthread_attr_t *attr, int *detachstate) ;
+QKCAPI int pthread_attr_setdetachstate (pthread_attr_t *attr, int detachstate) ;
+QKCAPI int pthread_attr_getguardsize (const pthread_attr_t *attr, size_t *guardsize) ;
+QKCAPI int pthread_attr_setguardsize (pthread_attr_t *attr, size_t guardsize) ;
+QKCAPI int pthread_attr_getschedparam (const pthread_attr_t * attr, struct sched_param * param) ;
+QKCAPI int pthread_attr_setschedparam (pthread_attr_t * attr, const struct sched_param * param) ;
+QKCAPI int pthread_attr_getschedpolicy (const pthread_attr_t * attr, int * policy) ;
+QKCAPI int pthread_attr_setschedpolicy (pthread_attr_t *attr, int policy) ;
+QKCAPI int pthread_attr_getinheritsched (const pthread_attr_t * attr, int * inherit) ;
+QKCAPI int pthread_attr_setinheritsched (pthread_attr_t *attr, int inherit) ;
+QKCAPI int pthread_attr_getscope (const pthread_attr_t * attr, int * scope) ;
+QKCAPI int pthread_attr_setscope (pthread_attr_t *attr, int scope) ;
+QKCAPI int pthread_attr_getstackaddr (const pthread_attr_t * attr, void ** stackaddr) ;
+QKCAPI int pthread_attr_setstackaddr (pthread_attr_t *attr, void *stackaddr) ;
+QKCAPI int pthread_attr_getstacksize (const pthread_attr_t * attr, size_t * stacksize) ;
+QKCAPI int pthread_attr_setstacksize (pthread_attr_t *attr, size_t stacksize) ;
+QKCAPI int pthread_attr_getstack (const pthread_attr_t * attr, void ** stackaddr, size_t * stacksize) ;
+QKCAPI int pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr, size_t stacksize) ;
+QKCAPI int pthread_attr_setaffinity_np (pthread_attr_t *attr, size_t cpusetsize, const cpu_set_t *cpuset) ;
+QKCAPI int pthread_attr_getaffinity_np (const pthread_attr_t *attr, size_t cpusetsize, cpu_set_t *cpuset) ;
+QKCAPI int pthread_getattr_np (pthread_t th, pthread_attr_t *attr) ;
+
 
 
 #ifdef	__cplusplus

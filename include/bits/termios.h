@@ -3,10 +3,22 @@
 #ifndef __QUARK_BITS_TERMIOS_H
 #define __QUARK_BITS_TERMIOS_H 1
 
+#include <quark_compile.h>
+
+__BEGIN_DECLS
 
 typedef unsigned char	cc_t;
 typedef unsigned int	speed_t;
 typedef unsigned int	tcflag_t;
+
+struct winsize
+{
+    unsigned short int ws_row;
+    unsigned short int ws_col;
+    unsigned short int ws_xpixel;
+    unsigned short int ws_ypixel;
+};
+
 
 #define NCCS 32
 struct termios
@@ -194,5 +206,7 @@ struct termios
 
 #define _IOT_termios /* Hurd ioctl type field.  */ \
   _IOT (_IOTS (cflag_t), 4, _IOTS (cc_t), NCCS, _IOTS (speed_t), 2)
+
+__END_DECLS
 
 #endif /** __QUARK_BITS_TERMIOS_H*/

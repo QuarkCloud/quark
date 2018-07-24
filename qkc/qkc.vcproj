@@ -222,6 +222,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\grp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\iconv.cpp"
 				>
 			</File>
@@ -505,6 +509,10 @@
 			</File>
 			<File
 				RelativePath="..\include\getopt.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\grp.h"
 				>
 			</File>
 			<File
@@ -847,6 +855,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\include\bits\in.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\bits\siginfo.h"
+					>
+				</File>
+				<File
 					RelativePath="..\include\bits\sockaddr.h"
 					>
 				</File>
@@ -856,6 +872,10 @@
 				</File>
 				<File
 					RelativePath="..\include\bits\termios.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\bits\waitflags.h"
 					>
 				</File>
 				<File
@@ -872,6 +892,14 @@
 				</File>
 				<File
 					RelativePath="..\include\net\if.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="netpacket"
+				>
+				<File
+					RelativePath="..\include\netpacket\packet.h"
 					>
 				</File>
 			</Filter>

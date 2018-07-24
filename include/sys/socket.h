@@ -28,6 +28,8 @@ extern "C" {
 
 QKCAPI int socket(int domain , int type , int protocol) ;
 
+QKCAPI int socketpair (int domain, int type, int protocol, int fds[2]);
+
 QKCAPI int bind(int fd , const struct sockaddr * addr , socklen_t len);
 
 QKCAPI int getsockname(int fd , struct sockaddr * addr , socklen_t * len) ;

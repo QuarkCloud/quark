@@ -4,6 +4,7 @@
 
 #include <quark_compile.h>
 #include <sys/types.h>
+#include <bits/siginfo.h>
 
 #ifdef	__cplusplus
 extern "C" {
@@ -95,32 +96,42 @@ struct sigaction
 #define SIG_SETMASK   2          /* Set the set of blocked signals.  */
 
 QUARK_LINKAGE __sighandler_t signal (int sig, __sighandler_t handler) ;
-QKCAPI int kill (pid_t pid, int sig) ;
-QUARK_LINKAGE int raise (int sig) ;
 
+QKCAPI int kill (pid_t pid, int sig) ;
+
+QUARK_LINKAGE int raise (int sig) ;
 
 QKCAPI int sigemptyset (sigset_t * sigs) ;
 
 QKCAPI int sigfillset (sigset_t *sigs) ;
 
-//Add SIGNO to SET.
 QKCAPI int sigaddset (sigset_t *sigs, int signo) ;
 
-//Remove SIGNO from SET.
 QKCAPI int sigdelset (sigset_t *sigs, int signo) ;
 
-//Return 1 if SIGNO is in SET, 0 if not. 
 QKCAPI int sigismember (const sigset_t *sigs, int signo) ;
 
-//Return non-empty value is SET is not empty. 
 QKCAPI int sigisemptyset (const sigset_t *sigs) ;
 
-//Build new signal set by combining the two inputs set using logical AND. 
 QKCAPI int sigandset (sigset_t *sigs, const sigset_t *left, const sigset_t * right) ;
 
-//Build new signal set by combining the two inputs set using logical OR.  
 QKCAPI int sigorset (sigset_t *sigs, const sigset_t *left , const sigset_t *right) ;
 
+QKCAPI int sigprocmask (int how, const sigset_t * set, sigset_t * oset) ;
+
+QKCAPI int sigsuspend (const sigset_t *set) ;
+
+QKCAPI int sigaction (int sig, const struct sigaction * act, struct sigaction * oact) ;
+
+QKCAPI int sigpending (sigset_t *set) ;
+
+QKCAPI int sigwait (const sigset_t *set, int * sig);
+
+QKCAPI int sigwaitinfo (const sigset_t * set,siginfo_t * info) ;
+
+QKCAPI int sigtimedwait (const sigset_t * set,siginfo_t * info , const struct timespec * timeout);
+
+QKCAPI int sigqueue (pid_t pid, int sig, const union sigval val) ;
 
 #ifdef	__cplusplus
 }

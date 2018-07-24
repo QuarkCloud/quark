@@ -54,6 +54,8 @@ QKCAPI unsigned int sleep(unsigned int seconds) ;
 QKCAPI int usleep(useconds_t useconds) ;
 QKCAPI int pause();
 
+QKCAPI int pipe (int pipedes[2]) ;
+
 QKCAPI int chown(const char * file , uid_t owner , gid_t group) ;
 QKCAPI int chdir(const char * path) ;
 QKCAPI char *getcwd(char * buf , size_t size) ;
@@ -90,6 +92,9 @@ QKCAPI int seteuid (uid_t uid) ;
 QKCAPI int setgid (gid_t gid) ;
 
 QKCAPI int setegid (gid_t gid) ;
+
+QKCAPI pid_t setsid (void) ;
+
 
 QKCAPI ssize_t pread (int fd, void *buf, size_t nbytes, off_t offset) ;
 
