@@ -47,3 +47,14 @@ void funlockfile (FILE *stream)
 {
     _unlock_file(stream) ;
 }
+
+int snprintf (char * s , size_t maxlen , const char * format , ...)
+{
+    va_list arg ;
+    int done = 0 ;
+
+    va_start(arg , format) ;
+    done = _vsnprintf(s , maxlen , format , arg) ;
+    va_end(arg) ;
+    return done ;
+}

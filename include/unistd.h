@@ -110,7 +110,6 @@ QKCAPI ssize_t readlink (const char *path, char *buf, size_t len);
 
 QUARK_LINKAGE int unlink (const char * name) ;
 
-
 QKCAPI int link (const char * from, const char * to);
 
 QKCAPI pid_t fork(void) ;
@@ -146,6 +145,13 @@ QKCAPI char *crypt(const char *key , const char *salt) ;
 QKCAPI void encrypt(char *block , int edflag) ;
 
 QKCAPI int fchown (int fd, uid_t owner, gid_t group) ;
+
+QKCAPI char *ttyname (int fd) ;
+
+QKCAPI int ttyname_r (int fd, char *buf, size_t buflen) ;
+
+QKCAPI int isatty (int fd) ;
+
 
 #ifdef __cplusplus
 }

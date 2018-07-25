@@ -210,14 +210,25 @@ struct sockaddr_in
 
 /* Ditto, for IPv6.  */
 struct sockaddr_in6
-  {
+{
     __SOCKADDR_COMMON (sin6_);
     in_port_t sin6_port;        /* Transport layer port # */
     uint32_t sin6_flowinfo;     /* IPv6 flow information */
     struct in6_addr sin6_addr;  /* IPv6 address */
     uint32_t sin6_scope_id;     /* IPv6 scope-id */
-  };
+};
 
+struct ip_mreq
+{
+    struct in_addr imr_multiaddr;
+    struct in_addr imr_interface;
+};
+
+struct ipv6_mreq
+{
+    struct in6_addr ipv6mr_multiaddr;
+    unsigned int ipv6mr_interface;
+};
 
 
 QKCAPI uint32_t ntohl (uint32_t netlong);

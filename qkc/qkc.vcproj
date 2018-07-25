@@ -310,6 +310,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sys_poll.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\sys_resource.cpp"
 				>
 			</File>
@@ -351,6 +355,10 @@
 			</File>
 			<File
 				RelativePath=".\sys_uio.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\termios.cpp"
 				>
 			</File>
 			<File

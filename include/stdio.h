@@ -66,11 +66,14 @@ QUARK_LINKAGE int setvbuf (FILE * stream , char * buf , int modes , size_t n);
 QUARK_LINKAGE int fprintf (FILE * stream , const char * format , ...);
 QUARK_LINKAGE int printf (const char * format , ...);
 QUARK_LINKAGE int sprintf (char * s , const char * format , ...);
+
+QKCAPI int snprintf (char * s , size_t maxlen , const char * format , ...);
+
 QUARK_LINKAGE int vfprintf (FILE * s , const char * format , va_list arg);
 QUARK_LINKAGE int vprintf (const char * format , va_list arg);
 QUARK_LINKAGE int vsprintf (char * s , const char * format , va_list arg);
 QKCAPI int snprintf (char * s , size_t maxlen , const char * format , ...);
-QKCAPI int vsnprintf (char * s , size_t maxlen , const char * format , va_list arg);
+QUARK_LINKAGE int vsnprintf (char * s , size_t maxlen , const char * format , va_list arg);
 
 QUARK_LINKAGE int fscanf (FILE * stream , const char * format , ...);
 QUARK_LINKAGE int scanf (const char * format , ...);

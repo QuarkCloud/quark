@@ -359,3 +359,23 @@ int link (const char * from, const char * to)
     return -1 ;
 }
 
+int fchown (int fd, uid_t owner, gid_t group)
+{
+    return -1 ;
+}
+
+char *ttyname (int fd)
+{
+    return NULL ;
+}
+
+int ttyname_r (int fd, char *buf, size_t buflen)
+{
+    return -1 ;
+}
+
+ int isatty (int fd) 
+ {
+    return -1 ;
+ }
+

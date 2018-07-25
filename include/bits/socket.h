@@ -2,8 +2,11 @@
 #ifndef __QUARK_BITS_SOCKET_H
 #define __QUARK_BITS_SOCKET_H 1
 
+#include <quark_compile.h>
 #include <limits.h>
 #include <sys/types.h>
+
+__BEGIN_DECLS
 
 /* Types of sockets.  */
 enum __socket_type
@@ -272,5 +275,7 @@ enum
     SCM_CREDENTIALS = 0x02	/* Credentials passing.  */
 # define SCM_CREDENTIALS SCM_CREDENTIALS
 };
+
+__END_DECLS
 
 #endif	/** __QUARK_BITS_SOCKET_H */

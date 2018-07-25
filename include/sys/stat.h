@@ -83,6 +83,7 @@ struct stat
 #define	S_ISREG(mode)	 __S_ISTYPE((mode), __S_IFREG)
 #define S_ISFIFO(mode)	 __S_ISTYPE((mode), __S_IFIFO)
 #define S_ISLNK(mode)	 __S_ISTYPE((mode), __S_IFLNK)
+#define S_ISSOCK(mode)   __S_ISTYPE((mode), __S_IFSOCK)
 
 
 /* Protection bits.  */
