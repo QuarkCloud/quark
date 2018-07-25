@@ -136,9 +136,11 @@ struct in6_addr
 #define s6_addr32               in6_u.u6_addr32
 };
 
-extern const struct in6_addr in6addr_any;        /* :: */
-extern const struct in6_addr in6addr_loopback;   /* ::1 */
+QKCAPI extern const struct in6_addr in6addr_any;        /* :: */
+QKCAPI extern const struct in6_addr in6addr_loopback;   /* ::1 */
 
+#define IN6ADDR_ANY_INIT { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 } } }
+#define IN6ADDR_LOOPBACK_INIT { { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 } } }
 
 #define	IN_CLASSA(a)		((((in_addr_t)(a)) & 0x80000000) == 0)
 #define	IN_CLASSA_NET		0xff000000

@@ -37,14 +37,11 @@ struct _iobuf {
 };
 typedef struct _iobuf FILE;
 
-extern struct _iobuf *stdin;		/* Standard input stream.  */
-extern struct _iobuf *stdout;		/* Standard output stream.  */
-extern struct _iobuf *stderr;		/* Standard error output stream.  */
+QUARK_LINKAGE FILE * __iob_func(void);
 
-/* C89/C99 say they're macros.  Make them happy.  */
-#define stdin stdin
-#define stdout stdout
-#define stderr stderr
+#define stdin  (&__iob_func()[0])
+#define stdout (&__iob_func()[1])
+#define stderr (&__iob_func()[2])
 
 
 QUARK_LINKAGE int remove (const char *filename);

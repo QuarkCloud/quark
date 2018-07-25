@@ -10,6 +10,10 @@
 extern "C" {
 #endif
 
+QUARK_LINKAGE extern char ** _environ ;
+
+#define environ _environ
+
 #define	RAND_MAX	2147483647
 #define	EXIT_FAILURE	1	/* Failing exit status.  */
 #define	EXIT_SUCCESS	0	/* Successful exit status.  */
