@@ -54,6 +54,8 @@ QKCAPI char *mkdtemp (char * template_str) ;
 
 QKCAPI char *realpath (const char * name, char *resolved) ;
 
+QUARK_LINKAGE void qsort(void * base, size_t count , size_t size , int (* compare)(const void *, const void *));
+
 #ifdef __cplusplus
 }
 #endif

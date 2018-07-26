@@ -112,6 +112,8 @@ QKCAPI int fileno (FILE *stream);
 QKCAPI void flockfile (FILE *stream);
 QKCAPI void funlockfile (FILE *stream);
 
+QUARK_LINKAGE void perror(const char * msg);
+
 #ifdef __cplusplus
 }
 #endif
