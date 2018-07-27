@@ -401,6 +401,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\wintf\werr.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\wintf\wipc.cpp"
 					>
 				</File>
@@ -760,6 +764,10 @@
 				</File>
 				<File
 					RelativePath="..\include\wintf\wcrt.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\wintf\werr.h"
 					>
 				</File>
 				<File

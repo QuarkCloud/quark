@@ -2355,6 +2355,35 @@ GetModuleHandleW(
     );
 #define GetModuleHandle DECLEAR_FUNC_AW(GetModuleHandle)
 
+DWORD
+WINAPI
+GetFinalPathNameByHandleA (
+    HANDLE hFile,
+    LPSTR lpszFilePath,
+    DWORD cchFilePath,
+    DWORD dwFlags
+);
+DWORD
+WINAPI
+GetFinalPathNameByHandleW (
+    HANDLE hFile,
+    LPWSTR lpszFilePath,
+    DWORD cchFilePath,
+    DWORD dwFlags
+);
+
+#define GetFinalPathNameByHandle DECLEAR_FUNC_AW(GetFinalPathNameByHandle)
+
+
+#define VOLUME_NAME_DOS  0x0      //default
+#define VOLUME_NAME_GUID 0x1
+#define VOLUME_NAME_NT   0x2
+#define VOLUME_NAME_NONE 0x4
+
+#define FILE_NAME_NORMALIZED 0x0  //default
+#define FILE_NAME_OPENED     0x8
+
+
 #ifdef __cplusplus
 }
 #endif

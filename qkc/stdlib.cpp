@@ -1,7 +1,9 @@
 
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #include <wintf/wcrt.h>
+#include <wintf/werr.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,6 +51,30 @@ char *mkdtemp (char * template_str)
 
 char *realpath (const char * name, char *resolved)
 {
-    return NULL ;
+    HANDLE handle = CreateFileA(name , 0, 0, NULL, OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL | FILE_FLAG_BACKUP_SEMANTICS, NULL);
+
+    if (handle == INVALID_HANDLE_VALUE)
+    {
+        errno = oserr_map(::GetLastError()) ;
+        return NULL;
+    }
+
+    char path[1024] = {'\0'} ;
+    DWORD path_size = GetFinalPathNameByHandle(handle , path , 1024 , VOLUME_NAME_DOS) ;
+    ::CloseHandle(handle) ;
+
+    if(path_size == 0)
+        return NULL ;
+
+    path_size -= 4 ;
+
+    char * result = resolved ;
+    if(result == NULL)
+        result = (char *)::malloc(path_size) ;
+
+    ::memcpy(result , path + 4 , path_size) ;
+    result[path_size] = '\0' ;
+    return result ;
 }
 
