@@ -87,7 +87,7 @@ file_system_t * file_system_find(const char * name)
 {
     if(name == NULL)
         return NULL ;
-    size_t nsize = ::strlen(name) + 1;
+    size_t nsize = ::strlen(name) ;
 
     file_system_t * file_system = NULL;
     ::AcquireSRWLockShared(&__file_system_locker__) ;
@@ -95,10 +95,12 @@ file_system_t * file_system_find(const char * name)
     for(size_t fidx = 0 ; fidx < __file_systems_size__ ; ++fidx)
     {
         file_system_node_t * node = __file_systems__ + fidx ;
-        if(node->nsize != nsize)
-            continue ;
 
-        if(::memcmp(node->name , name , nsize) == 0)
+        size_t size = ::strlen(node->name) ;
+        if(size > nsize)
+            size = nsize ;
+
+        if(::memcmp(node->name , name , size) == 0)
         {
             file_system = node->file_system ;
             break ;
