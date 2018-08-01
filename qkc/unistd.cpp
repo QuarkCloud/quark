@@ -52,6 +52,14 @@ int close(int fd)
     {
         inotify_mgr_free((inotify_mgr_t *)wobj->addition) ;
     }
+    else if(type == WOBJ_FILE)
+    {
+        file_system_t * fs = (file_system_t *)wobj->addition ;
+        if(fs != NULL)
+        {
+            fs->close(fd) ;
+        }
+    }
     else
     {
         errno = ENOSYS ;

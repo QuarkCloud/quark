@@ -437,6 +437,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\internal\file_system_proc.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\internal\fsocket.cpp"
 					>
 				</File>
@@ -828,6 +832,10 @@
 				</File>
 				<File
 					RelativePath=".\internal\file_system_dev_null.h"
+					>
+				</File>
+				<File
+					RelativePath=".\internal\file_system_proc.h"
 					>
 				</File>
 				<File
