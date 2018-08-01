@@ -4,10 +4,7 @@
 
 #include <quark_compile.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+__BEGIN_DECLS
 
 /**
     在windows下，这些标识都是无效的，只是为了编译可以通过。统一设置为NOW。
@@ -38,9 +35,7 @@ QKCAPI void *dlsym (void * handle , const char * name) ;
 
 QKCAPI char *dlerror (void) ;
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 
 #endif	/** __QKC_DLFCN_H */

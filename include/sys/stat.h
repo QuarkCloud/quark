@@ -5,9 +5,7 @@
 #include <quark_compile.h>
 #include <sys/types.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 struct stat
 {
@@ -123,9 +121,7 @@ QKCAPI int fchmod (int fd , mode_t mode) ;
 QKCAPI int mkdir (const char *path, mode_t mode);
 
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /**__QKC_SYS_STAT_H*/
 

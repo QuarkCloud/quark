@@ -3,12 +3,9 @@
 #define __QKC_FCNTL_H 1
 
 #include <quark_compile.h>
-
 #include <sys/types.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 #define O_ACCMODE	   0003
 #define O_RDONLY	     00
@@ -112,9 +109,6 @@ QKCAPI int creat(const char * file , mode_t mode) ;
 
 QKCAPI int open(const char * file , int flag , ...) ;
 
-#ifdef __cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif  /** __QKC_FCNTL_H */

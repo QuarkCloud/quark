@@ -5,9 +5,7 @@
 #include <quark_compile.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 enum
   {
@@ -63,8 +61,6 @@ QKCAPI struct if_nameindex *if_nameindex (void) ;
 
 QKCAPI void if_freenameindex (struct if_nameindex * ptr) ;
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif	/** __QKC_NET_IF_H */

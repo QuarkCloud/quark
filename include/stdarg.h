@@ -4,9 +4,7 @@
 
 #include <quark_compile.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 #ifndef _VA_LIST_DEFINED
 typedef char *  va_list;
@@ -15,9 +13,9 @@ typedef char *  va_list;
 
 #ifdef __cplusplus
 #define _ADDRESSOF(v)   ( &reinterpret_cast<const char &>(v) )
-#else  /* __cplusplus */
+#else
 #define _ADDRESSOF(v)   ( &(v) )
-#endif  /* __cplusplus */
+#endif 
 
 #define _SLOTSIZEOF(t)   (sizeof(t))
 #define _APALIGN(t,ap)  (__alignof(t))
@@ -45,8 +43,6 @@ extern void __cdecl __va_start(va_list *, ...) ;
 #define va_arg _crt_va_arg
 #define va_end _crt_va_end
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif  /* __QKC_STDARG_H */

@@ -54,9 +54,7 @@ struct epoll_event
 }  ;
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QKCAPI int epoll_create (int size) ;
 
@@ -64,8 +62,6 @@ QKCAPI int epoll_ctl (int epfd, int op, int fd, struct epoll_event * ev) ;
 
 QKCAPI int epoll_wait (int epfd, struct epoll_event * evs ,  int maxevents, int timeout);
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_SYS_EPOLL_H */

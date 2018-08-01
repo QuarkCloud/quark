@@ -6,9 +6,7 @@
 #include <stdint.h>
 #include <sys/socket.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 
 enum
@@ -238,9 +236,6 @@ QKCAPI uint16_t ntohs (uint16_t netshort) ;
 QKCAPI uint32_t htonl (uint32_t hostlong);
 QKCAPI uint16_t htons (uint16_t hostshort) ;
 
-
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif	/** __QKC_NETINET_IN_H */

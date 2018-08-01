@@ -4,10 +4,7 @@
 
 #include <quark_compile.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+__BEGIN_DECLS
 
 QUARK_LINKAGE void *memcpy (void * dest, const void * src, size_t n);
 QUARK_LINKAGE void *memmove (void *dest, const void *src, size_t n) ;
@@ -40,10 +37,7 @@ QUARK_LINKAGE size_t wcsnlen(const wchar_t * s, size_t max_count);
 
 QKCAPI char *strerror_r (int errnum , char * buf, size_t buflen);
 
-#ifdef __cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /**__QKC_STRING_H*/
 

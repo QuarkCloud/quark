@@ -5,14 +5,10 @@
 #include <quark_compile.h>
 #include <stdint.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QKCAPI uint32_t hash_time33(const char * str , int size , uint32_t hash) ;
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTERNAL_HASH_H */

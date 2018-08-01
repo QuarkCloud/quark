@@ -20,11 +20,7 @@ enum
 #define SHUT_RDWR	SHUT_RDWR
 };
 
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QKCAPI int socket(int domain , int type , int protocol) ;
 
@@ -60,9 +56,6 @@ QKCAPI ssize_t sendmsg (int fd, const struct msghdr *message, int flags);
 
 QKCAPI ssize_t recvmsg (int fd, struct msghdr *message, int flags);
 
-
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_SYS_SOCKET_H */

@@ -4,9 +4,7 @@
 
 #include <quark_compile.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 typedef void *iconv_t;
 /**
@@ -20,9 +18,6 @@ QKCAPI size_t iconv (iconv_t cd , char ** inbuf , size_t * inleft,     char ** o
 
 QKCAPI int iconv_close (iconv_t cd);
 
-#ifdef	__cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /* __QKC_ICONV_H */

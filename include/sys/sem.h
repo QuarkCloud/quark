@@ -7,9 +7,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 /* Flags for `semop'.  */
 #define SEM_UNDO	0x1000		/* undo the operation on exit */
@@ -78,8 +76,6 @@ QKCAPI int semget(key_t key, int nsems, int semflg) ;
 
 QKCAPI int semop(int semid, struct sembuf * sops, size_t nsops) ;
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_SYS_SEM_H */

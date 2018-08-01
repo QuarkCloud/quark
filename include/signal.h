@@ -6,9 +6,7 @@
 #include <sys/types.h>
 #include <bits/siginfo.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 /* Fake signal functions.  */
 #define SIG_ERR	((__sighandler_t) -1)		/* Error return.  */
@@ -133,10 +131,7 @@ QKCAPI int sigtimedwait (const sigset_t * set,siginfo_t * info , const struct ti
 
 QKCAPI int sigqueue (pid_t pid, int sig, const union sigval val) ;
 
-#ifdef	__cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /**__QKC_SIGNAL_H*/
 

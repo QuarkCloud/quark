@@ -17,15 +17,11 @@ struct tms
     clock_t tms_cstime;		/* System CPU time of dead children.  */
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 //Œ¥ µœ÷
 QKCAPI clock_t times (struct tms * buffer) ;
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_SYS_TIMES_H */

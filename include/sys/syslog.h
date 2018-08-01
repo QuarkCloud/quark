@@ -3,9 +3,7 @@
 
 #include <quark_compile.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 #define	LOG_EMERG	0	/* system is unusable */
 #define	LOG_ALERT	1	/* action must be taken immediately */
@@ -130,9 +128,6 @@ QKCAPI int setlogmask(int mask) ;
 
 QKCAPI void syslog(int pri, const char *fmt , ...) ;
 
-#ifdef	__cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /* sys/syslog.h */

@@ -6,9 +6,7 @@
 #include <quark_compile.h>
 #include <sys/types.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 struct addrinfo
 {
@@ -29,8 +27,6 @@ QKCAPI void freeaddrinfo (struct addrinfo * ai) ;
 QKCAPI int getnameinfo (const struct sockaddr *sa,socklen_t salen, char *host, socklen_t hostlen, 
             char *serv, socklen_t servlen, int flags);
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_NETDB_H */

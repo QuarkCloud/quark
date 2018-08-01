@@ -8,9 +8,7 @@
 
 #define __func__ __FUNCTION__ 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 
 /**
@@ -38,9 +36,6 @@ static const int __ATOMIC_SEQ_CST = 6 ;    //Full barrier in both directions and
 
 QKCAPI void __atomic_thread_fence(int mo) ;
 
-#ifdef __cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /* __QKC_BUILTIN_H */

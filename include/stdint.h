@@ -2,11 +2,10 @@
 #ifndef __QKC_STDINT_H
 #define __QKC_STDINT_H 1
 
+#include <quark_compile.h>
 #include <bits/wordsize.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 typedef char                    int8_t    ;
 typedef unsigned char           uint8_t   ;
@@ -111,10 +110,6 @@ typedef intptr_t                ptrdiff_t ;
 /* Maximum for largest unsigned integral type.  */
 # define UINTMAX_MAX            (__UINT64_C(18446744073709551615))
 
-
-
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif  /** __QKC_STDINT_H */

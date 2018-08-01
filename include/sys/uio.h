@@ -12,9 +12,7 @@ struct iovec
     size_t iov_len;	/* Length of data.  */
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 //Œ¥ µœ÷
 QKCAPI ssize_t readv(int fd , const struct iovec * iovec , int count);
@@ -25,9 +23,6 @@ QKCAPI ssize_t preadv (int fd, const struct iovec * iovec, int count, off_t offs
 
 QKCAPI ssize_t pwritev (int fd, const struct iovec * iovec, int count, off_t offset) ;
 
-#ifdef __cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif  /**__QKC_SYS_UIO_H */

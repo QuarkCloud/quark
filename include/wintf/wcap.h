@@ -6,9 +6,7 @@
 #include <windows.h>
 #include <stdint.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 typedef struct __st_wcap{
 
@@ -25,8 +23,6 @@ QKCAPI DWORD_PTR GetActiveProcessorMask(void) ;
 QKCAPI DWORD GetNumberOfProcessors(void) ;
 QKCAPI DWORD GetAllocationGranularity(void) ;
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_WINTF_WCAP_H */

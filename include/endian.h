@@ -3,9 +3,7 @@
 
 #include <quark_compile.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 static inline bool is_little_endian()
 {
@@ -22,8 +20,6 @@ static inline bool is_little_endian()
     return __little_endian__ ;
 }
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_ENDIAN_H */

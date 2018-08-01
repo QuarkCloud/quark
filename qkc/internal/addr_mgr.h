@@ -2,12 +2,11 @@
 #ifndef __QKC_INTERNAL_ADDR_MGR_H
 #define __QKC_INTERNAL_ADDR_MGR_H 1
 
+#include <quark_compile.h>
 #include <windows.h>
 #include "rbtree.h"
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 typedef struct __st_addr_item{
     rb_node_t link ;
@@ -33,8 +32,6 @@ bool addr_mgr_add(addr_mgr_t * mgr , void * addr , void * addition , void (*item
 addr_item_t * addr_mgr_find(addr_mgr_t * mgr , const void * addr) ;
 bool addr_mgr_del(addr_mgr_t * mgr , addr_item_t * item) ;
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTERNAL_ADDR_MGR_H */

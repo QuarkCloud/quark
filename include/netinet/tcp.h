@@ -5,9 +5,7 @@
 #include <quark_compile.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 
 /*
@@ -124,8 +122,6 @@ struct tcp_info
 };
 */
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_NETINET_TCP_H */

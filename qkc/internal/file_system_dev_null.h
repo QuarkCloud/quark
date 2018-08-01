@@ -2,14 +2,13 @@
 #ifndef __QKC_INTERNAL_FILE_SYSTEM_DEV_NULL_H
 #define __QKC_INTERNAL_FILE_SYSTEM_DEV_NULL_H 1
 
+#include <quark_compile.h>
 #include <windows.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 static const char * file_system_dev_null_name = "/dev/null" ;
 
@@ -28,8 +27,6 @@ int file_system_dev_null_fstat(int fd , struct stat * stat) ;
 void file_system_dev_null_init() ;
 void file_system_dev_null_final() ;
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTERNAL_FILE_SYSTEM_DEV_NULL_H */

@@ -3,15 +3,11 @@
 #include <wintf/wcrt.h>
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QUARK_LINKAGE errno_t strerror_s(char * buf, size_t size , int errnum);
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 
 char *strtok_r (char * s, const char * delim,  char ** save_ptr)

@@ -5,9 +5,8 @@
 #include <quark_compile.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
+
 //32λ
 QKCAPI uint32_t atomic_load32(uint32_t volatile * target) ;
 QKCAPI uint32_t atomic_store32(uint32_t volatile * target , uint32_t value) ;
@@ -39,10 +38,7 @@ QKCAPI uint64_t atomic_fetch_and64(uint64_t volatile * target , uint64_t value) 
 QKCAPI uint64_t atomic_fetch_xor64(uint64_t volatile * target , uint64_t value) ;
 QKCAPI uint64_t atomic_fetch_or64 (uint64_t volatile * target , uint64_t value) ;
 
-#ifdef __cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /**__QKC_ATOMIC_H*/
 

@@ -9,9 +9,7 @@
 #include <sys/types.h>
 
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 enum
 {
@@ -183,11 +181,6 @@ QKCAPI int pthread_attr_setaffinity_np (pthread_attr_t *attr, size_t cpusetsize,
 QKCAPI int pthread_attr_getaffinity_np (const pthread_attr_t *attr, size_t cpusetsize, cpu_set_t *cpuset) ;
 QKCAPI int pthread_getattr_np (pthread_t th, pthread_attr_t *attr) ;
 
-
-
-#ifdef	__cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /* __QKC_PTHREAD_H */

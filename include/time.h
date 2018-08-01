@@ -5,9 +5,7 @@
 #include <quark_compile.h>
 #include <sys/types.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 #  define CLOCKS_PER_SEC  1000000l
 
@@ -86,9 +84,6 @@ QKCAPI int timer_delete (timer_t timerid) ;
 QKCAPI int timer_settime (timer_t timerid, int flags,  const struct itimerspec *value, struct itimerspec * ovalue) ;
 QKCAPI int timer_gettime (timer_t timerid, struct itimerspec * value);
 
-
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif  /** __QKC_TIME_H */

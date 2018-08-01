@@ -4,9 +4,7 @@
 
 #include <quark_compile.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 #define POLLIN          0x001           /* There is data to read.  */
 #define POLLPRI         0x002           /* There is urgent data to read.  */
@@ -36,8 +34,6 @@ struct pollfd
 
 QKCAPI int poll (struct pollfd * fds, nfds_t nfds, int timeout);
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif	/** __QKC_SYS_POLL_H */

@@ -5,14 +5,10 @@
 #include <quark_compile.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 #define SOL_UDP            17      /* sockopt level for UDP */
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_NETINET_UDP_H */

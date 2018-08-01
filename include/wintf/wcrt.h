@@ -6,9 +6,7 @@
 #include <stdio.h>
 #include <windows.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 typedef struct {
         intptr_t osfhnd;    /* underlying OS file HANDLE */
@@ -124,8 +122,6 @@ QUARK_LINKAGE int _utime64(const char * file , struct utimbuf * file_times) ;
 //wait
 QUARK_LINKAGE intptr_t _cwait(int * status , intptr_t process , int action);
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_WINTF_WCRT_H */

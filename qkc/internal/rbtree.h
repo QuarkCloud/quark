@@ -5,9 +5,7 @@
 #include <quark_compile.h>
 #include <stddef.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 #define	RB_RED		0
 #define	RB_BLACK	1
@@ -61,8 +59,6 @@ static inline void rb_link_node(rb_node_t * node, rb_node_t * parent,	rb_node_t 
 	*rb_link = node;
 }
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTERNAL_RBTREE_H */

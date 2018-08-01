@@ -37,9 +37,7 @@
 #define STDERR_FILENO   2       /* Standard error output.  */
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QUARK_LINKAGE int access (const char * name, int type) ;
 
@@ -152,9 +150,6 @@ QKCAPI int ttyname_r (int fd, char *buf, size_t buflen) ;
 
 QKCAPI int isatty (int fd) ;
 
-
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_UNISTD_H */

@@ -3,9 +3,7 @@
 
 #include <quark_compile.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 typedef unsigned short int sa_family_t;
 
@@ -15,9 +13,6 @@ struct sockaddr_un
     char sun_path[108];         /* Path name.  */
 };
 
-#ifdef __cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /** __QKC_SYS_UN_H */

@@ -5,9 +5,7 @@
 #include <quark_compile.h>
 #include <stdint.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 typedef struct _st_rlist{
     struct _st_rlist * prev ;
@@ -44,8 +42,6 @@ static inline bool rlist_empty(rlist_t *rlist)
     return (rlist == rlist->prev && rlist == rlist->next) ;
 }
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTERNAL_RLIST_H */

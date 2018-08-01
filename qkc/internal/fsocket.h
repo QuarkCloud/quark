@@ -8,9 +8,7 @@
 #include <winsock2.h>
 #include "ring_buffer.h"
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 /**
     为了实现epoll特性，需要对原来的socket做些改造，添加附加信息，不能直接使用。
@@ -159,8 +157,6 @@ bool socket_accept(accept_result_t * result , SOCKET& new_socket , struct sockad
 bool socket_start_accept(accept_result_t * result) ;
 
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTERNAL_FSOCKET_H */

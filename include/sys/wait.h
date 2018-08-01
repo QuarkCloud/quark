@@ -5,9 +5,7 @@
 #include <sys/types.h>
 #include <bits/waitflags.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 #  define __WAIT_INT(status)	(status)
 #  define __WAIT_STATUS		int *
@@ -36,9 +34,7 @@ extern "C" {
 QKCAPI pid_t wait (__WAIT_STATUS stat_loc);
 QKCAPI pid_t waitpid (pid_t pid, int * stat_loc, int options);
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_SYS_WAIT_H */
 

@@ -5,9 +5,7 @@
 #include <quark_compile.h>
 #include <sys/types.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 struct sysinfo {
   long uptime;                /* Seconds since boot */
@@ -31,8 +29,6 @@ QKCAPI int get_nprocs (void) ;
 QKCAPI long int get_phys_pages (void) ;
 QKCAPI long int get_avphys_pages (void) ;
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif	/** __QKC_SYS_SYSINFO_H */

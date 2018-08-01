@@ -68,9 +68,7 @@
 # define POSIX_MADV_DONTNEED    4 /* Don't need these pages.  */
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 
 /**
@@ -104,9 +102,6 @@ QKCAPI int shm_open (const char *name , int oflag , mode_t mode);
 
 QKCAPI int shm_unlink (const char *name);
 
-#ifdef __cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /** __QKC_SYS_MMAN_H */

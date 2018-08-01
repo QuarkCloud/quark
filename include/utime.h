@@ -5,9 +5,7 @@
 #include <quark_compile.h>
 #include <time.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 struct utimbuf
 {
@@ -17,9 +15,6 @@ struct utimbuf
 
 QKCAPI int utime (const char * file, const struct utimbuf * file_times);
 
-
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_UTIME_H */

@@ -14,9 +14,7 @@ typedef struct __st_wthr_info{
     char * errmsg ;
 } wthr_info_t ;
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QKCAPI uintptr_t dll_handle_get() ;
 
@@ -66,8 +64,6 @@ QKCAPI void wthr_tls_free_val(int key) ;
 
 QKCAPI void wthr_tls_cleanup_vals() ;
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_WINTF_WTHR_H */

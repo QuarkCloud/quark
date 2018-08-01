@@ -34,9 +34,7 @@ struct dirent
 
 typedef struct __st_dirstream DIR ; //ÓÃ»§Í¸Ã÷
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QKCAPI DIR *opendir(const char * name);
 QKCAPI int closedir(DIR * dir);
@@ -50,10 +48,6 @@ QKCAPI int scandir (const char * dir, struct dirent ***namelist, int (*selector)
 QKCAPI int scandir64 (const char * dir,struct dirent64 ***namelist, int (*selector) (const struct dirent64 *),
 		      int (*cmp) (const struct dirent64 **,const struct dirent64 **));
 
-#ifdef __cplusplus
-}
-#endif
-
-
+__END_DECLS
 
 #endif  /** __QKC_DIRENT_H */

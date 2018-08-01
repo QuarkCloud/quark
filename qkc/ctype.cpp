@@ -2,15 +2,11 @@
 #include <ctype.h>
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QUARK_LINKAGE int _isctype (int c , int mask);
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 int isblank (int c) 
 {

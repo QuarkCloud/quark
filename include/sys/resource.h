@@ -4,10 +4,7 @@
 #include <quark_compile.h>
 #include <sys/time.h>
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 #define RUSAGE_SELF     0
 #define RUSAGE_CHILDREN (-1)
@@ -37,9 +34,7 @@ struct rusage {
 QKCAPI int getrusage(int who, struct rusage *usage);
 
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 
 #endif /** __QKC_SYS_RESOURCE_H */

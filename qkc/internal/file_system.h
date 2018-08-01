@@ -7,9 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 //定义访问接口
 typedef struct __st_file_system{
@@ -34,8 +32,6 @@ int file_system_unmount(const char * name) ;
 
 file_system_t * file_system_find(const char * name) ;
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTERNAL_FILE_SYSTEM_H */

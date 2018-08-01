@@ -25,9 +25,7 @@ typedef union
 } cpu_set_t;
 
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QKCAPI int sched_yield (void);
 
@@ -65,9 +63,7 @@ QKCAPI int _sched_affinitycpuequal (const cpu_set_t *pset1, const cpu_set_t *pse
 */
 QKCAPI int sched_getcpu();
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 
 #define CPU_COUNT(setptr) (_sched_affinitycpucount(setptr))

@@ -4,9 +4,7 @@
 
 #include <quark_compile.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QUARK_LINKAGE int     abs(int x);
 QUARK_LINKAGE long    labs(long x);
@@ -36,9 +34,7 @@ QUARK_LINKAGE double  frexp(double x, int * y);
 
 QKCAPI double round(double x) ;
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /**__QKC_MATH_H*/
 

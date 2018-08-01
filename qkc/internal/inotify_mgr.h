@@ -10,9 +10,7 @@
 #include "rlist.h"
 #include "rbtree.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 /**
     FindFirstChangeNotification不能够提示具体变化情况，用ReadDirectoryChangesW
@@ -70,8 +68,6 @@ int inotify_read(inotify_mgr_t * mgr , char * buffer , int bufsize) ;
 
 int wide_to_char(const wchar_t * wstr , int bytes , char * str , int len) ;
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTERNAL_INOTIFY_MGR_H */

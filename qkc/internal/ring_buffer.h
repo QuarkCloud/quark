@@ -5,9 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 typedef struct __st_ring_buffer{
     char * buffer ;
@@ -35,8 +33,6 @@ size_t ring_buffer_write_message(ring_buffer_t * ring , const void * buf , size_
 bool ring_buffer_refer_message(ring_buffer_t * ring , char *&buf , size_t& size) ;
 
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTERNAL_RING_BUFFER_H */

@@ -3,12 +3,9 @@
 #define __QKC_STDLIB_H 1
 
 #include <quark_compile.h>
-
 #include <alloca.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QUARK_LINKAGE extern char ** _environ ;
 
@@ -56,10 +53,7 @@ QKCAPI char *realpath (const char * name, char *resolved) ;
 
 QUARK_LINKAGE void qsort(void * base, size_t count , size_t size , int (* compare)(const void *, const void *));
 
-#ifdef __cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /**__QKC_STDLIB_H*/
 

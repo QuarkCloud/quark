@@ -8,9 +8,7 @@
 #include "rlist.h"
 #include "fsocket.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 typedef struct __st_iocp_item iocp_item_t ;
 typedef struct __st_iocp_mgr iocp_mgr_t ;
@@ -52,8 +50,6 @@ int iocp_mgr_retrieve(iocp_mgr_t * mgr , struct epoll_event * evs ,  int maxeven
 
 int iocp_socket_callback(socket_t * s , int evt , int result) ;
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTERNAL_IOCP_MGR_H */

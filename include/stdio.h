@@ -6,10 +6,7 @@
 #include <stdarg.h>
 #include <sys/types.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+__BEGIN_DECLS
 
 #define _IOREAD         0x0001
 #define _IOWRT          0x0002
@@ -130,10 +127,7 @@ QKCAPI void funlockfile (FILE *stream);
 
 QUARK_LINKAGE void perror(const char * msg);
 
-#ifdef __cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /**__QKC_STDIO_H*/
 

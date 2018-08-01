@@ -4,9 +4,7 @@
 
 #include <quark_compile.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QUARK_LINKAGE int isalnum (int c) ;
 QUARK_LINKAGE int isalpha (int c) ;
@@ -29,8 +27,6 @@ QUARK_LINKAGE int toupper (int c) ;
 
 QKCAPI int isctype (int c , int mask);
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_CTYPE_H */

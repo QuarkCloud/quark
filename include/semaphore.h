@@ -6,9 +6,7 @@
 #include <stdint.h>
 #include <fcntl.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 #define SEM_FAILED      ((sem_t *) 0)
 #define SEM_VALUE_MAX   (2147483647)
@@ -49,9 +47,7 @@ QKCAPI int sem_post(sem_t *sem) ;
 QKCAPI int sem_getvalue(sem_t *sem , int * sval) ;
 
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 
 #endif	/** __QKC_SEMAPHORE_H */

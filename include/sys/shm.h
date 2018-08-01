@@ -86,9 +86,7 @@ struct shm_info
     unsigned long int swap_successes;
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
     
 //Œ¥ µœ÷
 QKCAPI int shmctl (int shmid, int cmd, struct shmid_ds * buf) ;
@@ -99,8 +97,6 @@ QKCAPI void *shmat (int shmid, const void * shmaddr, int shmflg) ;
 
 QKCAPI int shmdt (const void * shmaddr) ;
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_SYS_SHM_H */

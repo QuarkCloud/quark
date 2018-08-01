@@ -7,9 +7,7 @@
 #include <stdint.h>
 #include <sys/ipc.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 /**
     2018-03-16
@@ -163,9 +161,6 @@ QKCAPI bool ipc_sem_init(win_sem_t * sem) ;
 QKCAPI bool ipc_sem_final(win_sem_t * sem) ;
 QKCAPI bool ipc_sem_destroy(win_sem_t * sem) ;
 
-
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_WINTF_WIPC_H */

@@ -21,17 +21,13 @@
 /* Flag to indicate time is absolute.  */
 #define TIMER_ABSTIME		1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QKCAPI int gettimeofday (struct timeval * tv , void * tz) ;
 
 QKCAPI int utimes (const char * file, const struct timeval tvp[2]) ;
 
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif  /** __QKC_SYS_TIME_H */

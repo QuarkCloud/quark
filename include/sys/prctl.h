@@ -4,14 +4,10 @@
 #include <quark_compile.h>
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 
 #endif /** __QKC_SYS_PRCTL_H */

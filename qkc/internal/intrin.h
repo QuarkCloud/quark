@@ -2,13 +2,11 @@
 #ifndef __QKC_INTERNAL_INTRIN_H
 #define __QKC_INTERNAL_INTRIN_H 1
 
-#include "quark_compile.h"
+#include <quark_compile.h>
 
 #define _CRTIMP QUARK_IMPORT
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 /*
 ** __MACHINE             : all compilers
@@ -384,8 +382,6 @@ __MACHINEI(unsigned __int64 __rdtscp(unsigned int*))
 
 __MACHINEX86X_X64(void _mm_pause(void))
 
-#if defined(__cplusplus)
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTERNAL_INTRIN_H */

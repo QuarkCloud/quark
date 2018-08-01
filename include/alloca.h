@@ -5,9 +5,7 @@
 #include <quark_compile.h>
 #include <builtin.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QUARK_LINKAGE void *_alloca (size_t size) ;
 
@@ -17,10 +15,7 @@ QUARK_LINKAGE void *_alloca (size_t size) ;
 # define alloca(size)   _alloca (size)
 #endif /* GCC.  */
 
-#ifdef __cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /**__QKC_ALLOCA_H*/
 

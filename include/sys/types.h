@@ -5,9 +5,7 @@
 #include <quark_compile.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 
 typedef long int                long_t ;
@@ -37,8 +35,6 @@ typedef uint32_t                socklen_t ;
 typedef ulong_t                 nlink_t ;
 
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif  /** __QKC_SYS_TYPES_H */

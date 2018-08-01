@@ -36,9 +36,7 @@ struct ipc_perm
     unsigned long int __unused2;
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 /**
     cygwin实现ftok基本遵循linux的约定，但key_t仅仅只是需要一个全局唯一的，
@@ -52,9 +50,6 @@ extern "C" {
 */
 QKCAPI key_t ftok (const char *pathname , int proj_id) ;
 
-#ifdef __cplusplus
-}
-#endif
-
+__END_DECLS
 
 #endif /** __QKC_SYS_IPC_H */

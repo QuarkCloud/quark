@@ -57,9 +57,7 @@ struct inotify_event
 			  | IN_DELETE_SELF | IN_MOVE_SELF)
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 QKCAPI int inotify_init (void) ;
 
@@ -67,8 +65,6 @@ QKCAPI int inotify_add_watch (int fd, const char *name, uint32_t mask) ;
 
 QKCAPI int inotify_rm_watch (int fd, uint32_t wd) ;
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_SYS_INOTIFY_H */

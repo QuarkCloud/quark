@@ -6,9 +6,7 @@
 #include <stdint.h>
 #include <windows.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 
 /**
@@ -65,8 +63,6 @@ QKCAPI void global_rdlock() ;
 
 QKCAPI void global_rdunlock() ;
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_WINTF_WOBJ_H */

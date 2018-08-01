@@ -3,9 +3,7 @@
 
 #include <quark_compile.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif  
+__BEGIN_DECLS
 
 #define EPERM           1
 #define ENOENT          2
@@ -137,8 +135,6 @@ extern "C" {
 QUARK_LINKAGE int * _errno(void);
 #define errno   (*_errno())
 
-#ifdef __cplusplus
-}
-#endif  
+__END_DECLS
 
 #endif /**__QKC_ERRNO_H*/

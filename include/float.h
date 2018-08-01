@@ -4,10 +4,7 @@
 
 #include <quark_compile.h>
 
-
-#ifdef  __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 #define DBL_DIG         15                      /* # of decimal digits of precision */
 #define DBL_EPSILON     2.2204460492503131e-016 /* smallest such that 1.0+DBL_EPSILON != 1.0 */
@@ -207,8 +204,6 @@ extern "C" {
 
 #endif  /* __STDC__ */
 
-#ifdef  __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif  /* __QKC_FLOAT_H */

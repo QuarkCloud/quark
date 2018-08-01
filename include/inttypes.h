@@ -250,13 +250,9 @@
 # define SCNxPTR	__PRIPTR_PREFIX "x"
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 
-#ifdef __cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTTYPES_H */

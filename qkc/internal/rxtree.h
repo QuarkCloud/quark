@@ -6,9 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+__BEGIN_DECLS
 
 #define RADIX_NO_VALUE   (uintptr_t) -1
 
@@ -51,8 +49,6 @@ bool rx_tree_insert(rx_tree_t * tree , uint32_t key , uintptr_t value) ;
 bool rx_tree_erase(rx_tree_t * tree , uint32_t key) ;
 rx_node_t * rx_tree_find(rx_tree_t * tree , uint32_t key) ;
 
-#ifdef	__cplusplus
-}
-#endif
+__END_DECLS
 
 #endif /** __QKC_INTERNAL_RXTREE_H */
