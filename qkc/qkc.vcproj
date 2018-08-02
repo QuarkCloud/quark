@@ -413,6 +413,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\wintf\wps.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\wintf\wthr.cpp"
 					>
 				</File>
@@ -466,6 +470,10 @@
 				</File>
 				<File
 					RelativePath=".\internal\rxtree.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\internal\string_util.cpp"
 					>
 				</File>
 				<File
@@ -783,6 +791,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\include\wintf\wps.h"
+					>
+				</File>
+				<File
 					RelativePath="..\include\wintf\wthr.h"
 					>
 				</File>
@@ -872,6 +884,10 @@
 				</File>
 				<File
 					RelativePath=".\internal\rxtree.h"
+					>
+				</File>
+				<File
+					RelativePath=".\internal\string_util.h"
 					>
 				</File>
 				<File
