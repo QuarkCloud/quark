@@ -87,7 +87,7 @@ typedef WORD   LANGID;
 #define ERROR_SEVERITY_WARNING       0x80000000
 #define ERROR_SEVERITY_ERROR         0xC0000000
 
-
+/**
 #ifdef STRICT
 typedef void * HANDLE ;
 #define DECLARE_HANDLE(name) struct name##__ { int unused; }; typedef struct name##__ *name
@@ -99,6 +99,7 @@ typedef PVOID HANDLE;
 #define DECLSPEC_ALIGN(x)   __declspec(align(x))
 
 typedef HANDLE *PHANDLE;
+*/
 
 //
 // Flag (bit) fields
@@ -2450,6 +2451,67 @@ typedef struct _SYSTEM_TIMEOFDAY_INFORMATION
 } SYSTEM_TIMEOFDAY_INFORMATION, *PSYSTEM_TIMEOFDAY_INFORMATION;
 
 
+typedef struct _SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION {
+    LARGE_INTEGER IdleTime;
+    LARGE_INTEGER KernelTime;
+    LARGE_INTEGER UserTime;
+    LARGE_INTEGER DpcTime;
+    LARGE_INTEGER InterruptTime;
+    ULONG InterruptCount;
+} SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION, *PSYSTEM_PROCESSOR_PERFORMANCE_INFORMATION;
+
+typedef struct _SYSTEM_PROCESS_INFORMATION {
+    ULONG NextEntryOffset;
+    BYTE Reserved1[52];
+    PVOID Reserved2[3];
+    HANDLE UniqueProcessId;
+    PVOID Reserved3;
+    ULONG HandleCount;
+    BYTE Reserved4[4];
+    PVOID Reserved5[11];
+    SIZE_T PeakPagefileUsage;
+    SIZE_T PrivatePageCount;
+    LARGE_INTEGER Reserved6[6];
+} SYSTEM_PROCESS_INFORMATION, *PSYSTEM_PROCESS_INFORMATION;
+
+typedef struct _SYSTEM_REGISTRY_QUOTA_INFORMATION {
+    ULONG RegistryQuotaAllowed;
+    ULONG RegistryQuotaUsed;
+    PVOID Reserved1;
+} SYSTEM_REGISTRY_QUOTA_INFORMATION, *PSYSTEM_REGISTRY_QUOTA_INFORMATION;
+
+typedef struct _SYSTEM_BASIC_INFORMATION {
+    BYTE Reserved1[24];
+    PVOID Reserved2[4];
+    CCHAR NumberOfProcessors;
+} SYSTEM_BASIC_INFORMATION, *PSYSTEM_BASIC_INFORMATION;
+
+typedef struct _SYSTEM_PERFORMANCE_INFORMATION {
+    BYTE Reserved1[312];
+} SYSTEM_PERFORMANCE_INFORMATION, *PSYSTEM_PERFORMANCE_INFORMATION;
+
+typedef struct _SYSTEM_EXCEPTION_INFORMATION {
+    BYTE Reserved1[16];
+} SYSTEM_EXCEPTION_INFORMATION, *PSYSTEM_EXCEPTION_INFORMATION;
+
+typedef struct _SYSTEM_LOOKASIDE_INFORMATION {
+    BYTE Reserved1[32];
+} SYSTEM_LOOKASIDE_INFORMATION, *PSYSTEM_LOOKASIDE_INFORMATION;
+
+typedef struct _SYSTEM_INTERRUPT_INFORMATION {
+    BYTE Reserved1[24];
+} SYSTEM_INTERRUPT_INFORMATION, *PSYSTEM_INTERRUPT_INFORMATION;
+
+typedef enum _FILE_INFORMATION_CLASS {
+    FileDirectoryInformation = 1
+} FILE_INFORMATION_CLASS;
+
+
+typedef enum _THREADINFOCLASS {
+    ThreadIsIoPending = 16
+} THREADINFOCLASS;
+
+
 typedef enum _PROCESSINFOCLASS
 {
   ProcessBasicInformation = 0,
@@ -2711,6 +2773,17 @@ typedef struct _KERNEL_USER_TIMES
 #define SEMAPHORE_MODIFY_STATE      0x0002  
 #define SEMAPHORE_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED|SYNCHRONIZE|0x3) 
 
+
+
+typedef struct _IO_COUNTERS {
+    ULONGLONG  ReadOperationCount;
+    ULONGLONG  WriteOperationCount;
+    ULONGLONG  OtherOperationCount;
+    ULONGLONG ReadTransferCount;
+    ULONGLONG WriteTransferCount;
+    ULONGLONG OtherTransferCount;
+} IO_COUNTERS;
+typedef IO_COUNTERS *PIO_COUNTERS;
 
 #ifdef __cplusplus
 }

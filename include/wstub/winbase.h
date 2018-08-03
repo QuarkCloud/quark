@@ -2355,6 +2355,7 @@ GetModuleHandleW(
     );
 #define GetModuleHandle DECLEAR_FUNC_AW(GetModuleHandle)
 
+WINBASEAPI
 DWORD
 WINAPI
 GetFinalPathNameByHandleA (
@@ -2363,6 +2364,8 @@ GetFinalPathNameByHandleA (
     DWORD cchFilePath,
     DWORD dwFlags
 );
+
+WINBASEAPI
 DWORD
 WINAPI
 GetFinalPathNameByHandleW (
@@ -2382,6 +2385,23 @@ GetFinalPathNameByHandleW (
 
 #define FILE_NAME_NORMALIZED 0x0  //default
 #define FILE_NAME_OPENED     0x8
+
+
+WINBASEAPI
+BOOL
+WINAPI
+FileTimeToSystemTime(
+    CONST FILETIME *lpFileTime,
+    LPSYSTEMTIME lpSystemTime
+);
+
+WINBASEAPI
+BOOL
+WINAPI
+GetProcessIoCounters(
+    HANDLE hProcess,
+    PIO_COUNTERS lpIoCounters
+);
 
 
 #ifdef __cplusplus

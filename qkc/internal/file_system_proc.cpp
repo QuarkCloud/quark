@@ -3,10 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <winnt.h>
 
 #include "wintf/wobj.h"
 #include "wintf/wps.h"
 #include "wintf/wcap.h"
+#include "wintf/werr.h"
 #include "file_system.h"
 #include "file_system_proc.h"
 #include "string_util.h"
@@ -19,6 +21,7 @@ typedef struct{
 } fs_proc_info_t ;
 
 static size_t file_system_proc_pid_stat_read(pid_t pid , void * buf , size_t size) ;
+static size_t file_system_proc_stat_read(void * buf , size_t size) ;
 
 int file_system_proc_creat(const char * file , mode_t mode)
 {
@@ -83,7 +86,14 @@ ssize_t file_system_proc_read(int fd , void * buf , size_t bytes)
 
     str_seg_t segs[64] ;
     size_t count = str_split(info->path , '/' , segs , 64) ;
-    if(count == 3)
+    if(count == 2)
+    {
+        if(::str_ncmp(segs[1].start , segs[1].size , "stat") == 0)
+        {
+            return file_system_proc_stat_read(buf , bytes) ;
+        }        
+    }
+    else if(count == 3)
     {
         if(::str_ncmp(segs[1].start , segs[1].size , "self") == 0 
             && ::str_ncmp(segs[2].start , segs[2].size , "stat") == 0)
@@ -158,7 +168,84 @@ static size_t file_system_proc_pid_stat_read(pid_t pid , void * buf , size_t siz
 
     return ::sprintf((char *)buf , "0 () 0 0 0 0 0 0 0 0 " "0 0 0 0 0 0 0 0 0 0 "
         "0 0 0 %u 0 0 0 0 0 0 " "0 0 0 0 0 0 0 0 0 0 " "0" , rss) ;
+}
 
+static int print_cpu_info(char * buf , int size) 
+{
+    int num_processors = (int)::GetNumberOfProcessors() ;
 
+    DWORD sppi_size = num_processors * sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION);
+    SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION * sppi = (SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION *)::malloc(sppi_size) ;
+    if(sppi == NULL)
+    {
+        errno = ENOMEM ;
+        return 0 ;
+    }
+
+    ULONG result_size = 0 ;
+    NTSTATUS status = NtQuerySystemInformation(SystemPerformanceInformation , sppi , sppi_size , &result_size) ;
+    if(status != STATUS_SUCCESS)
+    {
+        errno = oserr_map(::GetLastError()) ;
+        return 0 ;
+    }
+
+    char * str = buf ;
+    int isize = 0 ;
+
+    for(int cpu = -1 ; cpu < num_processors ; ++cpu)
+    {
+        if(cpu < 0)
+        {
+            isize = ::sprintf(str , "cpu 0 0 0 0 0 0 0 0\n") ;
+            continue ;
+        }
+
+        uint64_t user_time = 0 , nice_time = 0 , system_time = 0 ;
+        uint64_t idle_time = 0 , iowait_time = 0 , irq_time = 0 , softirq_time = 0;
+
+        SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION& pi = sppi[cpu] ;
+        user_time = pi.UserTime.QuadPart / 10000 ;
+        system_time = (pi.KernelTime.QuadPart - pi.IdleTime.QuadPart)/10000 ;
+        idle_time = pi.IdleTime.QuadPart / 10000 ;
+        irq_time = pi.InterruptTime.QuadPart / 10000 ;
+
+        int csize = ::sprintf(str + isize , "cpu%d %llu %llu %llu %llu %llu %llu %llu 0\n" ,
+            cpu , user_time , nice_time , system_time , idle_time , 
+            iowait_time , irq_time , softirq_time) ;
+
+        isize += csize ;
+    }
+
+    return isize ;
+}
+
+static int print_intr(char *  buf , int size)
+{
+    int isize = ::sprintf(buf , "intr ") ;
+    for(int idx = 0 ; idx < 240 ; ++idx)
+    {
+        int zsize = ::sprintf(buf + isize , "0 ") ;
+        isize += zsize ;
+    }
+    buf[isize] = '\n' ;
+    return isize ;
+}
+
+static size_t file_system_proc_stat_read(void * buf , size_t size) 
+{
+    int total_size = (int)size ;
+    char * str = (char *)buf ;
+    int slen = print_cpu_info(str , total_size) ;
+
+    slen += print_intr(str + slen , total_size - slen) ;
+
+    slen += ::sprintf(str + slen , "ctxt 0\n") ;
+    slen += ::sprintf(str + slen , "btime 0\n") ;
+    slen += ::sprintf(str + slen , "processes 0\n") ;
+    slen += ::sprintf(str + slen , "procs_running 0\n") ;
+    slen += ::sprintf(str + slen , "procs_blocked 0\n") ;
+
+    return slen ;
 }
 

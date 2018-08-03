@@ -170,7 +170,20 @@ typedef ULONG_PTR DWORD_PTR, *PDWORD_PTR;
 
 typedef WORD                ATOM;
 
-#include <winnt.h>
+//#include <winnt.h>
+
+
+#ifdef STRICT
+typedef void * HANDLE ;
+#define DECLARE_HANDLE(name) struct name##__ { int unused; }; typedef struct name##__ *name
+#else
+typedef PVOID HANDLE;
+#define DECLARE_HANDLE(name) typedef HANDLE name
+#endif
+
+#define DECLSPEC_ALIGN(x)   __declspec(align(x))
+
+typedef HANDLE *PHANDLE;
 
 typedef HANDLE NEAR         *SPHANDLE;
 typedef HANDLE FAR          *LPHANDLE;
