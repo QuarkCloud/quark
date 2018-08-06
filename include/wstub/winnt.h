@@ -2528,27 +2528,6 @@ typedef enum _PROCESSINFOCLASS
 #define NtCurrentThread()  ((HANDLE) (LONG_PTR) -2)
 
 
-typedef NTSTATUS (NTAPI *PFN_NtQuerySystemInformation) (SYSTEM_INFORMATION_CLASS, PVOID, ULONG, PULONG);
-static inline NTSTATUS NtQuerySystemInformation (SYSTEM_INFORMATION_CLASS cz , PVOID ptr , ULONG ul , PULONG plu)
-{
-    PFN_NtQuerySystemInformation pfn = NULL ;
-    if(pfn != NULL)
-        return pfn(cz , ptr , ul , plu) ;
-    else
-        return 1 ;
-}
-
-typedef NTSTATUS (NTAPI * PFN_NtQueryInformationProcess) (HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG) ;
-static inline NTSTATUS NTAPI NtQueryInformationProcess (HANDLE handle , PROCESSINFOCLASS pi , PVOID ptr , ULONG ul , PULONG plu)
-{
-    PFN_NtQueryInformationProcess pfn = NULL ;
-    if(pfn != NULL)
-        return pfn(handle , pi , ptr , ul , plu) ;
-    else
-        return 1 ;
-}
-
-
 typedef CONTEXT *PCONTEXT;
 
 

@@ -22,6 +22,7 @@ typedef struct{
 
 static size_t file_system_proc_pid_stat_read(pid_t pid , void * buf , size_t size) ;
 static size_t file_system_proc_stat_read(void * buf , size_t size) ;
+static size_t file_system_proc_cpuinfo_read(void * buf , size_t size) ;
 
 int file_system_proc_creat(const char * file , mode_t mode)
 {
@@ -86,19 +87,16 @@ ssize_t file_system_proc_read(int fd , void * buf , size_t bytes)
 
     str_seg_t segs[64] ;
     size_t count = str_split(info->path , '/' , segs , 64) ;
-    if(count == 2)
+    if(count >= 2)
     {
         if(::str_ncmp(segs[1].start , segs[1].size , "stat") == 0)
-        {
             return file_system_proc_stat_read(buf , bytes) ;
-        }        
-    }
-    else if(count == 3)
-    {
-        if(::str_ncmp(segs[1].start , segs[1].size , "self") == 0 
-            && ::str_ncmp(segs[2].start , segs[2].size , "stat") == 0)
+        else if(::str_ncmp(segs[1].start , segs[1].size , "cpuinfo") == 0)
+            return file_system_proc_cpuinfo_read(buf , bytes) ;
+        else if(::str_ncmp(segs[1].start , segs[1].size , "self") == 0 && count >= 3)
         {
-            return file_system_proc_pid_stat_read(0 , buf , bytes) ;
+            if(::str_ncmp(segs[2].start , segs[2].size , "stat") == 0)
+                return file_system_proc_pid_stat_read(0 , buf , bytes) ;
         }
     }
 
@@ -174,7 +172,7 @@ static int print_cpu_info(char * buf , int size)
 {
     int num_processors = (int)::GetNumberOfProcessors() ;
 
-    DWORD sppi_size = num_processors * sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION);
+    DWORD sppi_size = num_processors * sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION) * 4;
     SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION * sppi = (SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION *)::malloc(sppi_size) ;
     if(sppi == NULL)
     {
@@ -247,5 +245,41 @@ static size_t file_system_proc_stat_read(void * buf , size_t size)
     slen += ::sprintf(str + slen , "procs_blocked 0\n") ;
 
     return slen ;
+}
+
+static size_t file_system_proc_cpuinfo_read(void * buf , size_t size) 
+{
+    int num_processors = (int)::GetNumberOfProcessors() ;
+    for(int idx = 0 ; idx < num_processors ; ++idx)
+    {
+        CHAR key_name[128];
+        HKEY processor_key;
+        DWORD cpu_speed;
+        DWORD cpu_speed_size = sizeof(cpu_speed);
+        WCHAR cpu_brand[256];
+        DWORD cpu_brand_size = sizeof(cpu_brand);
+        size_t len;
+
+        len = sprintf(key_name , "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\%d",idx);
+        DWORD r = RegOpenKeyEx(HKEY_LOCAL_MACHINE, key_name,0,KEY_QUERY_VALUE,&processor_key);
+        if (r != ERROR_SUCCESS)
+            break ;
+
+        if (RegQueryValueEx(processor_key,"~MHz",NULL,NULL,(BYTE*) &cpu_speed,&cpu_speed_size) != ERROR_SUCCESS)
+        {
+          RegCloseKey(processor_key);
+          break ;
+        }
+
+        if (RegQueryValueEx(processor_key,"ProcessorNameString",NULL,NULL,(BYTE*) &cpu_brand,&cpu_brand_size) != ERROR_SUCCESS)
+        {
+          RegCloseKey(processor_key);
+          break ;
+        }
+
+        RegCloseKey(processor_key);
+    }
+
+    return 0 ;
 }
 
