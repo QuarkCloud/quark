@@ -44,20 +44,6 @@ typedef void *PVOID;
 // Basics
 //
 
-#ifndef VOID
-#define VOID void
-typedef char CHAR;
-typedef short SHORT;
-typedef long LONG;
-typedef int INT;
-#endif
-
-typedef SHORT *PSHORT;  
-typedef LONG *PLONG;   
-
-typedef wchar_t WCHAR;    // wc,   16-bit UNICODE character
-
-
 typedef WCHAR *PWCHAR, *LPWCH, *PWCH;
 typedef CONST WCHAR *LPCWCH, *PCWCH;
 typedef WCHAR *NWPSTR, *LPWSTR, *PWSTR;

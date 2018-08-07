@@ -2443,6 +2443,69 @@ static inline NTSTATUS NTAPI NtQueryInformationProcess (HANDLE handle , PROCESSI
         return 1 ;
 }
 
+
+WINBASEAPI
+LSTATUS
+WINAPI
+RegOpenKeyExA (
+    HKEY hKey,
+    LPCSTR lpSubKey,
+    DWORD ulOptions,
+    REGSAM samDesired,
+    PHKEY phkResult
+    );
+WINBASEAPI
+LSTATUS
+WINAPI
+RegOpenKeyExW (
+    HKEY hKey,
+    LPCWSTR lpSubKey,
+    DWORD ulOptions,
+    REGSAM samDesired,
+    PHKEY phkResult
+    );
+#define RegOpenKeyEx DECLEAR_FUNC_AW(RegOpenKeyEx)
+
+WINBASEAPI
+LSTATUS
+WINAPI
+RegQueryValueExA (
+    HKEY hKey,
+    LPCSTR lpValueName,
+    LPDWORD lpReserved,
+    LPDWORD lpType,
+    LPBYTE lpData,
+    LPDWORD lpcbData
+    );
+WINBASEAPI
+LSTATUS
+WINAPI
+RegQueryValueExW (
+    HKEY hKey,
+    LPCWSTR lpValueName,
+    LPDWORD lpReserved,
+    LPDWORD lpType,
+    LPBYTE lpData,
+    LPDWORD lpcbData
+    );
+#define RegQueryValueEx DECLEAR_FUNC_AW(RegQueryValueEx)
+
+WINBASEAPI
+LSTATUS
+WINAPI
+RegCloseKey (HKEY hKey);
+
+#define HKEY_CLASSES_ROOT                   (( HKEY ) (ULONG_PTR)((LONG)0x80000000) )
+#define HKEY_CURRENT_USER                   (( HKEY ) (ULONG_PTR)((LONG)0x80000001) )
+#define HKEY_LOCAL_MACHINE                  (( HKEY ) (ULONG_PTR)((LONG)0x80000002) )
+#define HKEY_USERS                          (( HKEY ) (ULONG_PTR)((LONG)0x80000003) )
+#define HKEY_PERFORMANCE_DATA               (( HKEY ) (ULONG_PTR)((LONG)0x80000004) )
+#define HKEY_PERFORMANCE_TEXT               (( HKEY ) (ULONG_PTR)((LONG)0x80000050) )
+#define HKEY_PERFORMANCE_NLSTEXT            (( HKEY ) (ULONG_PTR)((LONG)0x80000060) )
+#define HKEY_CURRENT_CONFIG                 (( HKEY ) (ULONG_PTR)((LONG)0x80000005) )
+#define HKEY_DYN_DATA                       (( HKEY ) (ULONG_PTR)((LONG)0x80000006) )
+
+
 #ifdef __cplusplus
 }
 #endif

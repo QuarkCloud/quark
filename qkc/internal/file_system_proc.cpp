@@ -247,8 +247,51 @@ static size_t file_system_proc_stat_read(void * buf , size_t size)
     return slen ;
 }
 
+static int parse_identifier(const char * identifier , int& family , int& mode , int& stepping)
+{
+    char tmpstr[256] ;
+    int tsize = 0 , stage = 0 ; //family=1 value=2 ; mode=3 value=4 ; stepping=5 value=6
+    const char * pchar = identifier ;
+    while(true)
+    {
+        char ch = *pchar ;
+        if(ch == ' ' || ch == '\0')
+        {
+            tmpstr[tsize] = '\0' ;
+            if(tsize != 0)
+            {
+                if((stage & 1) == 1)
+                {
+                    //求值
+                    int value = ::atoi(tmpstr) ;
+                    if(stage == 1)
+                        family = value ;
+                    else if(stage == 3)
+                        mode = value ;
+                    else if(stage == 5)
+                        stepping = value ;
+
+                    stage++ ;
+                }
+            }
+
+
+
+            tsize = 0 ;
+            if(ch == '\0')
+                break ;
+        }
+        ++pchar ;
+    }
+
+    
+
+}
+
 static size_t file_system_proc_cpuinfo_read(void * buf , size_t size) 
 {
+    char * str = (char *)buf ;
+    int isize = (int)size , offset = 0;
     int num_processors = (int)::GetNumberOfProcessors() ;
     for(int idx = 0 ; idx < num_processors ; ++idx)
     {
@@ -256,11 +299,14 @@ static size_t file_system_proc_cpuinfo_read(void * buf , size_t size)
         HKEY processor_key;
         DWORD cpu_speed;
         DWORD cpu_speed_size = sizeof(cpu_speed);
-        WCHAR cpu_brand[256];
+        CHAR cpu_brand[256];
         DWORD cpu_brand_size = sizeof(cpu_brand);
-        size_t len;
+        CHAR vendor_id[256];
+        DWORD vendor_id_size = sizeof(vendor_id);
+        CHAR identifier[256];
+        DWORD identifier_size = sizeof(identifier);
 
-        len = sprintf(key_name , "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\%d",idx);
+        sprintf(key_name , "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\%d",idx);
         DWORD r = RegOpenKeyEx(HKEY_LOCAL_MACHINE, key_name,0,KEY_QUERY_VALUE,&processor_key);
         if (r != ERROR_SUCCESS)
             break ;
@@ -270,14 +316,53 @@ static size_t file_system_proc_cpuinfo_read(void * buf , size_t size)
           RegCloseKey(processor_key);
           break ;
         }
-
         if (RegQueryValueEx(processor_key,"ProcessorNameString",NULL,NULL,(BYTE*) &cpu_brand,&cpu_brand_size) != ERROR_SUCCESS)
         {
           RegCloseKey(processor_key);
           break ;
         }
+        if (RegQueryValueEx(processor_key,"VendorIdentifier",NULL,NULL,(BYTE*) &vendor_id,&vendor_id_size) != ERROR_SUCCESS)
+        {
+          RegCloseKey(processor_key);
+          break ;
+        }
 
+        if (RegQueryValueEx(processor_key,"Identifier",NULL,NULL,(BYTE*) &identifier,&identifier_size) != ERROR_SUCCESS)
+        {
+          RegCloseKey(processor_key);
+          break ;
+        }
         RegCloseKey(processor_key);
+
+        /**
+            2018-08-07
+            根据注册表的信息，填写cpuinfo
+        */
+        offset += ::sprintf(str + offset , "processor\t: %d\n",idx) ;
+        offset += ::sprintf(str + offset , "vendor_id\t: %s\n",vendor_id) ;
+        offset += ::sprintf(str + offset , "cpu family\t: \n") ;
+        offset += ::sprintf(str + offset , "model\t\t: \n") ;
+        offset += ::sprintf(str + offset , "model name\t: %s\n" , cpu_brand) ;
+        offset += ::sprintf(str + offset , "stepping\t: \n") ;
+        offset += ::sprintf(str + offset , "cpu MHZ\t: %u\n" , cpu_speed) ;
+        offset += ::sprintf(str + offset , "cache size\t: \n") ;
+        offset += ::sprintf(str + offset , "physical id\t: \n") ;
+        offset += ::sprintf(str + offset , "siblings\t: \n") ;
+        offset += ::sprintf(str + offset , "core id\t: \n") ;
+        offset += ::sprintf(str + offset , "cpu cores\t: \n") ;
+        offset += ::sprintf(str + offset , "apicid\t: \n") ;
+        offset += ::sprintf(str + offset , "fpu\t: \n") ;
+        offset += ::sprintf(str + offset , "fpu_exception\t: \n") ;
+        offset += ::sprintf(str + offset , "cpuid level\t: \n") ;
+        offset += ::sprintf(str + offset , "wp\t: \n") ;
+        offset += ::sprintf(str + offset , "flags\t: \n") ;
+        offset += ::sprintf(str + offset , "bogomips\t: \n") ;
+        offset += ::sprintf(str + offset , "clflush size\t: \n") ;
+        offset += ::sprintf(str + offset , "cache_alignmen\t: \n") ;
+        offset += ::sprintf(str + offset , "address sizes\t: \n") ;
+        offset += ::sprintf(str + offset , "power management\t: \n") ;
+        offset += ::sprintf(str + offset , "\n") ;
+
     }
 
     return 0 ;
