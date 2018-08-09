@@ -441,6 +441,18 @@ struct  linger_w {
                                        /*  other side until conditional */
                                        /*  function returns CF_ACCEPT */
 
+typedef struct win_sockaddr {
+
+    USHORT sa_family;           // Address family.
+    CHAR sa_data[14];                   // Up to 14 bytes of direct address.
+} SOCKADDR, *PSOCKADDR, FAR *LPSOCKADDR;
+
+typedef struct _SOCKET_ADDRESS {
+    LPSOCKADDR lpSockaddr;
+    INT iSockaddrLength;
+} SOCKET_ADDRESS, *PSOCKET_ADDRESS, *LPSOCKET_ADDRESS;
+
+
 #ifdef __cplusplus
 }
 #endif

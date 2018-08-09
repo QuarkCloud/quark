@@ -247,10 +247,10 @@ static size_t file_system_proc_stat_read(void * buf , size_t size)
     return slen ;
 }
 
-static int parse_identifier(const char * identifier , int& family , int& mode , int& stepping)
+static int parse_identifier(const char * identifier , int& family , int& model , int& stepping)
 {
     char tmpstr[256] ;
-    int tsize = 0 , stage = 0 ; //family=1 value=2 ; mode=3 value=4 ; stepping=5 value=6
+    int tsize = 0 , stage = 0 ; //family=1 value=2 ; model=3 value=4 ; stepping=5 value=6
     const char * pchar = identifier ;
     while(true)
     {
@@ -267,25 +267,28 @@ static int parse_identifier(const char * identifier , int& family , int& mode , 
                     if(stage == 1)
                         family = value ;
                     else if(stage == 3)
-                        mode = value ;
+                        model = value ;
                     else if(stage == 5)
                         stepping = value ;
 
                     stage++ ;
                 }
+                else if(str_ncmp(tmpstr , tsize , "Family") == 0)
+                    stage = 1 ;
+                else if(str_ncmp(tmpstr , tsize , "Model") == 0)
+                    stage = 3 ;
+                else if(str_ncmp(tmpstr , tsize , "Stepping") == 0)
+                    stage = 5 ;
             }
-
-
 
             tsize = 0 ;
             if(ch == '\0')
                 break ;
         }
         ++pchar ;
-    }
+    }  
 
-    
-
+    return (int)(pchar - identifier) ;
 }
 
 static size_t file_system_proc_cpuinfo_read(void * buf , size_t size) 
@@ -338,13 +341,16 @@ static size_t file_system_proc_cpuinfo_read(void * buf , size_t size)
             2018-08-07
             根据注册表的信息，填写cpuinfo
         */
+        int family = 0 , model = 0 , stepping = 0 ;
+        parse_identifier(identifier , family , model , stepping) ;        
+
         offset += ::sprintf(str + offset , "processor\t: %d\n",idx) ;
         offset += ::sprintf(str + offset , "vendor_id\t: %s\n",vendor_id) ;
-        offset += ::sprintf(str + offset , "cpu family\t: \n") ;
-        offset += ::sprintf(str + offset , "model\t\t: \n") ;
+        offset += ::sprintf(str + offset , "cpu family\t: %d\n" , family) ;
+        offset += ::sprintf(str + offset , "model\t\t: %d\n" , model) ;
         offset += ::sprintf(str + offset , "model name\t: %s\n" , cpu_brand) ;
-        offset += ::sprintf(str + offset , "stepping\t: \n") ;
-        offset += ::sprintf(str + offset , "cpu MHZ\t: %u\n" , cpu_speed) ;
+        offset += ::sprintf(str + offset , "stepping\t: %d\n" , stepping) ;
+        offset += ::sprintf(str + offset , "cpu MHz\t\t: %u\n" , cpu_speed) ;
         offset += ::sprintf(str + offset , "cache size\t: \n") ;
         offset += ::sprintf(str + offset , "physical id\t: \n") ;
         offset += ::sprintf(str + offset , "siblings\t: \n") ;
@@ -365,6 +371,6 @@ static size_t file_system_proc_cpuinfo_read(void * buf , size_t size)
 
     }
 
-    return 0 ;
+    return offset ;
 }
 
