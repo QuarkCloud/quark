@@ -44,8 +44,13 @@ enum
 # define IFF_PORTSEL	IFF_PORTSEL
     IFF_AUTOMEDIA = 0x4000,	/* Auto media select active.  */
 # define IFF_AUTOMEDIA	IFF_AUTOMEDIA
-    IFF_DYNAMIC = 0x8000	/* Dialup device with changing addresses.  */
+    IFF_DYNAMIC = 0x8000	, /* Dialup device with changing addresses.  */
 # define IFF_DYNAMIC	IFF_DYNAMIC
+
+    IFF_LOWER_UP =  0x10000  ,       /* driver signals L1 up         */
+# define IFF_LOWER_UP	IFF_LOWER_UP
+    IFF_DORMANT  =   0x20000        /* driver signals dormant       */
+# define IFF_DORMANT	IFF_DORMANT
   };
 
 QKCAPI unsigned int if_nametoindex (const char * ifname) ;
