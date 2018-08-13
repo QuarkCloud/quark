@@ -9,6 +9,8 @@
 
 static IP_ADAPTER_ADDRESSES* get_all_interfaces() ;
 static unsigned int get_if_flags(IP_ADAPTER_ADDRESSES * adapter) ;
+static bool get_ipforward_table(PMIB_IPFORWARDTABLE& pift) ;
+static DWORD get_routedst(PMIB_IPFORWARDTABLE pift , DWORD ifidx) ;
 
 int getifaddrs (struct ifaddrs **ifap)
 {
@@ -16,7 +18,14 @@ int getifaddrs (struct ifaddrs **ifap)
     if(adapters == NULL)
         return -1 ;
 
-    struct ifaddrs * ifs = NULL ;
+    PMIB_IPFORWARDTABLE pift = NULL ;
+    if(get_ipforward_table(pift) == false)
+    {
+        ::free(adapters) ;
+        return -1 ;
+    }
+
+    struct ifaddrs * ifs = NULL , *prev = NULL ;;
     for(IP_ADAPTER_ADDRESSES * adapter = adapters ; adapter != NULL ; adapter = adapter->Next)
     {
         if(adapter->OperStatus != IfOperStatusUp || adapter->FirstUnicastAddress == NULL)
@@ -41,7 +50,7 @@ int getifaddrs (struct ifaddrs **ifap)
 
             if(ifa->ifa_addr == NULL)
                 ifa->ifa_addr = (struct sockaddr *)::malloc(sizeof(struct sockaddr)) ;
-            ::memcpy(ifa->ifa_addr , wsa , sa_size) ;
+            ::memcpy(ifa->ifa_addr , wsa , sizeof(struct sockaddr)) ;
 
             //计算掩码
             if(ifa->ifa_netmask == NULL)
@@ -53,20 +62,54 @@ int getifaddrs (struct ifaddrs **ifap)
             int prefix = (int)unicast->OnLinkPrefixLength ;
             sin->sin_family = AF_INET ;
             sin->sin_addr.s_addr = ::htonl(UINT32_MAX << (32 - prefix)) ;
+
+            //计算广播地址
+            if(ifa->ifa_broadaddr == NULL)
+            {
+                ifa->ifa_broadaddr = (struct sockaddr *)::malloc(sizeof(struct sockaddr)) ;
+                ::memset(ifa->ifa_broadaddr , 0 , sizeof(struct sockaddr)) ;
+            }
+
+            sin = (struct sockaddr_in *)ifa->ifa_broadaddr ;
+            sin->sin_family = AF_INET ;
+            sin->sin_addr.s_addr = (in_addr_t)get_routedst(pift , adapter->IfIndex) ;
         }
-    }
 
-    
+        if(ifs == NULL)
+            ifs = ifa ;
+        if(prev != NULL)
+            prev->ifa_next = ifa ;
+
+        prev = ifa ;
+    } 
+
+    *ifap = ifs ;
 
 
-
+    ::free(adapters) ;
+    ::free(pift) ;
 
     return 0 ;
 }
 
 void freeifaddrs (struct ifaddrs * ifa)
 {
-    //
+    struct ifaddrs * cur = ifa ;
+    while(cur != NULL)
+    {
+        struct ifaddrs *next = cur->ifa_next ;
+        if(cur->ifa_name != NULL)
+            ::free(cur->ifa_name) ;
+        if(cur->ifa_addr != NULL)
+            ::free(cur->ifa_addr) ;
+        if(cur->ifa_netmask != NULL)
+            ::free(cur->ifa_netmask) ;
+        if(cur->ifa_broadaddr != NULL)
+            ::free(cur->ifa_broadaddr) ;
+
+        ::free(cur) ;
+        cur = next ;
+    }
 }
 
 static IP_ADAPTER_ADDRESSES* get_all_interfaces() 
@@ -115,4 +158,33 @@ static unsigned int get_if_flags(IP_ADAPTER_ADDRESSES * adapter)
     if (adapter->OperStatus == IfOperStatusDormant)
         flags |= IFF_DORMANT;
     return flags;   
+}
+
+static bool get_ipforward_table(PMIB_IPFORWARDTABLE& pift) 
+{
+    ULONG size = 0;
+    if (_imp_get_ipforward_table(NULL, &size, FALSE) != ERROR_INSUFFICIENT_BUFFER)
+        return false ;
+
+    pift = (PMIB_IPFORWARDTABLE)::malloc(size) ;
+    ::memset(pift , 0 , size) ;
+
+    DWORD result = _imp_get_ipforward_table(pift, &size, FALSE) ;
+    if(result != NO_ERROR)
+    {
+        ::free(pift) ;
+        return false ;
+    }
+
+    return true ;
+}
+
+static DWORD get_routedst(PMIB_IPFORWARDTABLE pift , DWORD ifidx) 
+{
+    for(DWORD idx = 0 ; idx < pift->dwNumEntries ; ++idx)
+    {
+        if (pift->table[idx].dwForwardIfIndex == ifidx && pift->table[idx].dwForwardMask == INADDR_BROADCAST)
+            return pift->table[idx].dwForwardDest;
+    }
+    return 0 ;
 }

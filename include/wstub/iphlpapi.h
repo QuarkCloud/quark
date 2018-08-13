@@ -525,6 +525,94 @@ DWORD _imp_get_number_of_interfaces(DWORD * numif) ;
 typedef DWORD (WINAPI *LPFN_GETNUMBEROFINTERFACES)(PDWORD  pdwNumIf);
 
 
+typedef enum {
+    MIB_IPROUTE_TYPE_OTHER    = 1,
+    MIB_IPROUTE_TYPE_INVALID  = 2,
+    MIB_IPROUTE_TYPE_DIRECT   = 3,
+    MIB_IPROUTE_TYPE_INDIRECT = 4,
+} MIB_IPFORWARD_TYPE;
+
+#define MAKE_ROUTE_PROTOCOL(suffix, value) \
+    MIB_IPPROTO_ ## suffix = value, \
+    PROTO_IP_ ## suffix    = value
+
+typedef enum {
+    //
+    // TODO: Remove the RouteProtocol* definitions.
+    //
+    RouteProtocolOther   = 1,
+    RouteProtocolLocal   = 2,
+    RouteProtocolNetMgmt = 3,
+    RouteProtocolIcmp    = 4,
+    RouteProtocolEgp     = 5,
+    RouteProtocolGgp     = 6,
+    RouteProtocolHello   = 7,
+    RouteProtocolRip     = 8,
+    RouteProtocolIsIs    = 9,
+    RouteProtocolEsIs    = 10,
+    RouteProtocolCisco   = 11,
+    RouteProtocolBbn     = 12,
+    RouteProtocolOspf    = 13,
+    RouteProtocolBgp     = 14,
+
+    MAKE_ROUTE_PROTOCOL(OTHER,   1),
+    MAKE_ROUTE_PROTOCOL(LOCAL,   2),
+    MAKE_ROUTE_PROTOCOL(NETMGMT, 3),
+    MAKE_ROUTE_PROTOCOL(ICMP,    4),
+    MAKE_ROUTE_PROTOCOL(EGP,     5),
+    MAKE_ROUTE_PROTOCOL(GGP,     6),
+    MAKE_ROUTE_PROTOCOL(HELLO,   7),
+    MAKE_ROUTE_PROTOCOL(RIP,     8),
+    MAKE_ROUTE_PROTOCOL(IS_IS,   9),
+    MAKE_ROUTE_PROTOCOL(ES_IS,  10),
+    MAKE_ROUTE_PROTOCOL(CISCO,  11),
+    MAKE_ROUTE_PROTOCOL(BBN,    12),
+    MAKE_ROUTE_PROTOCOL(OSPF,   13),
+    MAKE_ROUTE_PROTOCOL(BGP,    14),
+
+    //
+    // Windows-specific definitions.
+    //
+    MAKE_ROUTE_PROTOCOL(NT_AUTOSTATIC,     10002),
+    MAKE_ROUTE_PROTOCOL(NT_STATIC,         10006),
+    MAKE_ROUTE_PROTOCOL(NT_STATIC_NON_DOD, 10007),
+
+} MIB_IPFORWARD_PROTO;
+
+typedef struct _MIB_IPFORWARDROW {
+    DWORD dwForwardDest;
+    DWORD dwForwardMask;
+    DWORD dwForwardPolicy;
+    DWORD dwForwardNextHop;
+    IF_INDEX dwForwardIfIndex;
+    union {
+        DWORD dwForwardType;              // Old field name uses DWORD type.
+        MIB_IPFORWARD_TYPE ForwardType;   // New field name uses enum type.
+    };
+    union {
+        DWORD dwForwardProto;             // Old field name uses DWORD type.
+        MIB_IPFORWARD_PROTO ForwardProto; // New field name uses enum type.
+    };
+    DWORD dwForwardAge;
+    DWORD dwForwardNextHopAS;
+    DWORD dwForwardMetric1;
+    DWORD dwForwardMetric2;
+    DWORD dwForwardMetric3;
+    DWORD dwForwardMetric4;
+    DWORD dwForwardMetric5;
+} MIB_IPFORWARDROW, *PMIB_IPFORWARDROW;
+#ifndef ANY_SIZE
+#define ANY_SIZE 1
+#endif
+typedef struct _MIB_IPFORWARDTABLE {
+    DWORD dwNumEntries;
+    MIB_IPFORWARDROW table[ANY_SIZE];
+} MIB_IPFORWARDTABLE, *PMIB_IPFORWARDTABLE;
+
+DWORD _imp_get_ipforward_table(PMIB_IPFORWARDTABLE table ,PULONG size ,BOOL order) ;
+typedef DWORD (WINAPI *LPFN_GETIPFORWARDTABLE)(PMIB_IPFORWARDTABLE table ,PULONG size ,BOOL order);
+
+
 #ifdef __cplusplus
 }
 #endif
