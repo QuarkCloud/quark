@@ -6,11 +6,16 @@
 #include <errno.h>
 #include <net/if.h>
 #include <netinet/in.h>
+#include <netpacket/packet.h>
 
 static IP_ADAPTER_ADDRESSES* get_all_interfaces() ;
 static unsigned int get_if_flags(IP_ADAPTER_ADDRESSES * adapter) ;
 static bool get_ipforward_table(PMIB_IPFORWARDTABLE& pift) ;
 static DWORD get_routedst(PMIB_IPFORWARDTABLE pift , DWORD ifidx) ;
+
+static struct ifaddrs * create_pfpacket(IP_ADAPTER_ADDRESSES * adapter) ;
+static struct ifaddrs * create_inet(PMIB_IPFORWARDTABLE pift , IP_ADAPTER_ADDRESSES * adapter) ;
+static void link_ifaddrs(struct ifaddrs *& root , struct ifaddrs *& last , struct ifaddrs *&node) ;
 
 int getifaddrs (struct ifaddrs **ifap)
 {
@@ -31,56 +36,11 @@ int getifaddrs (struct ifaddrs **ifap)
         if(adapter->OperStatus != IfOperStatusUp || adapter->FirstUnicastAddress == NULL)
             continue ;
 
-        size_t ifsize = sizeof(struct ifaddrs) ;
-        struct ifaddrs * ifa = (struct ifaddrs *)::malloc(ifsize) ;
-        ::memset(ifa , 0 , ifsize) ;
+        struct ifaddrs * ifa = create_pfpacket(adapter) ;
+        link_ifaddrs(ifs , prev , ifa) ;
 
-        ifa->ifa_name = ::strdup(adapter->AdapterName) ;
-        ifa->ifa_flags = get_if_flags(adapter) ;
-
-        for(IP_ADAPTER_UNICAST_ADDRESS * unicast = (IP_ADAPTER_UNICAST_ADDRESS *)adapter->FirstUnicastAddress ;
-            unicast != NULL ; unicast = unicast->Next)
-        {
-            struct win_sockaddr * wsa = (struct win_sockaddr *)unicast->Address.lpSockaddr ;
-            if(wsa->sa_family != AF_INET)
-                continue ;
-
-            if(adapter->IfType != IF_TYPE_SOFTWARE_LOOPBACK && adapter->IfType != IF_TYPE_PPP)
-                ifa->ifa_flags |= IFF_BROADCAST ;
-
-            if(ifa->ifa_addr == NULL)
-                ifa->ifa_addr = (struct sockaddr *)::malloc(sizeof(struct sockaddr)) ;
-            ::memcpy(ifa->ifa_addr , wsa , sizeof(struct sockaddr)) ;
-
-            //计算掩码
-            if(ifa->ifa_netmask == NULL)
-            {
-                ifa->ifa_netmask = (struct sockaddr *)::malloc(sizeof(struct sockaddr)) ;
-                ::memset(ifa->ifa_netmask , 0 , sizeof(struct sockaddr)) ;
-            }
-            struct sockaddr_in * sin = (struct sockaddr_in *)ifa->ifa_netmask ;
-            int prefix = (int)unicast->OnLinkPrefixLength ;
-            sin->sin_family = AF_INET ;
-            sin->sin_addr.s_addr = ::htonl(UINT32_MAX << (32 - prefix)) ;
-
-            //计算广播地址
-            if(ifa->ifa_broadaddr == NULL)
-            {
-                ifa->ifa_broadaddr = (struct sockaddr *)::malloc(sizeof(struct sockaddr)) ;
-                ::memset(ifa->ifa_broadaddr , 0 , sizeof(struct sockaddr)) ;
-            }
-
-            sin = (struct sockaddr_in *)ifa->ifa_broadaddr ;
-            sin->sin_family = AF_INET ;
-            sin->sin_addr.s_addr = (in_addr_t)get_routedst(pift , adapter->IfIndex) ;
-        }
-
-        if(ifs == NULL)
-            ifs = ifa ;
-        if(prev != NULL)
-            prev->ifa_next = ifa ;
-
-        prev = ifa ;
+        struct ifaddrs * ifb = create_inet(pift , adapter) ;
+        link_ifaddrs(ifs , prev , ifb) ;
     } 
 
     *ifap = ifs ;
@@ -187,4 +147,107 @@ static DWORD get_routedst(PMIB_IPFORWARDTABLE pift , DWORD ifidx)
             return pift->table[idx].dwForwardDest;
     }
     return 0 ;
+}
+
+static struct ifaddrs * create_pfpacket(IP_ADAPTER_ADDRESSES * adapter)
+{
+    size_t ifsize = sizeof(struct ifaddrs) ;
+    struct ifaddrs * ifa = (struct ifaddrs *)::malloc(ifsize) ;
+    ::memset(ifa , 0 , ifsize) ;
+
+    ifa->ifa_name = ::strdup(adapter->AdapterName) ;
+    ifa->ifa_flags = get_if_flags(adapter) ;
+
+    size_t lsize = sizeof(struct sockaddr_ll) ;
+
+    if(ifa->ifa_addr == NULL)
+    {
+        ifa->ifa_addr = (struct sockaddr *)::malloc(lsize) ;
+        ::memset(ifa->ifa_addr , 0 , lsize) ;
+    }
+    struct sockaddr_ll * sll = (struct sockaddr_ll *)ifa->ifa_addr ;
+    sll->sll_family = AF_PACKET ;
+    sll->sll_ifindex = (int)adapter->IfIndex ;
+    ::memcpy(sll->sll_addr , adapter->PhysicalAddress , adapter->PhysicalAddressLength) ;
+    sll->sll_halen = (unsigned char)adapter->PhysicalAddressLength ;
+    sll->sll_hatype = 1 ;
+    if(adapter->IfType == IF_TYPE_SOFTWARE_LOOPBACK)
+        sll->sll_hatype = 772 ;
+
+    if(ifa->ifa_broadaddr == NULL)
+    {
+        ifa->ifa_broadaddr = (struct sockaddr *)::malloc(lsize) ;
+        ::memset(ifa->ifa_broadaddr , 0 , lsize) ;
+    }
+    sll = (struct sockaddr_ll *)ifa->ifa_broadaddr ;
+    sll->sll_family = AF_PACKET ;
+    sll->sll_ifindex = (int)adapter->IfIndex ;
+    sll->sll_halen = (unsigned char)adapter->PhysicalAddressLength ;
+    if(adapter->IfType == IF_TYPE_SOFTWARE_LOOPBACK)
+        sll->sll_hatype = 772 ;
+    else
+    {
+        sll->sll_hatype = 1 ;
+        ::memset(sll->sll_addr , -1 , sll->sll_halen) ;
+    }
+
+    return ifa ;
+}
+
+static struct ifaddrs * create_inet(PMIB_IPFORWARDTABLE pift , IP_ADAPTER_ADDRESSES * adapter)
+{
+    size_t ifsize = sizeof(struct ifaddrs) ;
+    struct ifaddrs * ifa = (struct ifaddrs *)::malloc(ifsize) ;
+    ::memset(ifa , 0 , ifsize) ;
+
+    ifa->ifa_name = ::strdup(adapter->AdapterName) ;
+    ifa->ifa_flags = get_if_flags(adapter) ;
+
+    for(IP_ADAPTER_UNICAST_ADDRESS * unicast = (IP_ADAPTER_UNICAST_ADDRESS *)adapter->FirstUnicastAddress ;
+        unicast != NULL ; unicast = unicast->Next)
+    {
+        struct win_sockaddr * wsa = (struct win_sockaddr *)unicast->Address.lpSockaddr ;
+        if(wsa->sa_family != AF_INET)
+            continue ;
+
+        if(adapter->IfType != IF_TYPE_SOFTWARE_LOOPBACK && adapter->IfType != IF_TYPE_PPP)
+            ifa->ifa_flags |= IFF_BROADCAST ;
+
+        if(ifa->ifa_addr == NULL)
+            ifa->ifa_addr = (struct sockaddr *)::malloc(sizeof(struct sockaddr)) ;
+        ::memcpy(ifa->ifa_addr , wsa , sizeof(struct sockaddr)) ;
+
+        //计算掩码
+        if(ifa->ifa_netmask == NULL)
+        {
+            ifa->ifa_netmask = (struct sockaddr *)::malloc(sizeof(struct sockaddr)) ;
+            ::memset(ifa->ifa_netmask , 0 , sizeof(struct sockaddr)) ;
+        }
+        struct sockaddr_in * sin = (struct sockaddr_in *)ifa->ifa_netmask ;
+        int prefix = (int)unicast->OnLinkPrefixLength ;
+        sin->sin_family = AF_INET ;
+        sin->sin_addr.s_addr = ::htonl(UINT32_MAX << (32 - prefix)) ;
+
+        //计算广播地址
+        if(ifa->ifa_broadaddr == NULL)
+        {
+            ifa->ifa_broadaddr = (struct sockaddr *)::malloc(sizeof(struct sockaddr)) ;
+            ::memset(ifa->ifa_broadaddr , 0 , sizeof(struct sockaddr)) ;
+        }
+
+        sin = (struct sockaddr_in *)ifa->ifa_broadaddr ;
+        sin->sin_family = AF_INET ;
+        sin->sin_addr.s_addr = (in_addr_t)get_routedst(pift , adapter->IfIndex) ;
+    }
+
+    return ifa ;
+}
+
+static void link_ifaddrs(struct ifaddrs *& root , struct ifaddrs *& last , struct ifaddrs *&node) 
+{
+    if(root == NULL)
+        root = node ;
+    if(last != NULL)
+        last->ifa_next = node ;
+    last = node ;        
 }
