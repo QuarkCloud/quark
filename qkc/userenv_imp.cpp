@@ -42,9 +42,15 @@ int _imp_get_user_directory(char * dir , int size)
     if(userenv_library_init() == false)
         return -1 ;
 
+    HANDLE token = NULL ;
+    if (OpenProcessToken(GetCurrentProcess(), TOKEN_READ, &token) == 0)
+        return -1 ;
+
     WCHAR profile[256] ;
     DWORD profile_size = 256 ;
-    if(__userenv_pfns__.lpfn_GetUserProfileDirectoryW(::GetCurrentProcess() , profile , &profile_size) == FALSE)
+    BOOL is_got = __userenv_pfns__.lpfn_GetUserProfileDirectoryW(token , profile , &profile_size) ;
+    ::CloseHandle(token) ;
+    if(is_got == FALSE)
         return -1 ;
 
     int result = ::WideCharToMultiByte(CP_UTF8  , 0 , profile , profile_size , dir , size , NULL , NULL)  ;

@@ -65,6 +65,21 @@ int getpwuid_r(uid_t uid,struct passwd * resultbuf,
         offset += (slen + 1);
     }
 
+    pchar[offset] = '\0' ;
+    resultbuf->pw_passwd = pchar + offset ;
+    ++offset ;
+
+    resultbuf->pw_uid = -1 ;
+    resultbuf->pw_gid = -1 ;
+
+    pchar[offset] = '\0' ;
+    resultbuf->pw_gecos = pchar + offset ;
+    ++offset ;
+
+    pchar[offset] = '\0' ;
+    resultbuf->pw_shell = pchar + offset ;
+    ++offset ;
+
     if(offset > 0)
     {
         if(_result != NULL)
