@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)include\wstub&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include\wstub&quot;;&quot;$(SolutionDir)include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;QKW_EXPORTS"
 				IgnoreStandardIncludePath="true"
 				MinimalRebuild="true"
@@ -175,7 +175,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\advapi32_imp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\qkw_init.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\userenv_imp.cpp"
 				>
 			</File>
 		</Filter>
@@ -184,6 +192,14 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\include\wstub\advapi32.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\wstub\userenv.h"
+				>
+			</File>
 			<File
 				RelativePath="..\include\wstub\winbase.h"
 				>

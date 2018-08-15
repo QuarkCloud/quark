@@ -182,6 +182,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\advapi32_imp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\arpa_inet.cpp"
 				>
 			</File>
@@ -371,6 +375,10 @@
 			</File>
 			<File
 				RelativePath=".\unistd.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\userenv_imp.cpp"
 				>
 			</File>
 			<File

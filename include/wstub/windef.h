@@ -335,6 +335,52 @@ typedef ACCESS_MASK REGSAM;
                                   &                           \
                                  (~SYNCHRONIZE))
 
+#define CP_ACP                    0           // default to ANSI code page
+#define CP_UTF7                   65000       // UTF-7 translation
+#define CP_UTF8                   65001       // UTF-8 translation
+
+
+#define DELETE                           (0x00010000L)
+#define READ_CONTROL                     (0x00020000L)
+#define WRITE_DAC                        (0x00040000L)
+#define WRITE_OWNER                      (0x00080000L)
+#define SYNCHRONIZE                      (0x00100000L)
+
+#define STANDARD_RIGHTS_REQUIRED         (0x000F0000L)
+
+#define STANDARD_RIGHTS_READ             (READ_CONTROL)
+#define STANDARD_RIGHTS_WRITE            (READ_CONTROL)
+#define STANDARD_RIGHTS_EXECUTE          (READ_CONTROL)
+
+#define STANDARD_RIGHTS_ALL              (0x001F0000L)
+
+#define SPECIFIC_RIGHTS_ALL              (0x0000FFFFL)
+
+
+
+#define TOKEN_ASSIGN_PRIMARY    (0x0001)
+#define TOKEN_DUPLICATE         (0x0002)
+#define TOKEN_IMPERSONATE       (0x0004)
+#define TOKEN_QUERY             (0x0008)
+#define TOKEN_QUERY_SOURCE      (0x0010)
+#define TOKEN_ADJUST_PRIVILEGES (0x0020)
+#define TOKEN_ADJUST_GROUPS     (0x0040)
+#define TOKEN_ADJUST_DEFAULT    (0x0080)
+#define TOKEN_ADJUST_SESSIONID  (0x0100)
+
+#define TOKEN_READ       (STANDARD_RIGHTS_READ      |\
+                          TOKEN_QUERY)
+
+
+#define TOKEN_WRITE      (STANDARD_RIGHTS_WRITE     |\
+                          TOKEN_ADJUST_PRIVILEGES   |\
+                          TOKEN_ADJUST_GROUPS       |\
+                          TOKEN_ADJUST_DEFAULT)
+
+#define TOKEN_EXECUTE    (STANDARD_RIGHTS_EXECUTE)
+
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,5 +1,11 @@
 
+#include <stdlib.h>
+#include <string.h>
 #include <pwd.h>
+#include <errno.h>
+#include <windows.h>
+#include <userenv.h>
+#include <advapi32.h>
 
 
 void setpwent (void)
@@ -35,6 +41,38 @@ int getpw (uid_t uid, char *buffer)
 int getpwuid_r(uid_t uid,struct passwd * resultbuf,
        char * buffer, size_t buflen,struct passwd **_result)
 {
-    return 0 ;
+    ::memset(resultbuf , 0 , sizeof(struct passwd)) ;
+    char str[1024] ;
+    int slen = 0 ;
+    char * pchar = buffer ;
+    int offset = 0 ;
+
+    slen = _imp_get_user_directory(str , sizeof(str)) ;
+    if(slen > 0)
+    {
+        ::memcpy(pchar + offset, str , slen) ;
+        pchar[slen + offset] = '\0' ;
+        resultbuf->pw_dir = pchar + offset;
+        offset += (slen + 1);
+    }
+
+    slen = _imp_get_username(str , sizeof(str)) ;
+    if(slen > 0)
+    {
+        ::memcpy(pchar + offset, str , slen) ;
+        pchar[slen + offset] = '\0' ;
+        resultbuf->pw_name = pchar + offset;
+        offset += (slen + 1);
+    }
+
+    if(offset > 0)
+    {
+        if(_result != NULL)
+            *_result = resultbuf ;
+        return 0 ;
+    }
+    else
+        return -1 ;
 }
+
 

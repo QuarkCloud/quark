@@ -2506,6 +2506,9 @@ RegCloseKey (HKEY hKey);
 #define HKEY_DYN_DATA                       (( HKEY ) (ULONG_PTR)((LONG)0x80000006) )
 
 
+WINBASEAPI BOOL WINAPI OpenProcessToken(HANDLE ProcessHandle,DWORD DesiredAccess,PHANDLE TokenHandle);
+
+
 #ifdef __cplusplus
 }
 #endif
