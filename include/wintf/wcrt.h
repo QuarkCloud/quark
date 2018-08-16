@@ -29,6 +29,7 @@ QUARK_LINKAGE int _open_osfhandle(intptr_t handle, int flags);
 QUARK_LINKAGE int _unlink(const char * filename);
 
 QUARK_LINKAGE int _chmod(const char * filename , int mode);
+QUARK_LINKAGE int _pipe(int * fds, unsigned int size, int mode);
 
 typedef unsigned int _dev_t;
 typedef unsigned short _ino_t;

@@ -118,7 +118,12 @@ int pause()
 
 int pipe (int pipedes[2])
 {
-    return -1 ;
+#ifndef O_BINARY
+#define O_BINARY 0x8000
+#endif
+
+#define PIPE_SIZE 4096
+    return _pipe(pipedes , PIPE_SIZE , O_BINARY) ;
 }
 
 int chown(const char * file , uid_t owner , gid_t group)
@@ -255,12 +260,12 @@ void *sbrk(intptr_t delta)
 {
     return NULL ;
 }
-
+/**
 long int syscall(long int sysno , ...) 
 {
     return 0 ;
 }
-
+*/
 int lockf(int fd , int cmd , off_t len)
 {
     return _locking(fd , cmd , len) ;

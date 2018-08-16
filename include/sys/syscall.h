@@ -2,11 +2,6 @@
 #define __QKC_SYS_SYSCALL_H 1
 
 #include <quark_compile.h>
-#if QKC_PLATFORM==QKC_PLATFORM_LINUX
-#include <sys/syscall.h>
-#else
-
-#include <bits/unistd.h>
 
 #define SYS__sysctl __NR__sysctl
 #define SYS_access __NR_access
@@ -382,6 +377,5 @@
 #define SYS_waitpid __NR_waitpid
 #endif
 
-#endif
 
 #endif /** __QKC_SYS_SYSCALL_H */

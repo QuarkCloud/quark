@@ -2,6 +2,7 @@
 #define __QKC_SYSCALL_H 1
 
 #include <quark_compile.h>
+#include <bits/wordsize.h>
 
 #if __WORDSIZE == 32       
  /** i386 系统，是32位的*/
@@ -337,7 +338,7 @@
 /* #define __NR_eventfd2	328 */
 /* #define __NR_epoll_create1	329 */
 /* #define __NR_dup3		330 */
-/* #define __NR_pipe2		331 */
+#define __NR_pipe2		331
 /* #define __NR_inotify_init1	332 */
 /* #define __NR_preadv		333 */
 /* #define __NR_pwritev		334 */

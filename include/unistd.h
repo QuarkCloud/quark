@@ -53,6 +53,7 @@ QKCAPI int usleep(useconds_t useconds) ;
 QKCAPI int pause();
 
 QKCAPI int pipe (int pipedes[2]) ;
+QKCAPI int pipe2(int pipedes[2] , int flags) ;
 
 QKCAPI int chown(const char * file , uid_t owner , gid_t group) ;
 QKCAPI int chdir(const char * path) ;
