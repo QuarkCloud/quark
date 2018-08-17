@@ -126,6 +126,11 @@ int pipe (int pipedes[2])
     return _pipe(pipedes , PIPE_SIZE , O_BINARY) ;
 }
 
+int pipe2(int pipedes[2] , int flags) 
+{
+    return _pipe(pipedes , PIPE_SIZE , O_BINARY) ;
+}
+
 int chown(const char * file , uid_t owner , gid_t group)
 {
     return 0 ;
