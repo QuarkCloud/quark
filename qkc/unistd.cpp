@@ -60,6 +60,10 @@ int close(int fd)
             fs->close(fd) ;
         }
     }
+    else if(type == WOBJ_PIPE)
+    {
+        return ::_close((int)wobj->handle) ;
+    }
     else
     {
         errno = ENOSYS ;
@@ -76,7 +80,12 @@ ssize_t read(int fd , void * buf , size_t nbytes)
         return ::_read(fd , buf , nbytes) ;
 
     wobj_t * obj = wobj_get(fd) ;
-    if(obj == NULL || obj->type != WOBJ_FILE || obj->addition == NULL)
+    if(obj == NULL)
+        return -1 ;
+    if(obj->type == WOBJ_PIPE)
+        return ::_read((int)obj->handle , buf , nbytes) ;
+
+    if(obj->type != WOBJ_FILE || obj->addition == NULL)
         return -1 ;
 
     file_system_t * file_system = (file_system_t *)obj->addition ;
@@ -90,7 +99,12 @@ ssize_t write(int fd , const void * buf , size_t nbytes)
         return ::_write(fd , buf , nbytes) ;
 
     wobj_t * obj = wobj_get(fd) ;
-    if(obj == NULL || obj->type != WOBJ_FILE || obj->addition == NULL)
+    if(obj == NULL)
+        return -1 ;
+    if(obj->type == WOBJ_PIPE)
+        return ::_write((int)obj->handle , buf , nbytes) ;
+
+    if(obj->type != WOBJ_FILE || obj->addition == NULL)
         return -1 ;
 
     file_system_t * file_system = (file_system_t *)obj->addition ;
@@ -116,19 +130,35 @@ int pause()
     return 0 ;
 }
 
-int pipe (int pipedes[2])
-{
 #ifndef O_BINARY
 #define O_BINARY 0x8000
 #endif
 
 #define PIPE_SIZE 4096
-    return _pipe(pipedes , PIPE_SIZE , O_BINARY) ;
+
+void add_pipe_objs(int pipedes[2] , int oids[2])
+{
+    oids[0] = ::wobj_set(WOBJ_PIPE , (HANDLE)pipedes[0] , NULL) ;
+    oids[1] = ::wobj_set(WOBJ_PIPE , (HANDLE)pipedes[1] , NULL) ;
+}
+
+int pipe (int pipedes[2])
+{
+    int result = 0 ;
+    int fds[2] = {0 , 0} ;
+    if((result = _pipe(fds , PIPE_SIZE , O_BINARY)) == 0)
+        add_pipe_objs(fds , pipedes) ;
+
+    return result ;
 }
 
 int pipe2(int pipedes[2] , int flags) 
 {
-    return _pipe(pipedes , PIPE_SIZE , O_BINARY) ;
+    int result = 0 ;
+    int fds[2] = {0 , 0} ;
+    if((result = _pipe(fds , PIPE_SIZE , O_BINARY)) == 0)
+        add_pipe_objs(fds , pipedes) ;
+    return result ;
 }
 
 int chown(const char * file , uid_t owner , gid_t group)

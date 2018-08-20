@@ -16,7 +16,7 @@ iocp_mgr_t * iocp_mgr_new()
     }
 
     int epfd = INVALID_WOBJ_ID ;
-    if((iocp_mgr_init(mgr) == true) && (epfd = wobj_set(WOBJ_IOCP , mgr->iocp , mgr) != INVALID_WOBJ_ID))
+    if((iocp_mgr_init(mgr) == true) && (epfd = wobj_set(WOBJ_IOCP , mgr->iocp , mgr)) != INVALID_WOBJ_ID)
     {
         mgr->epfd = epfd ;
         return mgr ;
@@ -99,10 +99,10 @@ bool iocp_mgr_item_free(iocp_item_t * item)
 {
     rlist_del(NULL , &item->link) ;
 
-    socket_t * s = item->socket ;
-    item->socket = NULL ;
-    s->addition = NULL ;
-    s->callback = NULL ;
+    //socket_t * s = item->socket ;
+    //item->socket = NULL ;
+    //s->addition = NULL ;
+    //s->callback = NULL ;
     
     free(item) ;
     return true ;
@@ -167,6 +167,75 @@ int iocp_mgr_retrieve(iocp_mgr_t * mgr , struct epoll_event * evs ,  int maxeven
     return counter ;
 }
 
+bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
+{
+    if(mgr == NULL || fd <= 0 || ev == NULL)
+        return false ;
+
+    wobj_t * wobj = ::wobj_get(fd) ;
+    if(wobj == NULL)
+        return false ;
+    wobj_type wtype = wobj->type ;
+    if(wtype != WOBJ_SOCK && wtype != WOBJ_PIPE)
+        return false ;
+
+    iocp_item_t * item = (iocp_item_t *)::malloc(sizeof(iocp_item_t)) ;
+    if(item == NULL)
+        return false ;
+    ::memset(item , 0 , sizeof(iocp_item_t)) ;
+
+    item->fd = fd ;
+    item->owner = mgr ;
+    rlist_init(&item->link) ;
+    ::memcpy(&item->data , ev , sizeof(struct epoll_event)) ;
+
+    if(wtype == WOBJ_SOCK)
+    {
+        socket_t * s= (socket_t *)wobj->addition ;
+        s->addition = item ;
+        s->callback = iocp_socket_callback ;
+
+        //°ó¶¨µ½iocpÖÐ
+        if(::CreateIoCompletionPort((HANDLE)s->socket , mgr->iocp , 0 , 0) == NULL)
+            return false ;
+
+        if((ev->events & EPOLLIN) == EPOLLIN)
+        {
+            if(s->stage == SOCKET_STAGE_LISTEN)
+                socket_start_accept(s->acceptor) ;
+            else if(s->stage == SOCKET_STAGE_CONNECT && s->type == SOCK_STREAM)
+                ::socket_start_recv(s->receiver) ;
+            else if(s->type == SOCK_DGRAM)
+            {
+                struct sockaddr addr ;
+                int addr_len = sizeof(struct sockaddr) ;
+                ::socket_start_recvfrom(s->receiver , 0 , &addr , &addr_len) ;
+            }
+        }
+
+        return true ;
+    }
+    else if(wtype == WOBJ_PIPE)
+    {
+        HANDLE handle = ::_get_osfhandle((int)wobj->handle) ;
+        if(handle == NULL || ::CreateIoCompletionPort(handle , mgr->iocp , 0 , 0) == NULL)
+            return false ;        
+    }
+
+
+    return false ;
+}
+
+bool iocp_mgr_mod(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
+{
+    return false ;
+}
+
+bool iocp_mgr_del(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
+{
+    return false ;
+}
+/***
 bool iocp_mgr_add(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
 {
     if(mgr == NULL || s == NULL || ev == NULL)
@@ -240,6 +309,7 @@ bool iocp_mgr_del(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
 
     return true ;
 }
+*/
 
 int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout) 
 {

@@ -15,7 +15,8 @@ typedef struct __st_iocp_mgr iocp_mgr_t ;
 
 struct __st_iocp_item{
     rlist_t             link ;
-    socket_t *          socket ;
+    //socket_t *          socket ;
+    int                 fd ;
     struct epoll_event  data ;
     uint32_t            occur ;     //已经触发的事件
     iocp_mgr_t *        owner ;
@@ -41,9 +42,9 @@ bool iocp_mgr_item_free(iocp_item_t * item) ;
 bool iocp_mgr_item_ready(iocp_mgr_t * mgr , iocp_item_t * item) ;
 bool iocp_mgr_item_unready(iocp_mgr_t * mgr , iocp_item_t * item) ;
 
-bool iocp_mgr_add(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev) ;
-bool iocp_mgr_mod(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev) ;
-bool iocp_mgr_del(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev) ;
+bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev) ;
+bool iocp_mgr_mod(iocp_mgr_t * mgr , int fd , struct epoll_event * ev) ;
+bool iocp_mgr_del(iocp_mgr_t * mgr , int fd , struct epoll_event * ev) ;
 
 int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout) ;
 int iocp_mgr_retrieve(iocp_mgr_t * mgr , struct epoll_event * evs ,  int maxevents);

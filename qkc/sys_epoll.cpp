@@ -19,13 +19,12 @@ int epoll_create (int size)
 }
 
 iocp_mgr_t * fd_to_iocp(int fd) ;
-socket_t *   fd_to_socket(int fd) ;
 
 int epoll_ctl (int epfd, int op, int fd, struct epoll_event * ev)
 {
     iocp_mgr_t * mgr = NULL ;
     socket_t * sock = NULL ; 
-    if((mgr = fd_to_iocp(epfd)) == NULL || (sock = fd_to_socket(fd)) == NULL)
+    if((mgr = fd_to_iocp(epfd)) == NULL)
     {
         errno = EINVAL ;
         return -1 ;
@@ -33,11 +32,11 @@ int epoll_ctl (int epfd, int op, int fd, struct epoll_event * ev)
 
     bool result = false ;
     if(op == EPOLL_CTL_ADD)
-        result = iocp_mgr_add(mgr , sock , ev) ;
+        result = iocp_mgr_add(mgr , fd , ev) ;
     else if(op == EPOLL_CTL_DEL)
-        result = iocp_mgr_del(mgr , sock , ev) ;
+        result = iocp_mgr_del(mgr , fd , ev) ;
     else if(op == EPOLL_CTL_MOD)
-        result = iocp_mgr_mod(mgr , sock , ev) ;
+        result = iocp_mgr_mod(mgr , fd , ev) ;
         
     return (result == true ? 0 : -1) ;
 }
