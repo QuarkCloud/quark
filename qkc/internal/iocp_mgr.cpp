@@ -3,6 +3,7 @@
 #include "bitop.h"
 #include <errno.h>
 #include <wintf/wobj.h>
+#include <wintf/wcrt.h>
 #include <windows.h>
 #include <sys/socket.h>
 
@@ -217,7 +218,7 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
     }
     else if(wtype == WOBJ_PIPE)
     {
-        HANDLE handle = ::_get_osfhandle((int)wobj->handle) ;
+        HANDLE handle = (HANDLE)::_get_osfhandle((int)wobj->handle) ;
         if(handle == NULL || ::CreateIoCompletionPort(handle , mgr->iocp , 0 , 0) == NULL)
             return false ;        
     }
