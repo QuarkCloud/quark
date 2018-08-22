@@ -36,16 +36,16 @@ typedef struct __st_pipe{
 } pipe_t;
 
 typedef enum{
-    OVLP_VOID   =   0 ,
-    OVLP_INPUT  =   2 ,
-    OVLP_OUTPUT =   3 
-} ovlp_type_t ;
+    OVLP_PIPE_VOID   =   0 ,
+    OVLP_PIPE_INPUT  =   2 ,
+    OVLP_PIPE_OUTPUT =   3 
+} ovlp_pipe_type_t ;
 
 struct __st_pipe_ovlp
 {
     OVERLAPPED          ovlp ;
     int                 status ;
-    ovlp_type_t         type ;
+    ovlp_pipe_type_t    type ;
     pipe_t    *         owner ;
     volatile LONG       counter ;
 } ;

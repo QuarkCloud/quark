@@ -53,17 +53,17 @@ typedef struct __st_socket{
 } socket_t;
 
 typedef enum{
-    OVLP_VOID   =   0 ,
-    OVLP_ACCEPT =   1 ,
-    OVLP_INPUT  =   2 ,
-    OVLP_OUTPUT =   3 
-} ovlp_type_t ;
+    OVLP_SOCKET_VOID   =   0 ,
+    OVLP_SOCKET_ACCEPT =   1 ,
+    OVLP_SOCKET_INPUT  =   2 ,
+    OVLP_SOCKET_OUTPUT =   3 
+} ovlp_socket_type_t ;
 
 struct __st_socket_ovlp
 {
     OVERLAPPED          ovlp ;
     int                 status ;
-    ovlp_type_t         type ;
+    ovlp_socket_type_t  type ;
     socket_t    *       owner ;
     volatile LONG       counter ;
 } ;

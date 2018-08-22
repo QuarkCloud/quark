@@ -254,7 +254,7 @@ bool send_result_init(send_result_t * result)
         errno = ENOMEM ;
         return false ;
     }  
-    result->link.type = OVLP_OUTPUT ;
+    result->link.type = OVLP_SOCKET_OUTPUT ;
     return true ;
 }
 
@@ -302,7 +302,7 @@ void recv_result_free(recv_result_t * result)
 bool recv_result_init(recv_result_t * result) 
 {
     ::memset(result , 0 , sizeof(recv_result_t)) ;
-    result->link.type = OVLP_INPUT ;
+    result->link.type = OVLP_SOCKET_INPUT ;
     return true ;
 }
 
@@ -543,7 +543,7 @@ void accept_result_free(accept_result_t * result)
 bool accept_result_init(accept_result_t * result)
 {
     ::memset(result , 0 , sizeof(accept_result_t)) ;
-    result->link.type = OVLP_ACCEPT ;
+    result->link.type = OVLP_SOCKET_ACCEPT ;
     return true ;
 }
 

@@ -124,7 +124,7 @@ bool write_result_init(write_result_t * result)
         errno = ENOMEM ;
         return false ;
     }  
-    result->link.type = OVLP_OUTPUT ;
+    result->link.type = OVLP_PIPE_OUTPUT ;
     return true ;
 }
 
@@ -204,7 +204,7 @@ void read_result_free(read_result_t * result)
 bool read_result_init(read_result_t * result)
 {
     ::memset(result , 0 , sizeof(read_result_t)) ;
-    result->link.type = OVLP_INPUT ;
+    result->link.type = OVLP_PIPE_INPUT ;
     return true ;
 }
 

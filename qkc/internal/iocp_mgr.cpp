@@ -56,7 +56,6 @@ bool iocp_mgr_init(iocp_mgr_t * mgr)
     mgr->locker = ::CreateMutex(NULL , FALSE , NULL) ;
 
     rlist_init(&mgr->ready) ;
-    //rlist_init(&mgr->monitored) ;
 
     return true ;
 }
@@ -67,7 +66,6 @@ bool iocp_mgr_final(iocp_mgr_t * mgr)
         return false ;
    
     ::WaitForSingleObject(mgr->locker , INFINITE) ;
-    //iocp_mgr_items_free(&mgr->monitored) ;
     iocp_mgr_items_free(&mgr->ready) ;
 
     if(mgr->iocp != INVALID_HANDLE_VALUE)
@@ -100,10 +98,23 @@ bool iocp_mgr_item_free(iocp_item_t * item)
 {
     rlist_del(NULL , &item->link) ;
 
-    //socket_t * s = item->socket ;
-    //item->socket = NULL ;
-    //s->addition = NULL ;
-    //s->callback = NULL ;
+    int fd = item->fd ;
+    wobj_t * obj = ::wobj_get(fd) ;
+    if(obj == NULL)
+        return false ;
+
+    if(obj->type == WOBJ_SOCK)
+    {
+        socket_t * s = (socket_t *)obj->addition ;
+        s->addition = NULL ;
+        s->callback = NULL ;
+    }
+    else if(obj->type == WOBJ_PIPE)
+    {
+        pipe_t * p = (pipe_t *)obj->addition ;
+        p->addition = NULL ;
+        p->callback = NULL ;
+    }
     
     free(item) ;
     return true ;
@@ -352,30 +363,38 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
             return 0 ;
         }
 
-        ovlp_type_t type = ovlp->type ;
-        if(type == OVLP_INPUT)
+        if(item->type == IOCP_ITEM_SOCKET)
         {
-            if(bitop_in(events , EPOLLIN) == true)
+            ovlp_socket_type_t type = ovlp->type ;
+            if(type == OVLP_INPUT)
             {
-                //标记可读
-                new_occur |= EPOLLIN ;
+                if(bitop_in(events , EPOLLIN) == true)
+                {
+                    //标记可读
+                    new_occur |= EPOLLIN ;
+                }
+            }
+            else if(type == OVLP_OUTPUT)
+            {
+                if(bitop_in(events , EPOLLOUT) == true)
+                {
+                    //标记可读
+                    new_occur |= EPOLLOUT ;
+                }
+            }
+            else if(type == OVLP_ACCEPT)
+            {
+                if(bitop_in(events , EPOLLIN) == true)
+                {
+                    //标记可读
+                    new_occur |= EPOLLIN ;
+                }
             }
         }
-        else if(type == OVLP_OUTPUT)
+        else if(item->type == IOCP_ITEM_PIPE)
         {
-            if(bitop_in(events , EPOLLOUT) == true)
-            {
-                //标记可读
-                new_occur |= EPOLLOUT ;
-            }
-        }
-        else if(type == OVLP_ACCEPT)
-        {
-            if(bitop_in(events , EPOLLIN) == true)
-            {
-                //标记可读
-                new_occur |= EPOLLIN ;
-            }
+            ovlp_pipe_type_t type = ovlp->type ;
+            
         }
     }
     else
@@ -448,6 +467,42 @@ int iocp_socket_callback(socket_t * s , int evt , int result)
     else if(evt == kSocketRecv || evt == kSocketRecvFrom)
         iocp_process_event(events & EPOLLIN , result , new_occur) ;
     else if(evt == kBeforeSocketClose)
+        new_occur = 0 ;
+    item->occur = new_occur ;
+
+    if((events & EPOLLET) != 0)
+    {
+        //边缘触发，只在状态翻转时，执行操作
+        if(old_occur == 0 && new_occur != 0)
+            iocp_mgr_item_ready(item->owner , item) ;
+        else if(old_occur != 0 && new_occur == 0)
+            iocp_mgr_item_unready(item->owner , item) ;
+    }
+    else
+    {
+        if(new_occur != 0)
+            iocp_mgr_item_ready(item->owner , item) ;
+        else
+            iocp_mgr_item_unready(item->owner , item) ;
+    }
+
+    return 0 ;
+}
+
+int iocp_pipe_callback(pipe_t * p , int evt , int result) 
+{
+    if(p == NULL || p->addition == NULL)
+        return 0 ;
+
+    iocp_item_t * item = (iocp_item_t *)P->addition ;
+    uint32_t events = item->data.events ;
+    int old_occur = item->occur , new_occur = item->occur;
+
+    if(evt == kPipeWrite)
+        iocp_process_event(events & EPOLLOUT , result , new_occur) ;
+    else if(evt == kPipeRead)
+        iocp_process_event(events & EPOLLIN , result , new_occur) ;
+    else if(evt == kPipeBeforeClose)
         new_occur = 0 ;
     item->occur = new_occur ;
 
