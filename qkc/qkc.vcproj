@@ -473,6 +473,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\internal\iocp_item.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\internal\iocp_mgr.cpp"
 					>
 				</File>
@@ -884,6 +888,10 @@
 				</File>
 				<File
 					RelativePath=".\internal\intrin.h"
+					>
+				</File>
+				<File
+					RelativePath=".\internal\iocp_item.h"
 					>
 				</File>
 				<File

@@ -366,7 +366,7 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
         if(item->type == IOCP_ITEM_SOCKET)
         {
             ovlp_socket_type_t type = ovlp->type ;
-            if(type == OVLP_INPUT)
+            if(type == OVLP_SOCKET_INPUT)
             {
                 if(bitop_in(events , EPOLLIN) == true)
                 {
@@ -374,7 +374,7 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
                     new_occur |= EPOLLIN ;
                 }
             }
-            else if(type == OVLP_OUTPUT)
+            else if(type == OVLP_SOCKET_OUTPUT)
             {
                 if(bitop_in(events , EPOLLOUT) == true)
                 {
@@ -382,7 +382,7 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
                     new_occur |= EPOLLOUT ;
                 }
             }
-            else if(type == OVLP_ACCEPT)
+            else if(type == OVLP_SOCKET_ACCEPT)
             {
                 if(bitop_in(events , EPOLLIN) == true)
                 {
@@ -394,7 +394,22 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
         else if(item->type == IOCP_ITEM_PIPE)
         {
             ovlp_pipe_type_t type = ovlp->type ;
-            
+            if(type == OVLP_PIPE_INPUT)
+            {
+                if(bitop_in(events , EPOLLIN) == true)
+                {
+                    //标记可读
+                    new_occur |= EPOLLIN ;
+                }
+            }
+            else if(type == OVLP_PIPE_OUTPUT)
+            {
+                if(bitop_in(events , EPOLLOUT) == true)
+                {
+                    //标记可读
+                    new_occur |= EPOLLOUT ;
+                }
+            }            
         }
     }
     else
@@ -494,7 +509,7 @@ int iocp_pipe_callback(pipe_t * p , int evt , int result)
     if(p == NULL || p->addition == NULL)
         return 0 ;
 
-    iocp_item_t * item = (iocp_item_t *)P->addition ;
+    iocp_item_t * item = (iocp_item_t *)p->addition ;
     uint32_t events = item->data.events ;
     int old_occur = item->occur , new_occur = item->occur;
 
