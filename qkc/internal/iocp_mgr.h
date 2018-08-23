@@ -6,28 +6,11 @@
 #include <windows.h>
 #include <winsock2.h>
 #include "rlist.h"
-#include "fsocket.h"
-#include "fpipe.h"
+#include "iocp_item.h"
+//#include "fsocket.h"
+//#include "fpipe.h"
 
 __BEGIN_DECLS
-
-typedef struct __st_iocp_item iocp_item_t ;
-typedef struct __st_iocp_mgr iocp_mgr_t ;
-
-typedef enum{
-    IOCP_ITEM_UNKNOWN ,
-    IOCP_ITEM_SOCKET ,
-    IOCP_ITEM_PIPE 
-} iocp_item_type_t ;
-
-struct __st_iocp_item{
-    rlist_t             link ;
-    int                 fd ;
-    iocp_item_type_t    type ;      //判断哪种类型的item
-    struct epoll_event  data ;
-    uint32_t            occur ;     //已经触发的事件
-    iocp_mgr_t *        owner ;
-};
 
 struct __st_iocp_mgr{
     int     epfd ;
