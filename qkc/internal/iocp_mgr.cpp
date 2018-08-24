@@ -1,5 +1,6 @@
 
 #include "iocp_mgr.h"
+#include "iocp_item.h"
 #include "bitop.h"
 #include <errno.h>
 #include <wintf/wobj.h>

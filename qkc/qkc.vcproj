@@ -493,6 +493,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\internal\sockopt.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\internal\string_util.cpp"
 					>
 				</File>
@@ -912,6 +916,10 @@
 				</File>
 				<File
 					RelativePath=".\internal\rxtree.h"
+					>
+				</File>
+				<File
+					RelativePath=".\internal\sockopt.h"
 					>
 				</File>
 				<File
