@@ -7,6 +7,8 @@
 #include <wintf/wcrt.h>
 #include <windows.h>
 #include <sys/socket.h>
+#include "fsocket.h"
+#include "fpipe.h"
 
 iocp_mgr_t * iocp_mgr_new()
 {
@@ -98,26 +100,11 @@ bool iocp_mgr_items_free(rlist_t * rlist)
 bool iocp_mgr_item_free(iocp_item_t * item) 
 {
     rlist_del(NULL , &item->link) ;
-
-    int fd = item->fd ;
-    wobj_t * obj = ::wobj_get(fd) ;
-    if(obj == NULL)
-        return false ;
-
-    if(obj->type == WOBJ_SOCK)
-    {
-        socket_t * s = (socket_t *)obj->addition ;
-        s->addition = NULL ;
-        s->callback = NULL ;
-    }
-    else if(obj->type == WOBJ_PIPE)
-    {
-        pipe_t * p = (pipe_t *)obj->addition ;
-        p->addition = NULL ;
-        p->callback = NULL ;
-    }
-    
-    free(item) ;
+    iocp_item_free * pfn_free = item->free ;
+    if(pfn_free != NULL)
+        pfn_free(item) ;
+    else
+        free(item) ;
     return true ;
 }
 
@@ -132,8 +119,7 @@ bool iocp_mgr_item_ready(iocp_mgr_t * mgr , iocp_item_t * item)
     {
         rlist_add_tail(&mgr->ready , &item->link) ;
         mgr->ready_count++ ;
-    }
-    
+    }    
 
     ::ReleaseMutex(mgr->locker) ;
     return true ;
@@ -206,95 +192,81 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
     {
         socket_t * s= (socket_t *)wobj->addition ;
         s->addition = item ;
-        s->callback = iocp_socket_callback ;
+
+        item->type = IOCP_ITEM_SOCKET ;
+        item->callback = iocp_socket_callback ;
+        item->free = iocp_socket_free ;
+        item->addition = s ;
 
         //绑定到iocp中
-        if(::CreateIoCompletionPort((HANDLE)s->socket , mgr->iocp , 0 , 0) == NULL)
-            return false ;
-
-        if((ev->events & EPOLLIN) == EPOLLIN)
+        if(::CreateIoCompletionPort((HANDLE)s->socket , mgr->iocp , 0 , 0) != NULL)
         {
-            if(s->stage == SOCKET_STAGE_LISTEN)
-                socket_start_accept(s->acceptor) ;
-            else if(s->stage == SOCKET_STAGE_CONNECT && s->type == SOCK_STREAM)
-                ::socket_start_recv(s->receiver) ;
-            else if(s->type == SOCK_DGRAM)
+            if((ev->events & EPOLLIN) == EPOLLIN)
             {
-                struct sockaddr addr ;
-                int addr_len = sizeof(struct sockaddr) ;
-                ::socket_start_recvfrom(s->receiver , 0 , &addr , &addr_len) ;
+                if(s->stage == SOCKET_STAGE_LISTEN)
+                    socket_start_accept(s->acceptor) ;
+                else if(s->stage == SOCKET_STAGE_CONNECT && s->type == SOCK_STREAM)
+                    ::socket_start_recv(s->receiver) ;
+                else if(s->type == SOCK_DGRAM)
+                {
+                    struct sockaddr addr ;
+                    int addr_len = sizeof(struct sockaddr) ;
+                    ::socket_start_recvfrom(s->receiver , 0 , &addr , &addr_len) ;
+                }
             }
-        }
 
-        return true ;
+            return true ;
+        }
     }
     else if(wtype == WOBJ_PIPE)
     {
-        HANDLE handle = (HANDLE)::_get_osfhandle((int)wobj->handle) ;
-        if(handle == NULL || ::CreateIoCompletionPort(handle , mgr->iocp , 0 , 0) == NULL)
-            return false ;        
+        pipe_t * p = (pipe_t *)wobj->addition ;
+        p->addition = item ;
+
+        item->type = IOCP_ITEM_PIPE ;
+        item->callback = iocp_pipe_callback ;
+        item->free = iocp_pipe_free ;
+        item->addition = p ;
+
+        if(::CreateIoCompletionPort(p->handle , mgr->iocp , 0 , 0) != NULL)
+        {
+            if((ev->events & EPOLLIN) == EPOLLIN)
+            {
+                pipe_start_read(p->reader) ;
+            }
+
+            return true ;
+        }
     }
 
-
+    ::free(item) ;
     return false ;
 }
 
 bool iocp_mgr_mod(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
 {
-    return false ;
-}
-
-bool iocp_mgr_del(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
-{
-    return false ;
-}
-/***
-bool iocp_mgr_add(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
-{
-    if(mgr == NULL || s == NULL || ev == NULL)
+    if(mgr == NULL)
         return false ;
 
-    iocp_item_t * item = (iocp_item_t *)::malloc(sizeof(iocp_item_t)) ;
-    if(item == NULL)
-        return false ;
-    ::memset(item , 0 , sizeof(iocp_item_t)) ;
-
-    item->socket = s ;
-    item->owner = mgr ;
-    rlist_init(&item->link) ;
-    ::memcpy(&item->data , ev , sizeof(struct epoll_event)) ;
-
-    s->addition = item ;
-    s->callback = iocp_socket_callback ;
-
-    //绑定到iocp中
-    if(::CreateIoCompletionPort((HANDLE)s->socket , mgr->iocp , 0 , 0) == NULL)
+    wobj_t * wobj = ::wobj_get(fd) ;
+    if(wobj == NULL || wobj->addition == NULL)
         return false ;
 
-    if((ev->events & EPOLLIN) == EPOLLIN)
-    {
-        if(s->stage == SOCKET_STAGE_LISTEN)
-            socket_start_accept(s->acceptor) ;
-        else if(s->stage == SOCKET_STAGE_CONNECT && s->type == SOCK_STREAM)
-            ::socket_start_recv(s->receiver) ;
-        else if(s->type == SOCK_DGRAM)
-        {
-            struct sockaddr addr ;
-            int addr_len = sizeof(struct sockaddr) ;
-            ::socket_start_recvfrom(s->receiver , 0 , &addr , &addr_len) ;
-        }
+    iocp_item_t * item = NULL ;
+    if(wobj->type == WOBJ_SOCK)
+    {   
+        socket_t * s = (socket_t *)wobj->addition ;
+        item = (iocp_item_t *)s->addition ;
     }
-
-    return true ;
-}
-
-bool iocp_mgr_mod(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
-{
-    if(mgr == NULL || s == NULL || ev == NULL || s->addition == NULL)
+    else if(wobj->type == WOBJ_PIPE)
+    {
+        pipe_t * p = (pipe_t *)wobj->addition ;
+        item = (iocp_item_t *)p->addition ;
+    }
+    else 
         return false ;
 
-    iocp_item_t * item = (iocp_item_t *)s->addition ;
-    if(item->socket != s)
+    if(item == NULL || item->fd != fd)
         return false ;
 
     ::WaitForSingleObject(mgr->locker , INFINITE) ;
@@ -304,6 +276,32 @@ bool iocp_mgr_mod(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
     
     return true ;
 }
+
+bool iocp_mgr_del(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
+{
+    if(mgr == NULL)
+        return false ;
+
+    wobj_t * wobj = ::wobj_get(fd) ;
+    if(wobj == NULL || wobj->addition == NULL)
+        return false ;
+
+    iocp_item_t * item = NULL ;
+
+
+    iocp_item_t * item = (iocp_item_t *)s->addition ;
+    s->addition = NULL ;
+    s->callback = NULL ;
+    item->socket = NULL ;
+
+    ::WaitForSingleObject(mgr->locker , INFINITE) ;
+    rlist_del(NULL , &item->link) ;
+    iocp_mgr_item_free(item) ;
+    ::ReleaseMutex(mgr->locker) ;
+
+    return true ;
+}
+/***
 
 bool iocp_mgr_del(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
 {

@@ -7,8 +7,6 @@
 #include <winsock2.h>
 #include "rlist.h"
 #include "iocp_item.h"
-//#include "fsocket.h"
-//#include "fpipe.h"
 
 __BEGIN_DECLS
 
@@ -39,8 +37,8 @@ bool iocp_mgr_del(iocp_mgr_t * mgr , int fd , struct epoll_event * ev) ;
 int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout) ;
 int iocp_mgr_retrieve(iocp_mgr_t * mgr , struct epoll_event * evs ,  int maxevents);
 
-int iocp_socket_callback(socket_t * s , int evt , int result) ;
-int iocp_pipe_callback(pipe_t * p , int evt , int result) ;
+//int iocp_socket_callback(socket_t * s , int evt , int result) ;
+//int iocp_pipe_callback(pipe_t * p , int evt , int result) ;
 
 __END_DECLS
 

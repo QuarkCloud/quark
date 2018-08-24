@@ -7,6 +7,7 @@
 #include <windows.h>
 #include <winsock2.h>
 #include "ring_buffer.h"
+#include "iocp_item.h"
 
 __BEGIN_DECLS
 
@@ -35,7 +36,10 @@ typedef int (*socket_callback_t)(socket_t * s , int evt , int result) ;
 #define kSocketRecv             5
 #define kSocketRecvFrom         6
 
-void socket_callback(socket_t *s , int evt , int result) ;
+//void socket_callback(socket_t *s , int evt , int result) ;
+//void iocp_socket_callback(socket_t *s , int evt , int result) ;
+int iocp_socket_callback(iocp_item_t * item , int evt , int result) ;
+void iocp_socket_free(iocp_item_t * item) ;
 
 typedef struct __st_socket{
     SOCKET socket ;
@@ -49,7 +53,7 @@ typedef struct __st_socket{
     recv_result_t   * receiver ;
 
     void * addition ;               //附加的信息
-    socket_callback_t callback ;
+//    socket_callback_t callback ;
 } socket_t;
 
 typedef enum{

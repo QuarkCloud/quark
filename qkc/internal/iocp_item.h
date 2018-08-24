@@ -24,6 +24,7 @@ typedef enum{
 } ovlp_type_t ;
 
 typedef int (*iocp_item_callback_t)(iocp_item_t * item , int evt , int result) ;
+typedef void (*iocp_item_free)(iocp_item_t * item) ;
 
 struct __st_iocp_item{
     rlist_t                 link ;
@@ -33,6 +34,7 @@ struct __st_iocp_item{
     uint32_t                occur ;     //已经触发的事件
     iocp_mgr_t *            owner ;
     iocp_item_callback_t    callback ;
+    iocp_item_free          free ;
     void *                  addition ;
 };
 
@@ -42,7 +44,7 @@ typedef struct __st_iocp_ovlp
     int                 status ;
     ovlp_type_t         type ;
     volatile LONG       counter ;
-    iocp_item_t        *owner ;
+    iocp_item_t *       owner ;
 } iocp_ovlp_t ;
 
 

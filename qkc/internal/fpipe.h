@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <windows.h>
 #include "ring_buffer.h"
+#include "iocp_item.h"
 
 __BEGIN_DECLS
 
@@ -20,26 +21,23 @@ typedef int (*pipe_callback_t)(pipe_t * pipe , int evt , int result) ;
 #define kPipeRead             3
 
 
-void pipe_callback(pipe_t *pipe , int evt , int result) ;
+//void pipe_callback(pipe_t *pipe , int evt , int result) ;
+int iocp_socket_callback(iocp_item_t * item , int evt , int result) ;
+void iocp_socket_free(iocp_item_t * item) ;
+
 
 typedef struct __st_pipe{
-    HANDLE rhandle ;
-    HANDLE whandle ;
+    HANDLE handle ;
     int8_t noblock :1;            //默认阻塞，是一个很重要的标识!!!，其他貌似没有必要。
 
     HANDLE            locker ;    //创建销毁保护
-    write_result_t   *writer ;
-    read_result_t   * reader ;
+    write_result_t *  writer ;
+    read_result_t *   reader ;
 
     void * addition ;               //附加的信息
-    pipe_callback_t callback ;
+//    pipe_callback_t callback ;
 } pipe_t;
 
-typedef enum{
-    OVLP_PIPE_VOID   =   0 ,
-    OVLP_PIPE_INPUT  =   2 ,
-    OVLP_PIPE_OUTPUT =   3 
-} ovlp_pipe_type_t ;
 
 struct __st_pipe_ovlp
 {
