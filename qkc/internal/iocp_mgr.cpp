@@ -100,7 +100,7 @@ bool iocp_mgr_items_free(rlist_t * rlist)
 bool iocp_mgr_item_free(iocp_item_t * item) 
 {
     rlist_del(NULL , &item->link) ;
-    iocp_item_free * pfn_free = item->free ;
+    iocp_item_free pfn_free = item->free ;
     if(pfn_free != NULL)
         pfn_free(item) ;
     else
@@ -263,8 +263,6 @@ bool iocp_mgr_mod(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
         pipe_t * p = (pipe_t *)wobj->addition ;
         item = (iocp_item_t *)p->addition ;
     }
-    else 
-        return false ;
 
     if(item == NULL || item->fd != fd)
         return false ;
@@ -287,31 +285,26 @@ bool iocp_mgr_del(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
         return false ;
 
     iocp_item_t * item = NULL ;
+    if(wobj->type == WOBJ_SOCK)
+    {   
+        socket_t * s = (socket_t *)wobj->addition ;
+        item = (iocp_item_t *)s->addition ;
+        s->addition = NULL ;
+    }
+    else if(wobj->type == WOBJ_PIPE)
+    {
+        pipe_t * p = (pipe_t *)wobj->addition ;
+        item = (iocp_item_t *)p->addition ;
+        p->addition = NULL ;
+    }
 
+    if(item == NULL)
+        return true ;
 
-    iocp_item_t * item = (iocp_item_t *)s->addition ;
-    s->addition = NULL ;
-    s->callback = NULL ;
-    item->socket = NULL ;
-
-    ::WaitForSingleObject(mgr->locker , INFINITE) ;
-    rlist_del(NULL , &item->link) ;
-    iocp_mgr_item_free(item) ;
-    ::ReleaseMutex(mgr->locker) ;
-
-    return true ;
-}
-/***
-
-bool iocp_mgr_del(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
-{
-    if(mgr == NULL || s == NULL || ev == NULL || s->addition == NULL)
-        return false ;
-
-    iocp_item_t * item = (iocp_item_t *)s->addition ;
-    s->addition = NULL ;
-    s->callback = NULL ;
-    item->socket = NULL ;
+    item->addition = NULL ;
+    item->callback = NULL ;
+    item->free = NULL ;
+    item->fd = -1 ;
 
     ::WaitForSingleObject(mgr->locker , INFINITE) ;
     rlist_del(NULL , &item->link) ;
@@ -320,7 +313,6 @@ bool iocp_mgr_del(iocp_mgr_t * mgr , socket_t * s , struct epoll_event * ev)
 
     return true ;
 }
-*/
 
 int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout) 
 {
@@ -339,11 +331,8 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
         return -1 ;
     }
 
-    socket_ovlp_t * ovlp = (socket_ovlp_t *)overlapped ;
-    socket_t * owner = (ovlp == NULL) ? NULL : ovlp->owner ;
-    iocp_item_t * item = NULL ;
-    if(owner != NULL)
-        item = (iocp_item_t *)owner->addition ;
+    iocp_ovlp_t * ovlp = (iocp_ovlp_t *)overlapped ;
+    iocp_item_t * item = (ovlp == NULL) ? NULL : ovlp->owner ;
 
     uint32_t old_occur = 0 , new_occur = 0 ;
     uint32_t events = 0 ;
@@ -362,53 +351,22 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
             return 0 ;
         }
 
-        if(item->type == IOCP_ITEM_SOCKET)
+        ovlp_type_t type = ovlp->type ;
+        if(type == OVLP_INPUT)
         {
-            ovlp_socket_type_t type = ovlp->type ;
-            if(type == OVLP_SOCKET_INPUT)
+            if(bitop_in(events , EPOLLIN) == true)
             {
-                if(bitop_in(events , EPOLLIN) == true)
-                {
-                    //标记可读
-                    new_occur |= EPOLLIN ;
-                }
-            }
-            else if(type == OVLP_SOCKET_OUTPUT)
-            {
-                if(bitop_in(events , EPOLLOUT) == true)
-                {
-                    //标记可读
-                    new_occur |= EPOLLOUT ;
-                }
-            }
-            else if(type == OVLP_SOCKET_ACCEPT)
-            {
-                if(bitop_in(events , EPOLLIN) == true)
-                {
-                    //标记可读
-                    new_occur |= EPOLLIN ;
-                }
-            }
+                //标记可读
+                new_occur |= EPOLLIN ;
+            }        
         }
-        else if(item->type == IOCP_ITEM_PIPE)
+        else if(type == OVLP_OUTPUT)
         {
-            ovlp_pipe_type_t type = ovlp->type ;
-            if(type == OVLP_PIPE_INPUT)
+            if(bitop_in(events , EPOLLOUT) == true)
             {
-                if(bitop_in(events , EPOLLIN) == true)
-                {
-                    //标记可读
-                    new_occur |= EPOLLIN ;
-                }
-            }
-            else if(type == OVLP_PIPE_OUTPUT)
-            {
-                if(bitop_in(events , EPOLLOUT) == true)
-                {
-                    //标记可读
-                    new_occur |= EPOLLOUT ;
-                }
-            }            
+                //标记可写
+                new_occur |= EPOLLOUT ;
+            }        
         }
     }
     else
@@ -418,9 +376,10 @@ int iocp_mgr_wait(iocp_mgr_t * mgr , int timeout)
             new_occur |= EPOLLERR ;
         }        
     }
+
     bitop_set(item->occur , new_occur) ;
     new_occur = item->occur ;
-    socket_ovlp_unlock(ovlp) ;
+    iocp_ovlp_unlock(ovlp) ;
 
     bool is_et = bitop_in(events , EPOLLET) ;
 
@@ -465,6 +424,7 @@ void iocp_process_event(int events , int result , int& occur)
     occur = (occur & (~events)) | now_occur ;
 }
 
+/**
 int iocp_socket_callback(socket_t * s , int evt , int result) 
 {
     if(s == NULL || s->addition == NULL)
@@ -538,4 +498,5 @@ int iocp_pipe_callback(pipe_t * p , int evt , int result)
 
     return 0 ;
 }
+*/
 

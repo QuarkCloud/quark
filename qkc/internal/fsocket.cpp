@@ -1,19 +1,11 @@
 
 #include "fsocket.h"
+#include "iocp_mgr.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-
-void socket_callback(socket_t *s , int evt , int result) 
-{
-    if(s == NULL || s->callback == NULL)
-        return ;
-
-    socket_callback_t callback = s->callback ;
-    callback(s , evt , result) ;
-}
 
 
 bool socket_init(socket_t * s) ;
@@ -56,7 +48,9 @@ bool socket_final(socket_t * s)
     if(s->locker == INVALID_HANDLE_VALUE)
         return false ;
 
-    socket_callback(s , kBeforeSocketClose , 0) ;
+    iocp_item_t * item = (iocp_item_t *)s->addition ;
+    if(item != NULL)
+        iocp_socket_callback(item , IOCP_EVENT_CLOSE , 0) ;
 
     if(::WaitForSingleObject(s->locker , INFINITE) != WAIT_OBJECT_0)
         return false ;
@@ -128,18 +122,23 @@ bool send_result_init(send_result_t * result)
         errno = ENOMEM ;
         return false ;
     }  
-    result->link.type = OVLP_SOCKET_OUTPUT ;
+    result->link.type = OVLP_OUTPUT ;
     return true ;
 }
 
 bool send_result_final(send_result_t * result)
 {
-    if(socket_ovlp_lock(&result->link) == false)
+    if(iocp_ovlp_lock(&result->link) == false)
         return false ;
 
     DWORD bytes_transfer = 0 , flags = 0 ;
-    ::_imp_WSAGetOverlappedResult(result->link.owner->socket , &result->link.ovlp , & bytes_transfer , TRUE , &flags) ;
-    socket_ovlp_unlock(&result->link) ;
+    iocp_item_t * item = (iocp_item_t *)result->link.owner ;
+    if(item == NULL || item->addition == NULL)
+        return false ;
+    socket_t * s = (socket_t *)item->addition ;
+
+    ::_imp_WSAGetOverlappedResult(s->socket , &result->link.ovlp , & bytes_transfer , TRUE , &flags) ;
+    iocp_ovlp_unlock(&result->link) ;
     return true ;
 }
 
@@ -176,32 +175,40 @@ void recv_result_free(recv_result_t * result)
 bool recv_result_init(recv_result_t * result) 
 {
     ::memset(result , 0 , sizeof(recv_result_t)) ;
-    result->link.type = OVLP_SOCKET_INPUT ;
+    result->link.type = OVLP_INPUT ;
     return true ;
 }
 
 bool recv_result_final(recv_result_t * result) 
 {
-    if(socket_ovlp_lock(&result->link) == false)
+    if(iocp_ovlp_lock(&result->link) == false)
+        return false ;
+
+    iocp_item_t * item = (iocp_item_t *)result->link.owner ;
+    if(item == NULL || item->addition == NULL)
+        return false ;
+
+    socket_t * s = (socket_t *)item->addition ;
+    if(s->socket == NULL)
         return false ;
 
     DWORD bytes_transfer = 0 , flags = 0 ;
-    ::_imp_WSAGetOverlappedResult(result->link.owner->socket , &result->link.ovlp , & bytes_transfer , TRUE , &flags) ;
-    socket_ovlp_unlock(&result->link) ;
+    ::_imp_WSAGetOverlappedResult(s->socket , &result->link.ovlp , & bytes_transfer , TRUE , &flags) ;
+    iocp_ovlp_unlock(&result->link) ;
     return true ;
 }
 
 bool socket_send(send_result_t * result , int flags) 
 {
     //数据已经准备好了，需要判断下，是否在发送中。如果已经在发送中，则退出
-    if(socket_ovlp_lock(&result->link) == false)
+    if(iocp_ovlp_lock(&result->link) == false)
         return false ;
 
     char * wbuf = NULL ;
     size_t wsize = 0 ;
     if(ring_buffer_refer_stream(&result->ring_buffer , wbuf , wsize) == false || wbuf == NULL || wsize == 0)
     {
-        socket_ovlp_unlock(&result->link) ;
+        iocp_ovlp_unlock(&result->link) ;
         return false ;
     }
 
@@ -209,8 +216,12 @@ bool socket_send(send_result_t * result , int flags)
 
     result->data.buf = wbuf ;
     result->data.len = wsize ;
-
     DWORD sent_bytes = 0 ;
+
+    iocp_item_t * item = (iocp_item_t *)result->link.owner ;
+    if(item == NULL || item->addition == NULL)
+        return false ;
+
     int status = ::_imp_WSASend(result->link.owner->socket  , &result->data , 1 , &sent_bytes , 0 , &result->link.ovlp , NULL) ;
     if(status != 0)
     {
@@ -440,5 +451,53 @@ bool accept_result_final(accept_result_t * result)
     socket_ovlp_unlock(&result->link) ;
 
     return true ;
+}
+
+int iocp_socket_callback(iocp_item_t * item , int evt , int result)
+{
+    if(item == NULL || item->addition == NULL)
+        return -1 ;
+
+    socket_t * s = (socket_t *)item->addition ;
+    uint32_t events = item->data.events ;
+    int old_occur = item->occur , new_occur = item->occur;
+
+    if(evt == kSocketConnect)
+        iocp_process_event(events & EPOLLERR , result , new_occur) ;
+    else if(evt == kSocketSend || evt == kSocketSendTo)
+        iocp_process_event(events & EPOLLOUT , result , new_occur) ;
+    else if(evt == kSocketRecv || evt == kSocketRecvFrom)
+        iocp_process_event(events & EPOLLIN , result , new_occur) ;
+    else if(evt == kSocketBeforeClose)
+        new_occur = 0 ;
+    item->occur = new_occur ;
+
+    if((events & EPOLLET) != 0)
+    {
+        //边缘触发，只在状态翻转时，执行操作
+        if(old_occur == 0 && new_occur != 0)
+            iocp_mgr_item_ready(item->owner , item) ;
+        else if(old_occur != 0 && new_occur == 0)
+            iocp_mgr_item_unready(item->owner , item) ;
+    }
+    else
+    {
+        if(new_occur != 0)
+            iocp_mgr_item_ready(item->owner , item) ;
+        else
+            iocp_mgr_item_unready(item->owner , item) ;
+    }
+
+    return 0 ;
+}
+
+void iocp_socket_free(iocp_item_t * item)
+{
+    if(item != NULL && item->addition != NULL)
+    {
+        socket_t * s = (socket_t *)item->addition ;
+        item->addition = NULL ;
+        socket_free(s) ;
+    }
 }
 

@@ -16,6 +16,12 @@ typedef enum{
     IOCP_ITEM_SOCKET ,
     IOCP_ITEM_PIPE 
 } iocp_item_type_t ;
+typedef enum{
+    IOCP_EVENT_OPEN     = 1 ,
+    IOCP_EVENT_CLOSE    = 2 ,
+    IOCP_EVENT_READ     = 3 ,
+    IOCP_EVENT_WRITE    = 4 ,
+} iocp_event_t;
 
 typedef enum{
     OVLP_VOID   =   0 ,
@@ -24,7 +30,7 @@ typedef enum{
 } ovlp_type_t ;
 
 typedef int (*iocp_item_callback_t)(iocp_item_t * item , int evt , int result) ;
-typedef void (*iocp_item_free)(iocp_item_t * item) ;
+typedef void (*iocp_item_free_t)(iocp_item_t * item) ;
 
 struct __st_iocp_item{
     rlist_t                 link ;
@@ -34,7 +40,7 @@ struct __st_iocp_item{
     uint32_t                occur ;     //已经触发的事件
     iocp_mgr_t *            owner ;
     iocp_item_callback_t    callback ;
-    iocp_item_free          free ;
+    iocp_item_free_t        free ;
     void *                  addition ;
 };
 
@@ -46,6 +52,11 @@ typedef struct __st_iocp_ovlp
     volatile LONG       counter ;
     iocp_item_t *       owner ;
 } iocp_ovlp_t ;
+
+bool iocp_ovlp_lock(iocp_ovlp_t * ovlp) ;
+bool iocp_ovlp_unlock(iocp_ovlp_t * ovlp) ;
+int iocp_ovlp_counter(iocp_ovlp_t * ovlp) ;
+
 
 
 __END_DECLS

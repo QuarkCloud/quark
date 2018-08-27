@@ -27,17 +27,6 @@ typedef struct __st_recv_result     recv_result_t ;
 typedef struct __st_accept_result   accept_result_t;
 typedef struct __st_socket          socket_t;
 
-typedef int (*socket_callback_t)(socket_t * s , int evt , int result) ;
-
-#define kBeforeSocketClose      1 
-#define kSocketConnect          2
-#define kSocketSend             3
-#define kSocketSendTo           4
-#define kSocketRecv             5
-#define kSocketRecvFrom         6
-
-//void socket_callback(socket_t *s , int evt , int result) ;
-//void iocp_socket_callback(socket_t *s , int evt , int result) ;
 int iocp_socket_callback(iocp_item_t * item , int evt , int result) ;
 void iocp_socket_free(iocp_item_t * item) ;
 
@@ -53,24 +42,7 @@ typedef struct __st_socket{
     recv_result_t   * receiver ;
 
     void * addition ;               //附加的信息
-//    socket_callback_t callback ;
 } socket_t;
-
-typedef enum{
-    OVLP_SOCKET_VOID   =   0 ,
-    OVLP_SOCKET_ACCEPT =   1 ,
-    OVLP_SOCKET_INPUT  =   2 ,
-    OVLP_SOCKET_OUTPUT =   3 
-} ovlp_socket_type_t ;
-
-struct __st_socket_ovlp
-{
-    OVERLAPPED          ovlp ;
-    int                 status ;
-    ovlp_socket_type_t  type ;
-    socket_t    *       owner ;
-    volatile LONG       counter ;
-} ;
 
 /**
     2018-04-19
@@ -83,20 +55,20 @@ struct __st_socket_ovlp
 */
 #define SNDBUFSIZE      8192
 struct __st_send_result{
-    socket_ovlp_t   link ;
+    iocp_ovlp_t   link ;
 
     WSABUF          data ;
     ring_buffer_t   ring_buffer ;
 };
 
 struct __st_recv_result{
-    socket_ovlp_t   link ;
+    iocp_ovlp_t   link ;
     WSABUF data ;
 };
 
 #define ACCEPT_ADDRESS_SIZE 256
 struct __st_accept_result{
-    socket_ovlp_t   link ;
+    iocp_ovlp_t   link ;
 
     SOCKET insocket ;           //接收到客户端连接请求的套接字   
     char address[ACCEPT_ADDRESS_SIZE] ;
@@ -125,10 +97,6 @@ bool recv_result_final(recv_result_t * result) ;
 
 bool socket_start_recv(recv_result_t * result) ;
 bool socket_start_recvfrom(recv_result_t * result , int flags , struct sockaddr * addr , int * addr_len) ;
-
-bool socket_ovlp_lock(socket_ovlp_t * ovlp) ;
-bool socket_ovlp_unlock(socket_ovlp_t * ovlp) ;
-int socket_ovlp_counter(socket_ovlp_t * ovlp) ;
 
 accept_result_t * accept_result_new() ;
 void accept_result_free(accept_result_t * result) ;
