@@ -107,6 +107,8 @@ bool accept_result_final(accept_result_t * result) ;
 bool socket_accept(accept_result_t * result , SOCKET& new_socket , struct sockaddr * local , struct sockaddr * remote) ;
 bool socket_start_accept(accept_result_t * result) ;
 
+SOCKET socket_from_ovlp(iocp_ovlp_t * ovlp) ;
+
 
 __END_DECLS
 

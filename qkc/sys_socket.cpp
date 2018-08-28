@@ -74,7 +74,7 @@ int connect(int fd , const struct sockaddr * addr , socklen_t len)
     s->stage = SOCKET_STAGE_CONNECT ;
 
     int result = ::_imp_connect(s->socket , addr , (int)len) ;
-    socket_callback(s , kSocketConnect , 0) ;
+    iocp_socket_callback((iocp_item_t *)s->addition , IOCP_EVENT_OPEN , 0) ;
     return result ;
 }
 
@@ -103,7 +103,7 @@ ssize_t send(int fd , const void * buf , size_t n , int flags)
         if((sender = send_result_new()) == NULL)
             return -1 ;
 
-        sender->link.owner = data ;
+        sender->link.owner->addition = data ;
         data->sender = sender ;
     }
 
@@ -116,7 +116,7 @@ ssize_t send(int fd , const void * buf , size_t n , int flags)
     if(copy_size == 0)
     {
         errno = EAGAIN ;
-        socket_callback(sender->link.owner , kSocketSend , errno) ;
+        iocp_socket_callback(sender->link.owner , IOCP_EVENT_WRITE , errno) ;
         return -1 ;
     }
     else
@@ -139,7 +139,7 @@ ssize_t recv(int fd , void *buf , size_t n , int flags)
     {
         if((receiver = recv_result_new()) == NULL)
             return -1 ;
-        receiver->link.owner = data ;
+        receiver->link.owner->addition = data ;
         data->receiver = receiver ;
     }
 
@@ -163,7 +163,7 @@ ssize_t sendto(int fd , const void *buf , size_t n , int flags , const struct so
         if((sender = send_result_new()) == NULL)
             return -1 ;
 
-        sender->link.owner = data ;
+        sender->link.owner->addition = data ;
         data->sender = sender ;
     }
 
@@ -176,7 +176,7 @@ ssize_t sendto(int fd , const void *buf , size_t n , int flags , const struct so
     if(copy_size == 0)
     {
         errno = EAGAIN ;
-        socket_callback(sender->link.owner , kSocketSend , errno) ;
+        iocp_socket_callback(sender->link.owner , IOCP_EVENT_WRITE , errno) ;
         return -1 ;
     }
     else
@@ -199,7 +199,7 @@ ssize_t recvfrom(int fd , void * buf , size_t n , int flags , struct sockaddr * 
     {
         if((receiver = recv_result_new()) == NULL)
             return -1 ;
-        receiver->link.owner = data ;
+        receiver->link.owner->addition = data ;
         data->receiver = receiver ;
     }
 
@@ -238,7 +238,7 @@ int listen(int fd , int n)
     accept_result_t * result = accept_result_new() ;
     if(result != NULL)
     {
-        result->link.owner = data ;
+        result->link.owner->addition = data ;
         data->acceptor = result ;
     }
 

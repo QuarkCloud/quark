@@ -15,16 +15,8 @@ typedef struct __st_write_result    write_result_t ;
 typedef struct __st_read_result     read_result_t ;
 typedef struct __st_pipe            pipe_t;
 
-typedef int (*pipe_callback_t)(pipe_t * pipe , int evt , int result) ;
-#define kPipeBeforeClose      1 
-#define kPipeWrite            2
-#define kPipeRead             3
-
-
-//void pipe_callback(pipe_t *pipe , int evt , int result) ;
-int iocp_socket_callback(iocp_item_t * item , int evt , int result) ;
-void iocp_socket_free(iocp_item_t * item) ;
-
+int iocp_pipe_callback(iocp_item_t * item , int evt , int result) ;
+void iocp_pipe_free(iocp_item_t * item) ;
 
 typedef struct __st_pipe{
     HANDLE handle ;
@@ -35,27 +27,17 @@ typedef struct __st_pipe{
     read_result_t *   reader ;
 
     void * addition ;               //附加的信息
-//    pipe_callback_t callback ;
 } pipe_t;
 
 
-struct __st_pipe_ovlp
-{
-    OVERLAPPED          ovlp ;
-    int                 status ;
-    ovlp_pipe_type_t    type ;
-    pipe_t    *         owner ;
-    volatile LONG       counter ;
-} ;
-
 #define PIPEBUFSIZE      8192
 struct __st_write_result{
-    pipe_ovlp_t   link ;
+    iocp_ovlp_t     link ;
     ring_buffer_t   ring_buffer ;
 };
 
 struct __st_read_result{
-    pipe_ovlp_t   link ;
+    iocp_ovlp_t   link ;
 };
 
 
@@ -77,10 +59,6 @@ bool read_result_init(read_result_t * result) ;
 bool read_result_final(read_result_t * result) ;
 
 bool pipe_start_read(read_result_t * result) ;
-
-bool pipe_ovlp_lock(pipe_ovlp_t * ovlp) ;
-bool pipe_ovlp_unlock(pipe_ovlp_t * ovlp) ;
-int pipe_ovlp_counter(pipe_ovlp_t * ovlp) ;
 
 
 __END_DECLS

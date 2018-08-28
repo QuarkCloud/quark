@@ -1,17 +1,49 @@
 
 #include "fpipe.h"
+#include "iocp_mgr.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
 
-void pipe_callback(pipe_t *pipe , int evt , int result)
+int iocp_pipe_callback(iocp_item_t * item , int evt , int result)
 {
-    if(pipe == NULL || pipe->callback == NULL)
-        return ;
+    if(item == NULL || item->addition == NULL)
+        return 0 ;
 
-    pipe_callback_t callback = pipe->callback ;
-    callback(pipe , evt , result) ;
+    uint32_t events = item->data.events ;
+    int old_occur = item->occur , new_occur = item->occur;
+
+    if(evt == IOCP_EVENT_WRITE)
+        iocp_process_event(events & EPOLLOUT , result , new_occur) ;
+    else if(evt == IOCP_EVENT_READ)
+        iocp_process_event(events & EPOLLIN , result , new_occur) ;
+    else if(evt == IOCP_EVENT_CLOSE)
+        new_occur = 0 ;
+    item->occur = new_occur ;
+
+    if((events & EPOLLET) != 0)
+    {
+        //边缘触发，只在状态翻转时，执行操作
+        if(old_occur == 0 && new_occur != 0)
+            iocp_mgr_item_ready(item->owner , item) ;
+        else if(old_occur != 0 && new_occur == 0)
+            iocp_mgr_item_unready(item->owner , item) ;
+    }
+    else
+    {
+        if(new_occur != 0)
+            iocp_mgr_item_ready(item->owner , item) ;
+        else
+            iocp_mgr_item_unready(item->owner , item) ;
+    }
+
+    return 0 ;
+}
+
+void iocp_pipe_free(iocp_item_t * item)
+{
+
 }
 
 pipe_t * pipe_new()
@@ -51,7 +83,11 @@ bool pipe_final(pipe_t * pipe)
     if(pipe->locker == INVALID_HANDLE_VALUE)
         return false ;
 
-    pipe_callback(pipe , kPipeBeforeClose , 0) ;
+    iocp_item_t * item = (iocp_item_t *)pipe->addition ;
+    if(item == NULL)
+        return false ;
+
+    iocp_pipe_callback(item , IOCP_EVENT_CLOSE , 0) ;
 
     if(::WaitForSingleObject(pipe->locker , INFINITE) != WAIT_OBJECT_0)
         return false ;
@@ -68,16 +104,10 @@ bool pipe_final(pipe_t * pipe)
         pipe->reader = NULL ;
     }
 
-    if(pipe->rhandle != NULL)
+    if(pipe->handle != NULL)
     {
-        ::CloseHandle(pipe->rhandle) ;
-        pipe->rhandle = NULL ;
-    }
-
-    if(pipe->whandle != NULL)
-    {
-        ::CloseHandle(pipe->whandle) ;
-        pipe->whandle = NULL ;
+        ::CloseHandle(pipe->handle) ;
+        pipe->handle = NULL ;
     }
 
     ::ReleaseMutex(pipe->locker) ;
@@ -124,49 +154,64 @@ bool write_result_init(write_result_t * result)
         errno = ENOMEM ;
         return false ;
     }  
-    result->link.type = OVLP_PIPE_OUTPUT ;
+    result->link.type = OVLP_OUTPUT ;
     return true ;
 }
 
 bool write_result_final(write_result_t * result)
 {
-    if(pipe_ovlp_lock(&result->link) == false)
+    if(iocp_ovlp_lock(&result->link) == false)
         return false ;
 
     DWORD bytes_transfer = 0 ;
+    iocp_item_t * item = result->link.owner ;
+    if(item == NULL || item->addition == NULL)
+    {
+        iocp_ovlp_unlock(&result->link) ;
+        return false ;
+    }
+    pipe_t * pipe = (pipe_t *)item->addition ;
 
-    ::GetOverlappedResult(result->link.owner->rhandle , &result->link.ovlp , & bytes_transfer , TRUE) ;
-    ::GetOverlappedResult(result->link.owner->whandle , &result->link.ovlp , & bytes_transfer , TRUE) ;
-    pipe_ovlp_unlock(&result->link) ;
+    ::GetOverlappedResult(pipe->handle , &result->link.ovlp , & bytes_transfer , TRUE) ;
+    iocp_ovlp_unlock(&result->link) ;
     return true ;
 }
 
 bool pipe_write(write_result_t * result , int flags)
 {
     //数据已经准备好了，需要判断下，是否在发送中。如果已经在发送中，则退出
-    if(pipe_ovlp_lock(&result->link) == false)
+    if(iocp_ovlp_lock(&result->link) == false)
         return false ;
 
     char * buf = NULL ;
     size_t size = 0 ;
     if(ring_buffer_refer_stream(&result->ring_buffer , buf , size) == false || buf == NULL || size == 0)
     {
-        pipe_ovlp_unlock(&result->link) ;
+        iocp_ovlp_unlock(&result->link) ;
         return false ;
     }
 
     ::memset(&result->link.ovlp , 0 , sizeof(result->link.ovlp)) ;
 
     DWORD write_bytes = 0 ;
-    int status = ::WriteFile(result->link.owner->whandle , buf , size , &write_bytes , &result->link.ovlp) ;
+    iocp_item_t * item = result->link.owner ;
+    if(item == NULL || item->addition == NULL)
+    {
+        iocp_ovlp_unlock(&result->link) ;
+        return false ;
+    }
+
+    pipe_t * pipe = (pipe_t *)item->addition ;
+
+    int status = ::WriteFile(pipe->handle , buf , size , &write_bytes , &result->link.ovlp) ;
     if(status != 0)
     {
         int error = ::GetLastError() ;
         if(error != EWOULDBLOCK)
         {
             result->link.status = error ;
-            pipe_ovlp_unlock(&result->link) ;
-            pipe_callback(result->link.owner , kPipeWrite , error) ;
+            iocp_ovlp_unlock(&result->link) ;
+            iocp_pipe_callback(result->link.owner , IOCP_EVENT_WRITE , error) ;
             return false ;
         }
     }
@@ -204,63 +249,62 @@ void read_result_free(read_result_t * result)
 bool read_result_init(read_result_t * result)
 {
     ::memset(result , 0 , sizeof(read_result_t)) ;
-    result->link.type = OVLP_PIPE_INPUT ;
+    result->link.type = OVLP_INPUT ;
     return true ;
 }
 
 bool read_result_final(read_result_t * result)
 {
-    if(pipe_ovlp_lock(&result->link) == false)
+    if(iocp_ovlp_lock(&result->link) == false)
         return false ;
 
     DWORD bytes_transfer = 0 , flags = 0 ;
-    ::GetOverlappedResult(result->link.owner->rhandle , &result->link.ovlp , & bytes_transfer , TRUE) ;
-    ::GetOverlappedResult(result->link.owner->whandle , &result->link.ovlp , & bytes_transfer , TRUE) ;
-    pipe_ovlp_unlock(&result->link) ;
+    iocp_item_t * item = result->link.owner ;
+    if(item == NULL || item->addition == NULL)
+    {
+        iocp_ovlp_unlock(&result->link) ;
+        return false ;
+    }
+    pipe_t * pipe = (pipe_t *)item->addition ;
+
+    ::GetOverlappedResult(pipe->handle , &result->link.ovlp , & bytes_transfer , TRUE) ;
+    iocp_ovlp_unlock(&result->link) ;
     return true ;
 }
 
 bool pipe_start_read(read_result_t * result)
 {
-    if(pipe_ovlp_lock(&result->link) == false)
+    if(iocp_ovlp_lock(&result->link) == false)
         return false ;
 
     ::memset(&result->link.ovlp , 0 , sizeof(result->link.ovlp)) ;
 
     DWORD read_bytes = 0 ;
-    int status = ::ReadFile(result->link.owner->rhandle , NULL , 0 ,  &read_bytes , &result->link.ovlp) ;
+    iocp_item_t * item = result->link.owner ;
+    if(item == NULL || item->addition == NULL)
+    {
+        iocp_ovlp_unlock(&result->link) ;
+        return false ;
+    }
+    pipe_t * pipe = (pipe_t *)item->addition ;
+
+    int status = ::ReadFile(pipe->handle , NULL , 0 ,  &read_bytes , &result->link.ovlp) ;
     if(status != 0)
     {
         int error = ::GetLastError() ;
         if(error != EWOULDBLOCK)
         {
             result->link.status = error ;
-            pipe_ovlp_unlock(&result->link) ;
-            pipe_callback(result->link.owner , kPipeRead , error) ;
+            iocp_ovlp_unlock(&result->link) ;
+            iocp_pipe_callback(result->link.owner , IOCP_EVENT_READ , error) ;
             return false ;
         }
         else
         {
-            pipe_callback(result->link.owner , kPipeRead , EWOULDBLOCK) ;
+            iocp_pipe_callback(result->link.owner , IOCP_EVENT_READ , EWOULDBLOCK) ;
         }
     }
 
     return true ;
 }
-
-bool pipe_ovlp_lock(pipe_ovlp_t * ovlp)
-{
-    return (::InterlockedCompareExchange(&ovlp->counter , 1 , 0) == 0) ;
-}
-
-bool pipe_ovlp_unlock(pipe_ovlp_t * ovlp)
-{
-    return (::InterlockedCompareExchange(&ovlp->counter , 0 , 1) == 1) ;
-}
-
-int pipe_ovlp_counter(pipe_ovlp_t * ovlp)
-{
-    return (int)::InterlockedCompareExchange(&ovlp->counter , 0 , 0) ;
-}
-
 

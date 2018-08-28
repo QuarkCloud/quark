@@ -221,16 +221,19 @@ bool socket_send(send_result_t * result , int flags)
     iocp_item_t * item = (iocp_item_t *)result->link.owner ;
     if(item == NULL || item->addition == NULL)
         return false ;
+    socket_t * s = (socket_t *)item->addition ;
+    if(s == NULL)
+        return false ;
 
-    int status = ::_imp_WSASend(result->link.owner->socket  , &result->data , 1 , &sent_bytes , 0 , &result->link.ovlp , NULL) ;
+    int status = ::_imp_WSASend(s->socket  , &result->data , 1 , &sent_bytes , 0 , &result->link.ovlp , NULL) ;
     if(status != 0)
     {
         int error = ::_imp_WSAGetLastError() ;
         if(error != WSAEWOULDBLOCK)
         {
             result->link.status = error ;
-            socket_ovlp_unlock(&result->link) ;
-            socket_callback(result->link.owner , kSocketSend , error) ;
+            iocp_ovlp_unlock(&result->link) ;
+            iocp_socket_callback(item , IOCP_EVENT_WRITE , error) ;
             return false ;
         }
     }
@@ -241,14 +244,14 @@ bool socket_send(send_result_t * result , int flags)
 bool socket_sendto(send_result_t * result , int flags , const struct sockaddr * addr , int addr_len)
 {
     //数据已经准备好了，需要判断下，是否在发送中。如果已经在发送中，则退出
-    if(socket_ovlp_lock(&result->link) == false)
+    if(iocp_ovlp_lock(&result->link) == false)
         return false ;
 
     char * wbuf = NULL ;
     size_t wsize = 0 ;
     if(ring_buffer_refer_message(&result->ring_buffer , wbuf , wsize) == false || wbuf == NULL || wsize == 0)
     {
-        socket_ovlp_unlock(&result->link) ;
+        iocp_ovlp_unlock(&result->link) ;
         return false ;
     }
 
@@ -257,7 +260,13 @@ bool socket_sendto(send_result_t * result , int flags , const struct sockaddr * 
     result->data.len = wsize ;
 
     DWORD sent_bytes = 0 ;
-    int status = ::_imp_WSASendTo(result->link.owner->socket , &result->data , 1 , 
+
+    iocp_item_t * item = result->link.owner ;
+    if(item == NULL || item->addition)
+        return false ;
+    socket_t * s = (socket_t *)item->addition ;
+    
+    int status = ::_imp_WSASendTo(s->socket , &result->data , 1 , 
         &sent_bytes , 0 , addr , addr_len , &result->link.ovlp , NULL) ;
     if(status != 0)
     {
@@ -265,8 +274,8 @@ bool socket_sendto(send_result_t * result , int flags , const struct sockaddr * 
         if(error != WSAEWOULDBLOCK)
         {
             result->link.status = error ;
-            socket_ovlp_unlock(&result->link) ;
-            socket_callback(result->link.owner , kSocketSendTo , error) ;
+            iocp_ovlp_unlock(&result->link) ;
+            iocp_socket_callback(item , IOCP_EVENT_WRITE , error) ;
             return false ;
         }
     }
@@ -274,24 +283,9 @@ bool socket_sendto(send_result_t * result , int flags , const struct sockaddr * 
     return true ;
 }
 
-bool socket_ovlp_lock(socket_ovlp_t * ovlp) 
-{
-    return (::InterlockedCompareExchange(&ovlp->counter , 1 , 0) == 0) ;
-}
-
-bool socket_ovlp_unlock(socket_ovlp_t * ovlp)
-{
-    return (::InterlockedCompareExchange(&ovlp->counter , 0 , 1) == 1) ;
-}
-
-int socket_ovlp_counter(socket_ovlp_t * ovlp) 
-{
-    return (int)::InterlockedCompareExchange(&ovlp->counter , 0 , 0) ;
-}
-
 bool socket_start_recv(recv_result_t * result) 
 {
-    if(socket_ovlp_lock(&result->link) == false)
+    if(iocp_ovlp_lock(&result->link) == false)
         return false ;
 
     ::memset(&result->link.ovlp , 0 , sizeof(result->link.ovlp)) ;
@@ -299,20 +293,26 @@ bool socket_start_recv(recv_result_t * result)
     result->data.len = 0 ;
 
     DWORD recv_bytes = 0 , flag = 0 ;
-    int status = ::_imp_WSARecv(result->link.owner->socket , &result->data , 1 ,  &recv_bytes , &flag , &result->link.ovlp , NULL) ;
+
+    iocp_item_t * item = result->link.owner ;
+    if(item == NULL || item->addition == NULL)
+        return false ;
+    socket_t * s = (socket_t *)item->addition ;
+
+    int status = ::_imp_WSARecv(s->socket , &result->data , 1 ,  &recv_bytes , &flag , &result->link.ovlp , NULL) ;
     if(status != 0)
     {
         int error = ::_imp_WSAGetLastError() ;
         if(error != WSAEWOULDBLOCK)
         {
             result->link.status = error ;
-            socket_ovlp_unlock(&result->link) ;
-            socket_callback(result->link.owner , kSocketRecv , error) ;
+            iocp_ovlp_unlock(&result->link) ;
+            iocp_socket_callback(result->link.owner , IOCP_EVENT_READ , error) ;
             return false ;
         }
         else
         {
-            socket_callback(result->link.owner , kSocketRecv , WSAEWOULDBLOCK) ;
+            iocp_socket_callback(result->link.owner , IOCP_EVENT_READ , WSAEWOULDBLOCK) ;
         }
     }
 
@@ -321,14 +321,18 @@ bool socket_start_recv(recv_result_t * result)
 
 bool socket_start_recvfrom(recv_result_t * result , int flags , struct sockaddr * addr , int * addr_len)
 {
-    if(socket_ovlp_lock(&result->link) == false)
+    if(iocp_ovlp_lock(&result->link) == false)
         return false ;
 
     ::memset(&result->link.ovlp , 0 , sizeof(result->link.ovlp)) ;
     result->data.buf = NULL ;
     result->data.len = 0 ;
     DWORD recv_bytes = 0 , flag = 0 ;
-    int status = ::_imp_WSARecvFrom(result->link.owner->socket , &result->data , 1 , &recv_bytes , &flag ,
+    iocp_item_t * item = result->link.owner ;
+    if(item == NULL || item->addition == NULL)
+        return false ;
+    socket_t * s = (socket_t *)item->addition ;
+    int status = ::_imp_WSARecvFrom(s->socket , &result->data , 1 , &recv_bytes , &flag ,
         addr , (LPINT)addr_len , &result->link.ovlp , NULL) ;
     if(status != 0)
     {
@@ -336,13 +340,13 @@ bool socket_start_recvfrom(recv_result_t * result , int flags , struct sockaddr 
         if(error != WSAEWOULDBLOCK)
         {
             result->link.status = error ;
-            socket_ovlp_unlock(&result->link) ;
-            socket_callback(result->link.owner , kSocketRecvFrom , error) ;
+            iocp_ovlp_unlock(&result->link) ;
+            iocp_socket_callback(result->link.owner , IOCP_EVENT_READ , error) ;
             return false ;
         }
         else
         {
-            socket_callback(result->link.owner , kSocketRecvFrom , WSAEWOULDBLOCK) ;
+            iocp_socket_callback(result->link.owner , IOCP_EVENT_READ , WSAEWOULDBLOCK) ;
         }
     }
 
@@ -357,7 +361,11 @@ void update_contex_acceptex(SOCKET& new_socket , SOCKET&listen_socket)
 
 bool socket_accept(accept_result_t * result , SOCKET& new_socket , struct sockaddr * local , struct sockaddr * remote)
 {
-    update_contex_acceptex(result->insocket , result->link.owner->socket) ;
+    iocp_item_t * item = result->link.owner ;
+    if(item == NULL || item->addition == NULL)
+        return false ;
+    socket_t * s = (socket_t *)item->addition ;
+    update_contex_acceptex(result->insocket , s->socket) ;
 
     struct sockaddr * laddr = NULL , * raddr = NULL ;
     INT lsize = 0 , rsize = 0 ;
@@ -373,29 +381,34 @@ bool socket_accept(accept_result_t * result , SOCKET& new_socket , struct sockad
     result->bytes = 0 ;
     result->insocket = INVALID_SOCKET ;
 
-    socket_ovlp_unlock(&result->link) ;
+    iocp_ovlp_unlock(&result->link) ;
     return true ;
 }
 
 bool socket_start_accept(accept_result_t * result)
 {
-    if(socket_ovlp_lock(&result->link) == false)
+    if(iocp_ovlp_lock(&result->link) == false)
         return false ;
 
     SOCKET s = ::_imp_socket(AF_INET , SOCK_STREAM , IPPROTO_TCP) ;
     if(s == INVALID_SOCKET)
     {
-        socket_ovlp_unlock(&result->link) ;
+        iocp_ovlp_unlock(&result->link) ;
         return false ;
     }
 
     result->insocket = s ;
     ::memset(&result->link.ovlp , 0 , sizeof(result->link.ovlp)) ;
     DWORD bytes_received = 0 ;
-    if(::_imp_AcceptEx(result->link.owner->socket , result->insocket , result->address , ACCEPT_ADDRESS_SIZE , sizeof(struct sockaddr) + 16 , 
+    iocp_item_t * item = result->link.owner ;
+    if(item == NULL || item->addition == NULL)
+        return false ;
+    socket_t * sk = (socket_t *)item->addition ;
+
+    if(::_imp_AcceptEx(sk->socket , result->insocket , result->address , ACCEPT_ADDRESS_SIZE , sizeof(struct sockaddr) + 16 , 
         sizeof(struct sockaddr) + 16 , &bytes_received , &result->link.ovlp) == FALSE)
     {
-        socket_ovlp_unlock(&result->link) ;
+        iocp_ovlp_unlock(&result->link) ;
         return false ;
     }
 
@@ -434,7 +447,7 @@ void accept_result_free(accept_result_t * result)
 bool accept_result_init(accept_result_t * result)
 {
     ::memset(result , 0 , sizeof(accept_result_t)) ;
-    result->link.type = OVLP_SOCKET_ACCEPT ;
+    result->link.type = OVLP_INPUT ;
     return true ;
 }
 
@@ -443,12 +456,17 @@ bool accept_result_final(accept_result_t * result)
     if(result == NULL)
         return false ;
 
-    if(socket_ovlp_lock(&result->link) == false)
+    if(iocp_ovlp_lock(&result->link) == false)
         return false ;
 
     DWORD bytes_transfer = 0 , flags = 0 ;
-    ::_imp_WSAGetOverlappedResult(result->link.owner->socket , &result->link.ovlp , & bytes_transfer , TRUE , &flags) ;
-    socket_ovlp_unlock(&result->link) ;
+    iocp_item_t * item = result->link.owner ;
+    if(item == NULL || item->addition == NULL)
+        return false ;
+    socket_t * s = (socket_t *)item->addition ;
+
+    ::_imp_WSAGetOverlappedResult(s->socket , &result->link.ovlp , & bytes_transfer , TRUE , &flags) ;
+    iocp_ovlp_unlock(&result->link) ;
 
     return true ;
 }
@@ -462,13 +480,13 @@ int iocp_socket_callback(iocp_item_t * item , int evt , int result)
     uint32_t events = item->data.events ;
     int old_occur = item->occur , new_occur = item->occur;
 
-    if(evt == kSocketConnect)
+    if(evt == IOCP_EVENT_OPEN)
         iocp_process_event(events & EPOLLERR , result , new_occur) ;
-    else if(evt == kSocketSend || evt == kSocketSendTo)
+    else if(evt == IOCP_EVENT_WRITE)
         iocp_process_event(events & EPOLLOUT , result , new_occur) ;
-    else if(evt == kSocketRecv || evt == kSocketRecvFrom)
+    else if(evt == IOCP_EVENT_READ)
         iocp_process_event(events & EPOLLIN , result , new_occur) ;
-    else if(evt == kSocketBeforeClose)
+    else if(evt == IOCP_EVENT_CLOSE)
         new_occur = 0 ;
     item->occur = new_occur ;
 
@@ -499,5 +517,17 @@ void iocp_socket_free(iocp_item_t * item)
         item->addition = NULL ;
         socket_free(s) ;
     }
+}
+
+SOCKET socket_from_ovlp(iocp_ovlp_t * ovlp) 
+{
+    if(ovlp == NULL || ovlp->owner == NULL)
+        return 0 ;
+
+    socket_t * s = (socket_t *)ovlp->owner->addition ;
+    if(s == NULL)
+        return 0 ;
+    else
+        return s->socket ;
 }
 

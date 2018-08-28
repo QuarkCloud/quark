@@ -100,7 +100,7 @@ bool iocp_mgr_items_free(rlist_t * rlist)
 bool iocp_mgr_item_free(iocp_item_t * item) 
 {
     rlist_del(NULL , &item->link) ;
-    iocp_item_free pfn_free = item->free ;
+    iocp_item_free_t pfn_free = item->free ;
     if(pfn_free != NULL)
         pfn_free(item) ;
     else
@@ -423,80 +423,4 @@ void iocp_process_event(int events , int result , int& occur)
 
     occur = (occur & (~events)) | now_occur ;
 }
-
-/**
-int iocp_socket_callback(socket_t * s , int evt , int result) 
-{
-    if(s == NULL || s->addition == NULL)
-        return 0 ;
-
-    iocp_item_t * item = (iocp_item_t *)s->addition ;
-    uint32_t events = item->data.events ;
-    int old_occur = item->occur , new_occur = item->occur;
-
-    if(evt == kSocketConnect)
-        iocp_process_event(events & EPOLLERR , result , new_occur) ;
-    else if(evt == kSocketSend || evt == kSocketSendTo)
-        iocp_process_event(events & EPOLLOUT , result , new_occur) ;
-    else if(evt == kSocketRecv || evt == kSocketRecvFrom)
-        iocp_process_event(events & EPOLLIN , result , new_occur) ;
-    else if(evt == kBeforeSocketClose)
-        new_occur = 0 ;
-    item->occur = new_occur ;
-
-    if((events & EPOLLET) != 0)
-    {
-        //边缘触发，只在状态翻转时，执行操作
-        if(old_occur == 0 && new_occur != 0)
-            iocp_mgr_item_ready(item->owner , item) ;
-        else if(old_occur != 0 && new_occur == 0)
-            iocp_mgr_item_unready(item->owner , item) ;
-    }
-    else
-    {
-        if(new_occur != 0)
-            iocp_mgr_item_ready(item->owner , item) ;
-        else
-            iocp_mgr_item_unready(item->owner , item) ;
-    }
-
-    return 0 ;
-}
-
-int iocp_pipe_callback(pipe_t * p , int evt , int result) 
-{
-    if(p == NULL || p->addition == NULL)
-        return 0 ;
-
-    iocp_item_t * item = (iocp_item_t *)p->addition ;
-    uint32_t events = item->data.events ;
-    int old_occur = item->occur , new_occur = item->occur;
-
-    if(evt == kPipeWrite)
-        iocp_process_event(events & EPOLLOUT , result , new_occur) ;
-    else if(evt == kPipeRead)
-        iocp_process_event(events & EPOLLIN , result , new_occur) ;
-    else if(evt == kPipeBeforeClose)
-        new_occur = 0 ;
-    item->occur = new_occur ;
-
-    if((events & EPOLLET) != 0)
-    {
-        //边缘触发，只在状态翻转时，执行操作
-        if(old_occur == 0 && new_occur != 0)
-            iocp_mgr_item_ready(item->owner , item) ;
-        else if(old_occur != 0 && new_occur == 0)
-            iocp_mgr_item_unready(item->owner , item) ;
-    }
-    else
-    {
-        if(new_occur != 0)
-            iocp_mgr_item_ready(item->owner , item) ;
-        else
-            iocp_mgr_item_unready(item->owner , item) ;
-    }
-
-    return 0 ;
-}
-*/
 
