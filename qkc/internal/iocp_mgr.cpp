@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <wintf/wobj.h>
 #include <wintf/wcrt.h>
+#include <wintf/werr.h>
 #include <windows.h>
 #include <sys/socket.h>
 #include "fsocket.h"
@@ -236,6 +237,11 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
             }
 
             return true ;
+        }
+        else
+        {
+            DWORD errcode = ::GetLastError() ;
+            errno = ::oserr_map(errcode) ;
         }
     }
 

@@ -8,6 +8,7 @@
 #include "internal/sysconf.h"
 #include "internal/intrin.h"
 #include "internal/file_system.h"
+#include "internal/fpipe.h"
 
 
 off_t lseek(int fd , off_t offset , int whence)
@@ -138,8 +139,8 @@ int pause()
 
 void add_pipe_objs(int pipedes[2] , int oids[2])
 {
-    oids[0] = ::wobj_set(WOBJ_PIPE , (HANDLE)pipedes[0] , NULL) ;
-    oids[1] = ::wobj_set(WOBJ_PIPE , (HANDLE)pipedes[1] , NULL) ;
+    oids[0] = add_pipe_obj(pipedes[0]) ;
+    oids[1] = add_pipe_obj(pipedes[1]) ;
 }
 
 int pipe (int pipedes[2])

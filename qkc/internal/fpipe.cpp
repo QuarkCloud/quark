@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include "wintf/wcrt.h"
+#include "wintf/wobj.h"
 
 
 int iocp_pipe_callback(iocp_item_t * item , int evt , int result)
@@ -115,6 +117,15 @@ bool pipe_final(pipe_t * pipe)
     pipe->locker = INVALID_HANDLE_VALUE ;
 
     return true ;
+}
+
+int add_pipe_obj(int fd) 
+{
+    pipe_t * pipe = pipe_new() ;
+    pipe->handle = (HANDLE)::_get_osfhandle(fd) ;
+    pipe->crtfd = fd ;
+
+    return ::wobj_set(WOBJ_PIPE , (HANDLE)fd , pipe) ;
 }
 
 write_result_t * write_result_new()

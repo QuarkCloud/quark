@@ -20,6 +20,7 @@ void iocp_pipe_free(iocp_item_t * item) ;
 
 typedef struct __st_pipe{
     HANDLE handle ;
+    int crtfd ;
     int8_t noblock :1;            //默认阻塞，是一个很重要的标识!!!，其他貌似没有必要。
 
     HANDLE            locker ;    //创建销毁保护
@@ -40,11 +41,12 @@ struct __st_read_result{
     iocp_ovlp_t   link ;
 };
 
-
 pipe_t * pipe_new() ;
 bool pipe_init(pipe_t * pipe) ;
 void pipe_free(pipe_t * pipe) ;
 bool pipe_final(pipe_t * pipe) ;
+
+int add_pipe_obj(int fd) ;
 
 write_result_t * write_result_new() ;
 void write_result_free(write_result_t * result) ;
