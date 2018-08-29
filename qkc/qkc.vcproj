@@ -457,10 +457,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\internal\fpipe.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\internal\fsocket.cpp"
 					>
 				</File>
@@ -872,10 +868,6 @@
 				</File>
 				<File
 					RelativePath=".\internal\file_system_proc.h"
-					>
-				</File>
-				<File
-					RelativePath=".\internal\fpipe.h"
 					>
 				</File>
 				<File

@@ -30,8 +30,7 @@ typedef enum __wobj_type__{
     WOBJ_SHM ,
     WOBJ_NOTF ,
     WOBJ_IOCP ,
-    WOBJ_RWLOCK ,
-    WOBJ_PIPE 
+    WOBJ_RWLOCK 
 } wobj_type;
 
 #define WOBJ_ID_BASE_SHIFT      20

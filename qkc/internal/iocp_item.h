@@ -9,12 +9,15 @@
 
 __BEGIN_DECLS
 
+/**
+    2018-08-29
+    匿名管道不支持异步读写，而有名管道和socket没有本质的区别，因此在iocp中不支持管道操作。
+*/
 typedef struct __st_iocp_item iocp_item_t ;
 typedef struct __st_iocp_mgr iocp_mgr_t ;
 typedef enum{
     IOCP_ITEM_UNKNOWN ,
-    IOCP_ITEM_SOCKET ,
-    IOCP_ITEM_PIPE 
+    IOCP_ITEM_SOCKET 
 } iocp_item_type_t ;
 typedef enum{
     IOCP_EVENT_OPEN     = 1 ,

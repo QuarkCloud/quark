@@ -61,10 +61,6 @@ int close(int fd)
             fs->close(fd) ;
         }
     }
-    else if(type == WOBJ_PIPE)
-    {
-        return ::_close((int)wobj->handle) ;
-    }
     else
     {
         errno = ENOSYS ;
@@ -83,8 +79,6 @@ ssize_t read(int fd , void * buf , size_t nbytes)
     wobj_t * obj = wobj_get(fd) ;
     if(obj == NULL)
         return -1 ;
-    if(obj->type == WOBJ_PIPE)
-        return ::_read((int)obj->handle , buf , nbytes) ;
 
     if(obj->type != WOBJ_FILE || obj->addition == NULL)
         return -1 ;
@@ -102,8 +96,6 @@ ssize_t write(int fd , const void * buf , size_t nbytes)
     wobj_t * obj = wobj_get(fd) ;
     if(obj == NULL)
         return -1 ;
-    if(obj->type == WOBJ_PIPE)
-        return ::_write((int)obj->handle , buf , nbytes) ;
 
     if(obj->type != WOBJ_FILE || obj->addition == NULL)
         return -1 ;
@@ -137,29 +129,15 @@ int pause()
 
 #define PIPE_SIZE 4096
 
-void add_pipe_objs(int pipedes[2] , int oids[2])
-{
-    oids[0] = add_pipe_obj(pipedes[0]) ;
-    oids[1] = add_pipe_obj(pipedes[1]) ;
-}
 
 int pipe (int pipedes[2])
 {
-    int result = 0 ;
-    int fds[2] = {0 , 0} ;
-    if((result = _pipe(fds , PIPE_SIZE , O_BINARY)) == 0)
-        add_pipe_objs(fds , pipedes) ;
-
-    return result ;
+    return _pipe(pipedes , PIPE_SIZE , O_BINARY) ;
 }
 
 int pipe2(int pipedes[2] , int flags) 
 {
-    int result = 0 ;
-    int fds[2] = {0 , 0} ;
-    if((result = _pipe(fds , PIPE_SIZE , O_BINARY)) == 0)
-        add_pipe_objs(fds , pipedes) ;
-    return result ;
+    return _pipe(pipedes , PIPE_SIZE , O_BINARY) ;
 }
 
 int chown(const char * file , uid_t owner , gid_t group)

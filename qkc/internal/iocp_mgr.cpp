@@ -9,7 +9,6 @@
 #include <windows.h>
 #include <sys/socket.h>
 #include "fsocket.h"
-#include "fpipe.h"
 
 iocp_mgr_t * iocp_mgr_new()
 {
@@ -176,7 +175,7 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
     if(wobj == NULL)
         return false ;
     wobj_type wtype = wobj->type ;
-    if(wtype != WOBJ_SOCK && wtype != WOBJ_PIPE)
+    if(wtype != WOBJ_SOCK)
         return false ;
 
     iocp_item_t * item = (iocp_item_t *)::malloc(sizeof(iocp_item_t)) ;
@@ -219,31 +218,6 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
             return true ;
         }
     }
-    else if(wtype == WOBJ_PIPE)
-    {
-        pipe_t * p = (pipe_t *)wobj->addition ;
-        p->addition = item ;
-
-        item->type = IOCP_ITEM_PIPE ;
-        item->callback = iocp_pipe_callback ;
-        item->free = iocp_pipe_free ;
-        item->addition = p ;
-
-        if(::CreateIoCompletionPort(p->handle , mgr->iocp , 0 , 0) != NULL)
-        {
-            if((ev->events & EPOLLIN) == EPOLLIN)
-            {
-                pipe_start_read(p->reader) ;
-            }
-
-            return true ;
-        }
-        else
-        {
-            DWORD errcode = ::GetLastError() ;
-            errno = ::oserr_map(errcode) ;
-        }
-    }
 
     ::free(item) ;
     return false ;
@@ -263,11 +237,6 @@ bool iocp_mgr_mod(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
     {   
         socket_t * s = (socket_t *)wobj->addition ;
         item = (iocp_item_t *)s->addition ;
-    }
-    else if(wobj->type == WOBJ_PIPE)
-    {
-        pipe_t * p = (pipe_t *)wobj->addition ;
-        item = (iocp_item_t *)p->addition ;
     }
 
     if(item == NULL || item->fd != fd)
@@ -296,12 +265,6 @@ bool iocp_mgr_del(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
         socket_t * s = (socket_t *)wobj->addition ;
         item = (iocp_item_t *)s->addition ;
         s->addition = NULL ;
-    }
-    else if(wobj->type == WOBJ_PIPE)
-    {
-        pipe_t * p = (pipe_t *)wobj->addition ;
-        item = (iocp_item_t *)p->addition ;
-        p->addition = NULL ;
     }
 
     if(item == NULL)
