@@ -6,6 +6,10 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
+#ifndef __QUARK_LIBC__
+    #define __QUARK_LIBC__
+#endif
+
 #if defined(_M_IX86)
 #define __i386__
 #endif
