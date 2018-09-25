@@ -111,8 +111,8 @@ QKCAPI int pthread_cond_destroy(pthread_cond_t *cond) ;
 QKCAPI int pthread_cond_signal(pthread_cond_t *cond) ;
 QKCAPI int pthread_cond_broadcast(pthread_cond_t *cond) ;
 QKCAPI int pthread_cond_wait(pthread_cond_t * cond , pthread_mutex_t * mutex) ;
-
 QKCAPI int pthread_cond_timedwait(pthread_cond_t * cond , pthread_mutex_t * mutex , const struct timespec * abstime) ;
+
 QKCAPI int pthread_condattr_init(pthread_condattr_t *attr) ;
 QKCAPI int pthread_condattr_destroy(pthread_condattr_t *attr) ;
 QKCAPI int pthread_condattr_getpshared(const pthread_condattr_t * attr , int * pshared) ;

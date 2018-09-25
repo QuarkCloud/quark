@@ -780,6 +780,7 @@ int pthread_spin_unlock(pthread_spinlock_t *lock)
 {
     lock->owner = 0 ;
     lock->allow++ ;
+    ::MemoryBarrier() ;
     return 0 ;
 }
 
