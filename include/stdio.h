@@ -38,24 +38,13 @@ __BEGIN_DECLS
 #define SEEK_END	2	/* Seek from end of file.  */
 
 
-struct _iobuf {
-    char *_ptr;
-    int   _cnt;
-    char *_base;
-    int   _flag;
-    int   _file;
-    int   _charbuf;
-    int   _bufsiz;
-    char *_tmpfname;
-};
 typedef struct _iobuf FILE;
 
-QUARK_LINKAGE FILE * __iob_func(void);
+QKCAPI FILE *  __qkc_iob_func__(unsigned idx);
 
-#define stdin  (&__iob_func()[0])
-#define stdout (&__iob_func()[1])
-#define stderr (&__iob_func()[2])
-
+#define stdin  (__qkc_iob_func__(0))
+#define stdout (__qkc_iob_func__(1))
+#define stderr (__qkc_iob_func__(2))
 
 QUARK_LINKAGE int remove (const char *filename);
 QUARK_LINKAGE int rename (const char *old , const char * new_name);
@@ -74,16 +63,26 @@ QUARK_LINKAGE void setbuf (FILE * stream , char * buf);
 QUARK_LINKAGE int setvbuf (FILE * stream , char * buf , int modes , size_t n);
 
 QUARK_LINKAGE int fprintf (FILE * stream , const char * format , ...);
-QUARK_LINKAGE int printf (const char * format , ...);
+
+#if _MSC_VER > 1900
+
+QKCAPI int sprintf(char * s, const char * format, ...);
+QKCAPI int printf(const char * format, ...);
+QKCAPI int vsnprintf(char * s, size_t maxlen, const char * format, va_list arg);
+#else
+
 QUARK_LINKAGE int sprintf (char * s , const char * format , ...);
+QUARK_LINKAGE int printf(const char * format, ...);
+QUARK_LINKAGE int vsnprintf(char * s, size_t maxlen, const char * format, va_list arg);
+
+#endif
 
 QKCAPI int snprintf (char * s , size_t maxlen , const char * format , ...);
 
 QUARK_LINKAGE int vfprintf (FILE * s , const char * format , va_list arg);
 QUARK_LINKAGE int vprintf (const char * format , va_list arg);
 QUARK_LINKAGE int vsprintf (char * s , const char * format , va_list arg);
-QKCAPI int snprintf (char * s , size_t maxlen , const char * format , ...);
-QUARK_LINKAGE int vsnprintf (char * s , size_t maxlen , const char * format , va_list arg);
+//QKCAPI int snprintf (char * s , size_t maxlen , const char * format , ...);
 
 QUARK_LINKAGE int fscanf (FILE * stream , const char * format , ...);
 QUARK_LINKAGE int scanf (const char * format , ...);

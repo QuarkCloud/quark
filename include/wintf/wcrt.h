@@ -54,10 +54,16 @@ QUARK_LINKAGE int _mkdir(const char * path);
 
 typedef int errno_t;
 
+#if _MSC_VER > 1900
+QKCAPI void _dosmaperr(unsigned long);
+#else
 QUARK_LINKAGE void _dosmaperr(unsigned long);
+#endif
+
 QUARK_LINKAGE unsigned long * __doserrno(void);
 QUARK_LINKAGE errno_t _set_doserrno(unsigned long value);
 QUARK_LINKAGE  errno_t _get_doserrno(unsigned long * value);
+#define _doserrno (*__doserrno())
 
 
 //TIMEÏà¹Ø
@@ -96,6 +102,33 @@ QUARK_LINKAGE int _fileno (FILE *stream);
 
 QUARK_LINKAGE void _lock_file (FILE *stream);
 QUARK_LINKAGE void _unlock_file (FILE *stream);
+
+#if _MSC_VER > 1900
+
+typedef void * _locale_t;
+
+QUARK_LINKAGE  int __stdio_common_vsprintf(unsigned __int64 options, char* buffer, size_t buffer_count,
+    char const* format, _locale_t locale,   va_list arglist );
+
+QUARK_LINKAGE  int __stdio_common_vsprintf_s(unsigned __int64 options, char* buffer, size_t buffer_count,
+    char const* format, _locale_t locale, va_list arglist);
+
+QUARK_LINKAGE  int __stdio_common_vsnprintf_s(unsigned __int64 options, char* buffer, size_t buffer_count,
+    char const* format, _locale_t locale, va_list arglist);
+
+QUARK_LINKAGE  int __stdio_common_vsprintf_p(unsigned __int64 options, char* buffer, size_t buffer_count,
+    char const* format, _locale_t locale, va_list arglist);
+
+QUARK_LINKAGE int __stdio_common_vfprintf(unsigned __int64 options, FILE* stream ,char const* format ,
+    _locale_t locale,va_list arglist);
+
+QUARK_LINKAGE int __stdio_common_vfprintf_s(unsigned __int64 options, FILE* stream, char const* format,
+    _locale_t locale, va_list arglist);
+
+QUARK_LINKAGE int __stdio_common_vfprintf_p(unsigned __int64 options, FILE* stream, char const* format,
+    _locale_t locale, va_list arglist);
+
+#endif
 
 //string
 QUARK_LINKAGE char *  strtok_s(char * str , const char * delim,  char ** context);

@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A08041CF-81D7-4A5C-A1D1-216FA37D2D46}</ProjectGuid>
+    <RootNamespace>qkc</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>15.0.27130.2020</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)win32\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>$(ProjectName)d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)win32\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(QUARK_ROOT)include;$(QUARK_ROOT)include\wstub;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;QKC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ShowIncludes>false</ShowIncludes>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <OutputFile>$(SolutionDir)win32\$(ProjectName)d.dll</OutputFile>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)include\wstub;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;QKC_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <Link>
+      <OutputFile>$(SolutionDir)win32\$(ProjectName).dll</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="advapi32_imp.cpp" />
+    <ClCompile Include="arpa_inet.cpp" />
+    <ClCompile Include="assert.cpp" />
+    <ClCompile Include="atomic.cpp" />
+    <ClCompile Include="builtin.cpp" />
+    <ClCompile Include="byteswap.cpp" />
+    <ClCompile Include="ctype.cpp" />
+    <ClCompile Include="dirent.cpp" />
+    <ClCompile Include="dlfcn.cpp" />
+    <ClCompile Include="fcntl.cpp" />
+    <ClCompile Include="getopt.cpp" />
+    <ClCompile Include="grp.cpp" />
+    <ClCompile Include="iconv.cpp" />
+    <ClCompile Include="ifaddrs.cpp" />
+    <ClCompile Include="internal\addr_mgr.cpp" />
+    <ClCompile Include="internal\file_system.cpp" />
+    <ClCompile Include="internal\file_system_dev_null.cpp" />
+    <ClCompile Include="internal\file_system_proc.cpp" />
+    <ClCompile Include="internal\fsocket.cpp" />
+    <ClCompile Include="internal\hash.cpp" />
+    <ClCompile Include="internal\inotify_mgr.cpp" />
+    <ClCompile Include="internal\iocp_item.cpp" />
+    <ClCompile Include="internal\iocp_mgr.cpp" />
+    <ClCompile Include="internal\rbtree.cpp" />
+    <ClCompile Include="internal\ring_buffer.cpp" />
+    <ClCompile Include="internal\rxtree.cpp" />
+    <ClCompile Include="internal\sockopt.cpp" />
+    <ClCompile Include="internal\string_util.cpp" />
+    <ClCompile Include="internal\sysconf.cpp" />
+    <ClCompile Include="iphlpapi_imp.cpp" />
+    <ClCompile Include="math.cpp" />
+    <ClCompile Include="netdb.cpp" />
+    <ClCompile Include="netinet_in.cpp" />
+    <ClCompile Include="net_if.cpp" />
+    <ClCompile Include="pthread.cpp" />
+    <ClCompile Include="pwd.cpp" />
+    <ClCompile Include="qkc_init.cpp" />
+    <ClCompile Include="sched.cpp" />
+    <ClCompile Include="semaphore.cpp" />
+    <ClCompile Include="signal.cpp" />
+    <ClCompile Include="stdio.cpp" />
+    <ClCompile Include="stdlib.cpp" />
+    <ClCompile Include="string.cpp" />
+    <ClCompile Include="syscall.cpp" />
+    <ClCompile Include="sys_epoll.cpp" />
+    <ClCompile Include="sys_inotify.cpp" />
+    <ClCompile Include="sys_ioctl.cpp" />
+    <ClCompile Include="sys_ipc.cpp" />
+    <ClCompile Include="sys_mman.cpp" />
+    <ClCompile Include="sys_poll.cpp" />
+    <ClCompile Include="sys_resource.cpp" />
+    <ClCompile Include="sys_select.cpp" />
+    <ClCompile Include="sys_sem.cpp" />
+    <ClCompile Include="sys_sendfile.cpp" />
+    <ClCompile Include="sys_shm.cpp" />
+    <ClCompile Include="sys_socket.cpp" />
+    <ClCompile Include="sys_stat.cpp" />
+    <ClCompile Include="sys_sysinfo.cpp" />
+    <ClCompile Include="sys_syslog.cpp" />
+    <ClCompile Include="sys_time.cpp" />
+    <ClCompile Include="sys_times.cpp" />
+    <ClCompile Include="sys_uio.cpp" />
+    <ClCompile Include="termios.cpp" />
+    <ClCompile Include="time.cpp" />
+    <ClCompile Include="ucrt\ucrt_errno.cpp" />
+    <ClCompile Include="ucrt\ucrt_stdio.cpp" />
+    <ClCompile Include="unistd.cpp" />
+    <ClCompile Include="userenv_imp.cpp" />
+    <ClCompile Include="utime.cpp" />
+    <ClCompile Include="wait.cpp" />
+    <ClCompile Include="winsock2_imp.cpp" />
+    <ClCompile Include="wintf\wcap.cpp" />
+    <ClCompile Include="wintf\wcrt.cpp" />
+    <ClCompile Include="wintf\wdll.cpp" />
+    <ClCompile Include="wintf\werr.cpp" />
+    <ClCompile Include="wintf\wipc.cpp" />
+    <ClCompile Include="wintf\wobj.cpp" />
+    <ClCompile Include="wintf\wps.cpp" />
+    <ClCompile Include="wintf\wthr.cpp" />
+    <ClCompile Include="wintf\wtime.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\alloca.h" />
+    <ClInclude Include="..\include\arpa\inet.h" />
+    <ClInclude Include="..\include\assert.h" />
+    <ClInclude Include="..\include\atomic.h" />
+    <ClInclude Include="..\include\bits\confname.h" />
+    <ClInclude Include="..\include\bits\in.h" />
+    <ClInclude Include="..\include\bits\select.h" />
+    <ClInclude Include="..\include\bits\siginfo.h" />
+    <ClInclude Include="..\include\bits\sockaddr.h" />
+    <ClInclude Include="..\include\bits\socket.h" />
+    <ClInclude Include="..\include\bits\termios.h" />
+    <ClInclude Include="..\include\bits\waitflags.h" />
+    <ClInclude Include="..\include\bits\wordsize.h" />
+    <ClInclude Include="..\include\builtin.h" />
+    <ClInclude Include="..\include\byteswap.h" />
+    <ClInclude Include="..\include\ctype.h" />
+    <ClInclude Include="..\include\dirent.h" />
+    <ClInclude Include="..\include\dlfcn.h" />
+    <ClInclude Include="..\include\endian.h" />
+    <ClInclude Include="..\include\errno.h" />
+    <ClInclude Include="..\include\fcntl.h" />
+    <ClInclude Include="..\include\float.h" />
+    <ClInclude Include="..\include\getopt.h" />
+    <ClInclude Include="..\include\grp.h" />
+    <ClInclude Include="..\include\iconv.h" />
+    <ClInclude Include="..\include\ifaddrs.h" />
+    <ClInclude Include="..\include\inttypes.h" />
+    <ClInclude Include="..\include\limits.h" />
+    <ClInclude Include="..\include\locale.h" />
+    <ClInclude Include="..\include\math.h" />
+    <ClInclude Include="..\include\netdb.h" />
+    <ClInclude Include="..\include\netinet\in.h" />
+    <ClInclude Include="..\include\netinet\tcp.h" />
+    <ClInclude Include="..\include\netinet\udp.h" />
+    <ClInclude Include="..\include\netpacket\packet.h" />
+    <ClInclude Include="..\include\net\ethernet.h" />
+    <ClInclude Include="..\include\net\if.h" />
+    <ClInclude Include="..\include\poll.h" />
+    <ClInclude Include="..\include\pthread.h" />
+    <ClInclude Include="..\include\pwd.h" />
+    <ClInclude Include="..\include\quark_compile.h" />
+    <ClInclude Include="..\include\sched.h" />
+    <ClInclude Include="..\include\semaphore.h" />
+    <ClInclude Include="..\include\signal.h" />
+    <ClInclude Include="..\include\stdarg.h" />
+    <ClInclude Include="..\include\stdbool.h" />
+    <ClInclude Include="..\include\stddef.h" />
+    <ClInclude Include="..\include\stdint.h" />
+    <ClInclude Include="..\include\stdio.h" />
+    <ClInclude Include="..\include\stdlib.h" />
+    <ClInclude Include="..\include\string.h" />
+    <ClInclude Include="..\include\strings.h" />
+    <ClInclude Include="..\include\syscall.h" />
+    <ClInclude Include="..\include\syslog.h" />
+    <ClInclude Include="..\include\sys\epoll.h" />
+    <ClInclude Include="..\include\sys\inotify.h" />
+    <ClInclude Include="..\include\sys\ioctl.h" />
+    <ClInclude Include="..\include\sys\ipc.h" />
+    <ClInclude Include="..\include\sys\mman.h" />
+    <ClInclude Include="..\include\sys\param.h" />
+    <ClInclude Include="..\include\sys\poll.h" />
+    <ClInclude Include="..\include\sys\prctl.h" />
+    <ClInclude Include="..\include\sys\resource.h" />
+    <ClInclude Include="..\include\sys\select.h" />
+    <ClInclude Include="..\include\sys\sem.h" />
+    <ClInclude Include="..\include\sys\sendfile.h" />
+    <ClInclude Include="..\include\sys\shm.h" />
+    <ClInclude Include="..\include\sys\signal.h" />
+    <ClInclude Include="..\include\sys\socket.h" />
+    <ClInclude Include="..\include\sys\stat.h" />
+    <ClInclude Include="..\include\sys\sysinfo.h" />
+    <ClInclude Include="..\include\sys\syslog.h" />
+    <ClInclude Include="..\include\sys\time.h" />
+    <ClInclude Include="..\include\sys\timeb.h" />
+    <ClInclude Include="..\include\sys\times.h" />
+    <ClInclude Include="..\include\sys\types.h" />
+    <ClInclude Include="..\include\sys\uio.h" />
+    <ClInclude Include="..\include\sys\un.h" />
+    <ClInclude Include="..\include\sys\unistd.h" />
+    <ClInclude Include="..\include\sys\wait.h" />
+    <ClInclude Include="..\include\termios.h" />
+    <ClInclude Include="..\include\time.h" />
+    <ClInclude Include="..\include\unistd.h" />
+    <ClInclude Include="..\include\utime.h" />
+    <ClInclude Include="..\include\wait.h" />
+    <ClInclude Include="..\include\wintf\wcap.h" />
+    <ClInclude Include="..\include\wintf\wcrt.h" />
+    <ClInclude Include="..\include\wintf\werr.h" />
+    <ClInclude Include="..\include\wintf\wipc.h" />
+    <ClInclude Include="..\include\wintf\wobj.h" />
+    <ClInclude Include="..\include\wintf\wps.h" />
+    <ClInclude Include="..\include\wintf\wthr.h" />
+    <ClInclude Include="..\include\wintf\wtime.h" />
+    <ClInclude Include="internal\addr_mgr.h" />
+    <ClInclude Include="internal\bitop.h" />
+    <ClInclude Include="internal\file_system.h" />
+    <ClInclude Include="internal\file_system_dev_null.h" />
+    <ClInclude Include="internal\file_system_proc.h" />
+    <ClInclude Include="internal\fsocket.h" />
+    <ClInclude Include="internal\hash.h" />
+    <ClInclude Include="internal\inotify_mgr.h" />
+    <ClInclude Include="internal\intrin.h" />
+    <ClInclude Include="internal\iocp_item.h" />
+    <ClInclude Include="internal\iocp_mgr.h" />
+    <ClInclude Include="internal\rbtree.h" />
+    <ClInclude Include="internal\ring_buffer.h" />
+    <ClInclude Include="internal\rlist.h" />
+    <ClInclude Include="internal\rxtree.h" />
+    <ClInclude Include="internal\sockopt.h" />
+    <ClInclude Include="internal\string_util.h" />
+    <ClInclude Include="internal\sysconf.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

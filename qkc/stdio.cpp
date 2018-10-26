@@ -2,6 +2,26 @@
 #include <stdio.h>
 #include <wintf/wcrt.h>
 
+#if _MSC_VER < 1900
+struct _iobuf {
+    char *_ptr;
+    int   _cnt;
+    char *_base;
+    int   _flag;
+    int   _file;
+    int   _charbuf;
+    int   _bufsiz;
+    char *_tmpfname;
+};
+
+QUARK_LINKAGE FILE * __iob_func(void);
+
+QKCAPI FILE *  __qkc_iob_func__(unsigned idx)
+{
+    return &__qkc_iob_func__()[idx];
+}
+#endif
+
 char *tmpnam_r (char *s)
 {
     return tmpnam_s(s) ;
@@ -48,6 +68,7 @@ void funlockfile (FILE *stream)
     _unlock_file(stream) ;
 }
 
+#if _MSC_VER < 1912
 int snprintf (char * s , size_t maxlen , const char * format , ...)
 {
     va_list arg ;
@@ -58,3 +79,4 @@ int snprintf (char * s , size_t maxlen , const char * format , ...)
     va_end(arg) ;
     return done ;
 }
+#endif

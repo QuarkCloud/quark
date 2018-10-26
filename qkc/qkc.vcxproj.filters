@@ -1,0 +1,623 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="源文件\wintf">
+      <UniqueIdentifier>{a826c821-a60d-4e63-ac47-63bc4d082d53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\internal">
+      <UniqueIdentifier>{671875e7-9923-486c-8106-1cb6a343c29a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="头文件\sys">
+      <UniqueIdentifier>{b439fe60-12f5-439f-886f-e0da59ad5894}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\wintf">
+      <UniqueIdentifier>{755756cd-e3c3-4602-af9d-4f1895dde271}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\arpa">
+      <UniqueIdentifier>{ee4dd96e-bc26-4d24-867e-9aec6a7ce717}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\netinet">
+      <UniqueIdentifier>{1aa677ab-8958-4bc5-a751-eb66b45a0a85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\internal">
+      <UniqueIdentifier>{bcf80777-a53d-4a1c-a0ef-0b8c05a3bd80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\bits">
+      <UniqueIdentifier>{d063f5ad-1e3e-4169-a309-84e2b1cda17f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\net">
+      <UniqueIdentifier>{ed9f4fb3-a6aa-49b3-b033-7241ea37f81b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\netpacket">
+      <UniqueIdentifier>{11bbec5f-8397-43e7-ad2a-468ac6799ccd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\ucrt">
+      <UniqueIdentifier>{f62933a5-68eb-4fa3-b6fe-640127e6311e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="advapi32_imp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="arpa_inet.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="assert.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="atomic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="builtin.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="byteswap.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ctype.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dirent.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dlfcn.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="fcntl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="getopt.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="grp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="iconv.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ifaddrs.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="iphlpapi_imp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="math.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="net_if.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="netdb.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="netinet_in.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pthread.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pwd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="qkc_init.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sched.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="semaphore.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="signal.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdio.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdlib.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="string.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_epoll.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_inotify.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_ioctl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_ipc.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_mman.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_poll.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_resource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_select.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_sem.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_sendfile.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_shm.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_socket.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_stat.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_sysinfo.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_syslog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_time.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_times.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sys_uio.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="syscall.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="termios.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="time.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="unistd.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="userenv_imp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="utime.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="wait.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="winsock2_imp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="wintf\wcap.cpp">
+      <Filter>源文件\wintf</Filter>
+    </ClCompile>
+    <ClCompile Include="wintf\wcrt.cpp">
+      <Filter>源文件\wintf</Filter>
+    </ClCompile>
+    <ClCompile Include="wintf\wdll.cpp">
+      <Filter>源文件\wintf</Filter>
+    </ClCompile>
+    <ClCompile Include="wintf\werr.cpp">
+      <Filter>源文件\wintf</Filter>
+    </ClCompile>
+    <ClCompile Include="wintf\wipc.cpp">
+      <Filter>源文件\wintf</Filter>
+    </ClCompile>
+    <ClCompile Include="wintf\wobj.cpp">
+      <Filter>源文件\wintf</Filter>
+    </ClCompile>
+    <ClCompile Include="wintf\wps.cpp">
+      <Filter>源文件\wintf</Filter>
+    </ClCompile>
+    <ClCompile Include="wintf\wthr.cpp">
+      <Filter>源文件\wintf</Filter>
+    </ClCompile>
+    <ClCompile Include="wintf\wtime.cpp">
+      <Filter>源文件\wintf</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\addr_mgr.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\file_system.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\file_system_dev_null.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\file_system_proc.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\fsocket.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\hash.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\inotify_mgr.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\iocp_item.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\iocp_mgr.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rbtree.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\ring_buffer.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rxtree.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\sockopt.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\string_util.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\sysconf.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="ucrt\ucrt_stdio.cpp">
+      <Filter>源文件\ucrt</Filter>
+    </ClCompile>
+    <ClCompile Include="ucrt\ucrt_errno.cpp">
+      <Filter>源文件\ucrt</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\alloca.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\assert.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\atomic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\builtin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\byteswap.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ctype.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\dirent.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\dlfcn.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\endian.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\errno.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\fcntl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\float.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\getopt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\grp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\iconv.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ifaddrs.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\inttypes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\limits.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\locale.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\math.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\netdb.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\poll.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pthread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pwd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\quark_compile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sched.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\semaphore.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\signal.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\stdarg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\stdbool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\stddef.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\stdint.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\stdio.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\stdlib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\string.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\strings.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\syscall.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\syslog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\termios.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\time.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\unistd.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\utime.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wait.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\epoll.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\inotify.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\ioctl.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\ipc.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\mman.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\param.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\poll.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\prctl.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\resource.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\select.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\sem.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\sendfile.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\shm.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\signal.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\socket.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\stat.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\sysinfo.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\syslog.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\time.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\timeb.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\times.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\types.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\uio.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\un.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\unistd.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sys\wait.h">
+      <Filter>头文件\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wintf\wcap.h">
+      <Filter>头文件\wintf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wintf\wcrt.h">
+      <Filter>头文件\wintf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wintf\werr.h">
+      <Filter>头文件\wintf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wintf\wipc.h">
+      <Filter>头文件\wintf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wintf\wobj.h">
+      <Filter>头文件\wintf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wintf\wps.h">
+      <Filter>头文件\wintf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wintf\wthr.h">
+      <Filter>头文件\wintf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wintf\wtime.h">
+      <Filter>头文件\wintf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arpa\inet.h">
+      <Filter>头文件\arpa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\netinet\in.h">
+      <Filter>头文件\netinet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\netinet\tcp.h">
+      <Filter>头文件\netinet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\netinet\udp.h">
+      <Filter>头文件\netinet</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\addr_mgr.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\bitop.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\file_system.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\file_system_dev_null.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\file_system_proc.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\fsocket.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\hash.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\inotify_mgr.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\intrin.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\iocp_item.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\iocp_mgr.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rbtree.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\ring_buffer.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rlist.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rxtree.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\sockopt.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\string_util.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\sysconf.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\bits\confname.h">
+      <Filter>头文件\bits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\bits\in.h">
+      <Filter>头文件\bits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\bits\select.h">
+      <Filter>头文件\bits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\bits\siginfo.h">
+      <Filter>头文件\bits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\bits\sockaddr.h">
+      <Filter>头文件\bits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\bits\socket.h">
+      <Filter>头文件\bits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\bits\termios.h">
+      <Filter>头文件\bits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\bits\waitflags.h">
+      <Filter>头文件\bits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\bits\wordsize.h">
+      <Filter>头文件\bits</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\net\ethernet.h">
+      <Filter>头文件\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\net\if.h">
+      <Filter>头文件\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\netpacket\packet.h">
+      <Filter>头文件\netpacket</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
