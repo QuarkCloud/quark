@@ -62,18 +62,24 @@ QKCAPI FILE *fdopen (int fd , const char *modes);
 QUARK_LINKAGE void setbuf (FILE * stream , char * buf);
 QUARK_LINKAGE int setvbuf (FILE * stream , char * buf , int modes , size_t n);
 
-QUARK_LINKAGE int fprintf (FILE * stream , const char * format , ...);
-
-#if _MSC_VER > 1900
+#if _MSC_VER >= 1912
 
 QKCAPI int sprintf(char * s, const char * format, ...);
 QKCAPI int printf(const char * format, ...);
 QKCAPI int vsnprintf(char * s, size_t maxlen, const char * format, va_list arg);
+
+QKCAPI int fscanf(FILE * stream, const char * format, ...);
+QKCAPI int sscanf(const char * s, const char * format, ...);
+QKCAPI int fprintf(FILE * stream, const char * format, ...);
+
 #else
 
 QUARK_LINKAGE int sprintf (char * s , const char * format , ...);
 QUARK_LINKAGE int printf(const char * format, ...);
 QUARK_LINKAGE int vsnprintf(char * s, size_t maxlen, const char * format, va_list arg);
+QUARK_LINKAGE int fscanf(FILE * stream, const char * format, ...);
+QUARK_LINKAGE int sscanf(const char * s, const char * format, ...);
+QUARK_LINKAGE int fprintf(FILE * stream, const char * format, ...);
 
 #endif
 
@@ -84,9 +90,7 @@ QUARK_LINKAGE int vprintf (const char * format , va_list arg);
 QUARK_LINKAGE int vsprintf (char * s , const char * format , va_list arg);
 //QKCAPI int snprintf (char * s , size_t maxlen , const char * format , ...);
 
-QUARK_LINKAGE int fscanf (FILE * stream , const char * format , ...);
 QUARK_LINKAGE int scanf (const char * format , ...);
-QUARK_LINKAGE int sscanf (const char * s , const char * format , ...);
 
 QUARK_LINKAGE int fgetc (FILE *stream);
 QUARK_LINKAGE int getc (FILE *stream);

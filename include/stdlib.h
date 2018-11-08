@@ -7,9 +7,9 @@
 
 __BEGIN_DECLS
 
-QUARK_LINKAGE extern char ** _environ ;
+QKCAPI char *** __f_environ();
 
-#define environ _environ
+#define environ (*__f_environ()) ;
 
 #define	RAND_MAX	2147483647
 #define	EXIT_FAILURE	1	/* Failing exit status.  */

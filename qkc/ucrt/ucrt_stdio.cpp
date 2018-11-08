@@ -25,6 +25,8 @@ int _vsprintf_l(char*  const buffer, char const* const format, _locale_t  const 
 int _vsnprintf_l(char* const buffer, size_t const buffer_count, char const* const format,
     _locale_t const locale, va_list arglist);
 int _vfprintf_l(FILE* const stream, char const* const format, _locale_t const locale, va_list arglist);
+int _vfscanf_l(FILE* const stream, char const* const format, _locale_t const locale, va_list arglist);
+int _vsscanf_l(char const* const buffer, char const* const format, _locale_t const locale, va_list arglist);
 
 int sprintf(char * s, const char * format, ...)
 {
@@ -83,6 +85,46 @@ int vsnprintf(char* const buffer, size_t const buffer_count , char const* const 
     return result < 0 ? -1 : result;
 }
 
+int fprintf(FILE * stream, const char * format, ...)
+{
+    int result;
+    va_list arglist;
+    _crt_va_start(arglist, format);
+    result = _vfprintf_l(stream, format, NULL, arglist);
+    _crt_va_end(arglist);
+    return result;
+}
+
+int fscanf(FILE * stream, const char * format, ...)
+{
+    int result;
+    va_list arglist;
+    _crt_va_start(arglist, format);
+    result = _vfscanf_l(stream, format, NULL, arglist);
+    _crt_va_end(arglist);
+    return result;
+}
+
+int sscanf(const char * s, const char * format, ...)
+{
+    int result;
+    va_list arglist;
+    _crt_va_start(arglist, format);
+    result = _vsscanf_l(s, format, NULL, arglist);
+    _crt_va_end(arglist);
+    return result;
+
+}
+
+int _vfscanf_l(FILE* const stream,char const* const format,_locale_t const locale,va_list arglist)
+{
+    return __stdio_common_vfscanf(0, stream, format, locale, arglist);
+}
+
+int _vsscanf_l(char const* const buffer,char const* const format,_locale_t const locale,va_list arglist)
+{
+    return __stdio_common_vsscanf(0, buffer, (size_t)-1, format, locale, arglist);
+}
 
 
 

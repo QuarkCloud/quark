@@ -54,10 +54,13 @@ QUARK_LINKAGE int _mkdir(const char * path);
 
 typedef int errno_t;
 
-#if _MSC_VER > 1900
+#if _MSC_VER >= 1912
 QKCAPI void _dosmaperr(unsigned long);
+QUARK_LINKAGE char***    __p__environ(void);
+#define _environ  (*__p__environ()) 
 #else
 QUARK_LINKAGE void _dosmaperr(unsigned long);
+QUARK_LINKAGE extern char ** _environ;
 #endif
 
 QUARK_LINKAGE unsigned long * __doserrno(void);
@@ -103,7 +106,7 @@ QUARK_LINKAGE int _fileno (FILE *stream);
 QUARK_LINKAGE void _lock_file (FILE *stream);
 QUARK_LINKAGE void _unlock_file (FILE *stream);
 
-#if _MSC_VER > 1900
+#if _MSC_VER >= 1912
 
 typedef void * _locale_t;
 
@@ -127,6 +130,13 @@ QUARK_LINKAGE int __stdio_common_vfprintf_s(unsigned __int64 options, FILE* stre
 
 QUARK_LINKAGE int __stdio_common_vfprintf_p(unsigned __int64 options, FILE* stream, char const* format,
     _locale_t locale, va_list arglist);
+
+QUARK_LINKAGE int __stdio_common_vfscanf(unsigned __int64 options, FILE* stream,char const* format,
+    _locale_t locale, va_list arglist);
+
+QUARK_LINKAGE int __stdio_common_vsscanf(unsigned __int64 options,char const* buffer,size_t buffer_count,
+    char const* format,_locale_t locale,va_list arglist);
+
 
 #endif
 

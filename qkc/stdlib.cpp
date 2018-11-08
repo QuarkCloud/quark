@@ -14,8 +14,12 @@ QUARK_LINKAGE errno_t getenv_s(size_t * return_size , char * dst_buf , size_t ds
 QUARK_LINKAGE int _putenv(char *str);
 QUARK_LINKAGE int _putenv_s(const char *envname, const char *envval) ;
 
-
 __END_DECLS
+
+char *** __f_environ()
+{
+    return &_environ;
+}
 
 int rand_r (unsigned int * seed)
 {
