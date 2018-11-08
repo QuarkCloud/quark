@@ -2,7 +2,8 @@
 #define __QKC_SYS_SYSCALL_H 1
 
 #include <quark_compile.h>
-
+#include <syscall.h>
+/**
 #define SYS__sysctl __NR__sysctl
 #define SYS_access __NR_access
 #define SYS_acct __NR_acct
@@ -376,6 +377,6 @@
 #define SYS_vm86old __NR_vm86old
 #define SYS_waitpid __NR_waitpid
 #endif
-
+*/
 
 #endif /** __QKC_SYS_SYSCALL_H */
