@@ -9,7 +9,7 @@ __BEGIN_DECLS
 
 QKCAPI char *** __f_environ();
 
-#define environ (*__f_environ()) ;
+#define environ (*__f_environ()) 
 
 #define	RAND_MAX	2147483647
 #define	EXIT_FAILURE	1	/* Failing exit status.  */
