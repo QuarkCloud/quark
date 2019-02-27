@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qkc", "qkc\qkc.vcxproj", "{A08041CF-81D7-4A5C-A1D1-216FA37D2D46}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D6504F8D-6F55-4E84-9924-5E12680571E1} = {D6504F8D-6F55-4E84-9924-5E12680571E1}
+		{691DCBB8-A263-4BE4-B02F-1014FBF1934E} = {691DCBB8-A263-4BE4-B02F-1014FBF1934E}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qkw", "qkw\qkw.vcxproj", "{691DCBB8-A263-4BE4-B02F-1014FBF1934E}"
 EndProject
