@@ -3,164 +3,43 @@
 #include <windows.h>
 #include <wintf/wcrt.h>
 #include "internal/rlist.h"
+#include "internal/mman_mgr.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
-DWORD __mmap_prot_to_win(int prot)
-{
-    DWORD wp = 0 ;
-    prot &= 0x7 ;
-    if(prot == PROT_READ)
-        wp = PAGE_READONLY ;
-    else if(prot == PROT_WRITE)
-        wp = PAGE_WRITECOPY ;
-    else if(prot == PROT_EXEC)
-        wp = PAGE_EXECUTE_READ ;
-    else if(prot == (PROT_READ | PROT_WRITE))
-        wp = PAGE_READWRITE ;
-    else if(prot == (PROT_READ | PROT_EXEC))
-        wp = PAGE_EXECUTE_READ ;
-    else if(prot == (PROT_WRITE | PROT_EXEC))
-        wp = PAGE_EXECUTE_WRITECOPY ;
-    else if(prot == (PROT_READ | PROT_WRITE | PROT_EXEC))
-        wp = PAGE_EXECUTE_READWRITE ;
 
-    return wp ;
-}
 
-DWORD __mmap_flag_to_win(int flags)
-{
-//#define MAP_SHARED	0x01		/* Share changes.  */
-//#define MAP_PRIVATE	0x02		/* Changes are private.  */
-//#define MAP_TYPE	0x0f		/* Mask for type of mapping.  */
-
-//#define MAP_FIXED	0x10		/* Interpret addr exactly.  */
-//# define MAP_FILE	0
-//# define MAP_ANONYMOUS	0x20		/* Don't use a file.  */
-//# define MAP_ANON	MAP_ANONYMOUS
-//# define MAP_32BIT	0x40		/* Only give out 32-bit addresses.  */
-
-//# define MAP_GROWSDOWN	0x00100		/* Stack-like segment.  */
-//# define MAP_DENYWRITE	0x00800		/* ETXTBSY */
-//# define MAP_EXECUTABLE	0x01000		/* Mark it as an executable.  */
-//# define MAP_LOCKED	0x02000		/* Lock the mapping.  */
-//# define MAP_NORESERVE	0x04000		/* Don't check for reservations.  */
-//# define MAP_POPULATE	0x08000		/* Populate (prefault) pagetables.  */
-//# define MAP_NONBLOCK	0x10000		/* Do not block on IO.  */
-//# define MAP_STACK      0x20000         /* Allocation is for a stack.  */
-
-    //这些标识还蛮多的，后面再处理。
-    return 0 ;
-}
-
-typedef struct __st_mmap_info{
-    rlist_t link ;
-    int file_desc ;
-    int prot ;
-    int flags ;
-    size_t len ;
-    off_t offset ;
-    void * expect_addr ;
-
-    HANDLE file_handle ;
-    HANDLE map_handle ;
-    void * map_addr ;
-
-    //用于munmap
-    void * use_addr ;
-    size_t use_size ;
-
-    char * name ;
-} mmap_info_t ;
-
-//偷个懒，用链表管理。因为mmap本身就不会太多，所以也无需太复杂。
-static rlist_t __mmap_info_list__ = {&__mmap_info_list__ , &__mmap_info_list__} ;
-static SRWLOCK __mmap_access_guard__ = SRWLOCK_INIT ;
-
-bool mmap_insert(mmap_info_t * info) ;
-
-bool mmap_delete(mmap_info_t *& info , void * addr , size_t size) ;
-mmap_info_t * mmap_find(void * addr) ;
-
-static inline bool mmap_inside(mmap_info_t * info , void * addr)
-{
-    return (((uintptr_t)info->map_addr < (uintptr_t)addr) && 
-        ((uintptr_t)info->map_addr + info->len > (uintptr_t)addr)) ;
-}
-
-bool mmap_insert(mmap_info_t * info)
-{
-    rlist_init(&info->link) ;
-    ::AcquireSRWLockExclusive(&__mmap_access_guard__) ;
-    rlist_add_tail(&__mmap_info_list__ , &info->link) ;
-    ::ReleaseSRWLockExclusive(&__mmap_access_guard__) ;
-
-    return true ;
-}
-
-bool mmap_delete(mmap_info_t *& info , void * addr , size_t size) 
-{
-    info = NULL ;
-
-    mmap_info_t * finfo = mmap_find(addr) ;
-    if(finfo == NULL)
-        return false ;
-
-    bool result = true ;
-    uintptr_t use_addr = (uintptr_t)finfo->use_addr ;
-    uintptr_t del_addr = (uintptr_t)addr ;
-    size_t use_size = finfo->use_size ;
-
-    ::AcquireSRWLockExclusive(&__mmap_access_guard__) ;
-    if(del_addr == use_addr)
-    {
-        if(size >= use_size)
-        {
-            rlist_del(NULL ,&finfo->link) ;
-            info = finfo ;
-        }
-        else 
-        {
-            finfo->use_addr = (void *)(use_addr + size) ;
-            finfo->use_size -= size ;
-        }
-    }
-    else if(use_addr + use_size == del_addr + size)
-    {
-        finfo->use_size -= size ;        
-    }
-    else
-        result = false ;
-
-    ::ReleaseSRWLockExclusive(&__mmap_access_guard__) ;
-
-    return result ;
-}
-
-mmap_info_t * mmap_find(void * addr)
-{
-    mmap_info_t * info = NULL , * cur = NULL;    
-    ::AcquireSRWLockShared(&__mmap_access_guard__) ;
-    rlist_t * next = __mmap_info_list__.next ;
-    while(next != &__mmap_info_list__)
-    {
-        cur = (mmap_info_t *)next ;
-        if((cur->use_addr == addr) || mmap_inside(cur , addr) == true)
-        {
-            info = cur ;
-            break ;
-        }
-
-        next = next->next ;
-    }
-    
-    ::ReleaseSRWLockShared(&__mmap_access_guard__) ;
-    return info ;
-}
+void * mmap_mem(mmap_info_t * info , void * addr, size_t len, int prot, int flags, int fd, off_t offset);
+void * mmap_file(mmap_info_t * info, void * addr, size_t len, int prot, int flags, int fd, off_t offset);
 
 void *mmap (void * addr, size_t len, int prot, int flags, int fd, off_t offset)
 {
+	mmap_info_t * info = NULL;
+	if (addr != NULL)
+		info = mmap_mgr_find(NULL , addr);
+
+	if (fd == -1 || (flags & MAP_ANON))
+		return mmap_mem(info , addr, len, prot, flags, fd, offset);
+
+	if (addr != NULL)
+	{
+		//可能没有标识，只是简单的释放
+		if (info != NULL)
+		{
+			if (info->func_type == MMAP_FUNC_TYPE_ALLOC)
+				return mmap_mem(info, addr, len, prot, flags, fd, offset);
+			else if (info->func_type == MMAP_FUNC_TYPE_FILE)
+				return mmap_file(info, addr, len, prot, flags, fd, offset);
+			else
+				return NULL;
+		}		
+	}
+
+	return mmap_file(NULL, addr, len, prot, flags, fd, offset);
+/**
+	//1、找到对应的句柄
     HANDLE hfile = INVALID_HANDLE_VALUE ;
     if(fd != -1)
     {
@@ -169,70 +48,161 @@ void *mmap (void * addr, size_t len, int prot, int flags, int fd, off_t offset)
 
         //fd是linux系统的句柄，需要转译成windows的句柄HANDLE
         hfile = (HANDLE)::_get_osfhandle(fd) ;
+		return NULL;
     }
     DWORD wprot = __mmap_prot_to_win(prot) ;
     DWORD wflags = __mmap_flag_to_win(flags) ;
     wprot |= wflags ;   
     if(wprot == 0)
         wprot = PAGE_READWRITE | SEC_COMMIT;
-    HANDLE hmap = ::CreateFileMappingA(hfile , NULL , wprot , 0 , (DWORD)len , NULL) ;
-    if(hmap == NULL)
-    {
-        DWORD errcode = ::GetLastError() ;
-        return NULL ;
-    }
 
-    void * map_addr = ::MapViewOfFile(hmap , FILE_MAP_ALL_ACCESS , 0 , 0 , len) ;
-    if(map_addr == NULL)
-    {
-        DWORD errcode = ::GetLastError() ;
-        ::CloseHandle(hmap) ;
-        return NULL ;
-    }
+	//2、映射内存
+	HANDLE hmap = INVALID_HANDLE_VALUE;
+	void * map_addr = NULL;
+	mmap_info_t * info = NULL;
+	if (addr != NULL)
+		info = mmap_find(addr);
 
-    //2、保存信息
-    size_t info_size = sizeof(mmap_info_t) ;
-    mmap_info_t * info = (mmap_info_t *)::malloc(info_size) ;
-    ::memset(info , 0 , info_size) ;
-    rlist_init(&info->link) ;
+	mmap_func_type func_type = MMAP_FUNC_TYPE_NONE;
 
-    info->file_desc = fd ;
-    info->prot = prot ;
-    info->flags = flags ;
-    info->len = len ;
-    info->offset = offset ;
+	if ((fd != -1) && (hfile != INVALID_HANDLE_VALUE) && (hfile != NULL))
+	{
+		HANDLE hmap = ::CreateFileMappingA(hfile, NULL, wprot, 0, (DWORD)len, NULL);
+		if (hmap == NULL)
+		{
+			DWORD errcode = ::GetLastError();
+			return NULL;
+		}
 
-    info->expect_addr = addr ;
-    info->file_handle = hfile ;
-    info->map_handle = hmap ;
-    info->map_addr = map_addr ;
-    info->use_addr = map_addr ;
-    info->use_size = len ;
+		void * map_addr = ::MapViewOfFile(hmap, FILE_MAP_ALL_ACCESS, 0, 0, len);
+		if (map_addr == NULL)
+		{
+			DWORD errcode = ::GetLastError();
+			::CloseHandle(hmap);
+			return NULL;
+		}
 
-    mmap_insert(info) ;    
+		func_type = MMAP_FUNC_TYPE_FILE;
+	}
+	else
+	{
+		if ((prot & PROT_READ) != 0 && (prot & PROT_WRITE) != 0)
+		{
+			DWORD old_wflags = 0;
+			if (info != NULL)
+				old_wflags = info->wflags;
+			if((old_wflags & MEM_COMMIT) == 0)
+				wflags |= MEM_COMMIT;
+
+			map_addr = VirtualAlloc(addr, len, MEM_RESERVE | wflags, PAGE_READWRITE);
+			if (map_addr == NULL)
+			{
+				DWORD errcode = ::GetLastError();
+				return NULL;
+			}
+		}
+		else if (prot == PROT_NONE)
+		{
+			if (addr != NULL)
+			{
+				::VirtualFree(addr, len, MEM_DECOMMIT);
+			}
+			if (info != NULL)
+			{
+				return NULL;
+			}
+		}
+
+		func_type = MMAP_FUNC_TYPE_ALLOC;
+	}
+
+    //3、保存信息
+	if (info == NULL)
+	{
+		size_t info_size = sizeof(mmap_info_t);
+		info = (mmap_info_t *)::malloc(info_size);
+		::memset(info, 0, info_size);
+		rlist_init(&info->link);
+
+		info->file_desc = fd;
+		info->prot = prot;
+		info->flags = flags;
+		info->wprot = wprot;
+		info->wflags = wflags;
+		info->len = len;
+		info->offset = offset;
+
+		info->expect_addr = addr;
+		info->file_handle = hfile;
+		info->map_handle = hmap;
+		info->map_addr = map_addr;
+		info->use_addr = map_addr;
+		info->use_size = len;
+		info->func_type = func_type;
+
+		mmap_insert(info);
+	}
     return map_addr ;
+*/
 }
 
 int munmap (void *addr, size_t len)
 {
-    mmap_info_t * info = NULL ;
-    if(mmap_delete(info , addr , len) == false)
-        return -1 ;
+	//和mmap一样，munmap也会有分片释放的问题
+    mmap_info_t * info = mmap_mgr_find(NULL , addr) ;
+	if (info == NULL)
+		return -1;
 
-    if(info != NULL)
-    {
-        if(info->map_addr != NULL)
-            ::UnmapViewOfFile(info->map_addr) ;
+	if (info->map_addr == addr && (info->len == len || len == 0))
+	{
+		if (mmap_mgr_delete(NULL, info) == false)
+			return -1;
 
-        if(info->map_handle != NULL)
-            ::CloseHandle(info->map_handle) ;
+		if (info->func_type == MMAP_FUNC_TYPE_ALLOC)
+		{
+			if (info->map_addr != NULL)
+			{
+				::VirtualFree(info->map_addr, 0, MEM_RELEASE);
+				::printf("VirtualFree map_addr =%p , len = 0 \n", info->map_addr);
+				info->map_addr = NULL;
+			}
+		}
+		else if (info->func_type == MMAP_FUNC_TYPE_FILE)
+		{
+			if (info->map_addr != NULL)
+				::UnmapViewOfFile(info->map_addr);
 
-        if(info->name != NULL)
-            ::free(info->name) ;
+			if (info->map_handle != NULL)
+				::CloseHandle(info->map_handle);
+		}
 
-        ::free(info) ;
-    }
-    return 0 ;
+		if (info->name != NULL)
+			::free(info->name);
+
+		mmap_info_free(info);
+	}
+	else
+	{
+		//分片释放
+		if (info->map_addr == addr && info->len > len)
+		{
+			//释放头部
+			::VirtualFree(addr, len, MEM_RELEASE);
+			info->map_addr = (void *)((uintptr_t)addr + len );
+			info->len -= len;
+		}
+		else if ((uintptr_t)info->map_addr + info->len == (uintptr_t)addr + len)
+		{
+			//释放尾部
+			::VirtualFree((void *)((uintptr_t)addr + len), len, MEM_RELEASE);
+			info->len -= len;
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	return 0 ;
 }
 
 int mprotect (void *addr, size_t len, int prot)
@@ -287,4 +257,93 @@ int shm_open (const char *name, int oflag , mode_t mode)
 int shm_unlink (const char *name)
 {
     return ::_unlink(name) ;
+}
+
+void * mmap_mem(mmap_info_t * info, void * addr, size_t len, int prot, int flags, int fd, off_t offset)
+{
+	DWORD wflags = 0;
+	void * map_addr = NULL;
+
+	if (info == NULL)
+	{
+		//还没有分配
+		wflags = MEM_RESERVE;
+		if ((prot & PROT_WRITE) && (prot & PROT_READ))
+			wflags |= MEM_COMMIT;
+
+		map_addr = ::VirtualAlloc(addr, len, wflags , PAGE_READWRITE);
+		::printf("mmap_mem : VritualAlloc addr = %p , map_addr = %p , len = %u wflags = %u , prot = %d , flags = %d \n" , 
+			addr , map_addr , len , wflags , prot , flags );
+		if (map_addr == NULL)
+		{
+			DWORD errcode = ::GetLastError();
+			return NULL;
+		}
+
+		size_t info_size = sizeof(mmap_info_t);
+		mmap_info_t * new_info = NULL;	
+		if (mmap_info_alloc(new_info) == false)
+			return NULL;
+
+		info = new_info;
+
+		info->prot = prot;
+		info->flags = flags;
+		info->wflags = wflags;
+
+		info->len = len;
+		info->offset = offset;
+
+		info->expect_addr = addr;
+		info->file_handle = INVALID_HANDLE_VALUE;
+		info->map_handle = INVALID_HANDLE_VALUE ;
+		info->map_addr = map_addr;
+		info->use_addr = map_addr;
+		info->use_size = len;
+		info->func_type = MMAP_FUNC_TYPE_ALLOC;
+
+		mmap_mgr_insert(NULL , info);
+
+		return map_addr;
+	}
+	else
+	{
+		/**
+		if (info->map_addr != addr)
+		{
+			errno = EINVAL;
+			return NULL;
+		}
+		*/
+
+		//已经被分配了，那么可能是后续的操作，提交或者释放
+		if (prot == PROT_NONE)
+		{
+			//内存不可访问
+			mmap_info_decommit(info, addr, len);
+			::printf("mmap_mem mmap_info_decommit addr = %p , len = %u \n", addr , len);
+			info->prot = prot;
+			info->flags = flags;
+			return addr;
+		}
+		else if ((prot & PROT_READ) && (prot & PROT_WRITE))
+		{
+			if (!(info->wflags & MEM_COMMIT))
+			{
+				bool result = mmap_info_commit(info, addr, len);
+				::printf("mmap_mem mmap_info_commit addr = %p , map_addr = %p , "
+					"len = %u wflags = %u , prot = %d , flags = %d result=%s\n",
+					addr, info->map_addr, len, wflags, prot, flags , result?"true":"false");
+				if (result == false)
+					return NULL;
+			}
+			return addr;
+		}
+	}
+	return NULL;
+}
+
+void * mmap_file(mmap_info_t * info, void * addr, size_t len, int prot, int flags, int fd, off_t offset)
+{
+	return NULL;
 }

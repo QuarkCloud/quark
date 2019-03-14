@@ -284,6 +284,9 @@
     <ClCompile Include="ucrt\ucrt_errno.cpp">
       <Filter>源文件\ucrt</Filter>
     </ClCompile>
+    <ClCompile Include="internal\mman_mgr.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\alloca.h">
@@ -618,6 +621,9 @@
     </ClInclude>
     <ClInclude Include="..\include\netpacket\packet.h">
       <Filter>头文件\netpacket</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\mman_mgr.h">
+      <Filter>头文件\internal</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
