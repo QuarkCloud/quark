@@ -84,10 +84,7 @@ static inline bool mmap_info_inside(mmap_info_t * info, void * addr , size_t siz
 	if (size == 0)
 		return ((uintptr_t)info->map_addr + info->len > (uintptr_t)addr);
 	else
-		return  ((uintptr_t)info->map_addr + info->len > (uintptr_t)addr + size);
-
-	//return (((uintptr_t)info->map_addr <= (uintptr_t)addr) &&
-	//	((uintptr_t)info->map_addr + info->len >= ((uintptr_t)addr) + size));
+		return  ((uintptr_t)info->map_addr + info->len >= (uintptr_t)addr + size);
 }
 
 DWORD __mmap_prot_to_win(int prot);

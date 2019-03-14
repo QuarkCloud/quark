@@ -146,63 +146,22 @@ void *mmap (void * addr, size_t len, int prot, int flags, int fd, off_t offset)
 */
 }
 
+int mmap_unmem(mmap_info_t * info, void * addr, size_t len);
+int mmap_unfile(mmap_info_t * info, void * addr, size_t len);
+
 int munmap (void *addr, size_t len)
 {
-	//和mmap一样，munmap也会有分片释放的问题
+	//和mmap一样，munmap也会有分片释放的问题，甚至还有合并的问题
     mmap_info_t * info = mmap_mgr_find(NULL , addr) ;
 	if (info == NULL)
 		return -1;
 
-	if (info->map_addr == addr && (info->len == len || len == 0))
-	{
-		if (mmap_mgr_delete(NULL, info) == false)
-			return -1;
-
-		if (info->func_type == MMAP_FUNC_TYPE_ALLOC)
-		{
-			if (info->map_addr != NULL)
-			{
-				::VirtualFree(info->map_addr, 0, MEM_RELEASE);
-				::printf("VirtualFree map_addr =%p , len = 0 \n", info->map_addr);
-				info->map_addr = NULL;
-			}
-		}
-		else if (info->func_type == MMAP_FUNC_TYPE_FILE)
-		{
-			if (info->map_addr != NULL)
-				::UnmapViewOfFile(info->map_addr);
-
-			if (info->map_handle != NULL)
-				::CloseHandle(info->map_handle);
-		}
-
-		if (info->name != NULL)
-			::free(info->name);
-
-		mmap_info_free(info);
-	}
+	if (info->func_type == MMAP_FUNC_TYPE_ALLOC)
+		return mmap_unmem(info, addr, len);
+	else if (info->func_type == MMAP_FUNC_TYPE_FILE)
+		return mmap_unfile(info, addr, len);
 	else
-	{
-		//分片释放
-		if (info->map_addr == addr && info->len > len)
-		{
-			//释放头部
-			::VirtualFree(addr, len, MEM_RELEASE);
-			info->map_addr = (void *)((uintptr_t)addr + len );
-			info->len -= len;
-		}
-		else if ((uintptr_t)info->map_addr + info->len == (uintptr_t)addr + len)
-		{
-			//释放尾部
-			::VirtualFree((void *)((uintptr_t)addr + len), len, MEM_RELEASE);
-			info->len -= len;
-		}
-		else
-		{
-			return -1;
-		}
-	}
-	return 0 ;
+		return -1;
 }
 
 int mprotect (void *addr, size_t len, int prot)
@@ -321,7 +280,7 @@ void * mmap_mem(mmap_info_t * info, void * addr, size_t len, int prot, int flags
 		{
 			//内存不可访问
 			mmap_info_decommit(info, addr, len);
-			::printf("mmap_mem mmap_info_decommit addr = %p , len = %u \n", addr , len);
+			//::printf("mmap_mem mmap_info_decommit addr = %p , len = %u \n", addr , len);
 			info->prot = prot;
 			info->flags = flags;
 			return addr;
@@ -331,9 +290,9 @@ void * mmap_mem(mmap_info_t * info, void * addr, size_t len, int prot, int flags
 			if (!(info->wflags & MEM_COMMIT))
 			{
 				bool result = mmap_info_commit(info, addr, len);
-				::printf("mmap_mem mmap_info_commit addr = %p , map_addr = %p , "
-					"len = %u wflags = %u , prot = %d , flags = %d result=%s\n",
-					addr, info->map_addr, len, wflags, prot, flags , result?"true":"false");
+				//::printf("mmap_mem mmap_info_commit addr = %p , map_addr = %p , "
+				//	"len = %u wflags = %u , prot = %d , flags = %d result=%s\n",
+				//	addr, info->map_addr, len, wflags, prot, flags , result?"true":"false");
 				if (result == false)
 					return NULL;
 			}
@@ -347,3 +306,165 @@ void * mmap_file(mmap_info_t * info, void * addr, size_t len, int prot, int flag
 {
 	return NULL;
 }
+
+int mmap_unmem_head(mmap_info_t * info, void * addr, size_t len)
+{
+	//释放头部
+	::VirtualFree(addr, len, MEM_RELEASE);
+	info->map_addr = (void *)((uintptr_t)addr + len);
+	info->len -= len;
+	return 0;
+	/**
+	}
+	else if ((uintptr_t)info->map_addr + info->len == (uintptr_t)addr + len)
+	{
+		//释放尾部
+		::VirtualFree((void *)((uintptr_t)addr + len), len, MEM_RELEASE);
+		info->len -= len;
+		return 0;
+	}
+	else
+		return -1;
+	*/
+}
+
+int mmap_unmem_tail(mmap_info_t * info, void * addr, size_t len)
+{
+	//else if ((uintptr_t)info->map_addr + info->len == (uintptr_t)addr + len)
+	{
+		//释放尾部
+		::VirtualFree((void *)((uintptr_t)addr + len), len, MEM_RELEASE);
+		info->len -= len;
+		return 0;
+	}
+}
+
+int mmap_unmem_single(mmap_info_t * info, void * addr, size_t len)
+{
+	if (mmap_mgr_delete(NULL, info) == false)
+		return -1;
+
+	if (info->map_addr != NULL)
+	{
+		::VirtualFree(info->map_addr, 0, MEM_RELEASE);
+		::printf("VirtualFree map_addr =%p , len = %x \n", info->map_addr , len);
+		info->map_addr = NULL;
+	}
+
+	if (info->name != NULL)
+		::free(info->name);
+
+	mmap_info_free(info);
+
+	return 0;
+}
+
+int mmap_unmem_multiple(mmap_info_t * info, void * addr, size_t len)
+{
+	void * ptr = addr;
+	mmap_info_t * node = info;
+	size_t size = len;
+	rlist_t infos;
+	rlist_init(&infos);
+
+	while (node->map_addr == ptr && node->len <= size)
+	{
+		mmap_mgr_delete(NULL, node);
+		rlist_add_tail(&infos, &node->link);
+
+		ptr = (void *)((uintptr_t)ptr + node->len);
+		size -= node->len;
+		if (size == 0)
+			break;
+
+		if ((node = mmap_mgr_find(NULL, ptr)) == NULL)
+			return -1;
+	}
+
+	if (size != 0)
+	{
+		//没有全部对齐，则重新塞回去
+		while (rlist_empty(&infos) == false)
+		{
+			node = (mmap_info_t *)infos.next;
+			rlist_del(NULL, &node->link);
+
+			mmap_mgr_insert(NULL, node);
+		}
+		return -1;
+	}
+
+	//全部释放
+	int result = 0;
+	while (rlist_empty(&infos) == false)
+	{
+		node = (mmap_info_t *)infos.next;
+		rlist_del(&infos, &node->link);
+		if (mmap_unmem_single(node, node->map_addr, node->len) != 0)
+		{
+			mmap_mgr_insert(NULL, node);
+			result = -1;
+		}
+	}
+
+	return result;
+}
+
+int mmap_unmem(mmap_info_t * info, void * addr, size_t len)
+{
+	if (info->map_addr == addr)
+	{
+		if (info->len == len || len == 0)
+		{
+			//整块释放
+			return mmap_unmem_single(info, addr, len);
+		}
+		else if (info->len > len)
+		{
+			//分片释放
+			return mmap_unmem_head(info, addr, len);
+		}
+		else
+			return mmap_unmem_multiple(info, addr, len);
+	}
+	else if ((uintptr_t)info->map_addr + info->len == (uintptr_t)addr + len)
+	{
+		//分片释放
+		return mmap_unmem_tail(info, addr, len);
+	}
+	return -1;
+}
+
+int mmap_unfile(mmap_info_t * info, void * addr, size_t len)
+{
+
+	if (info->map_addr == addr && (info->len == len || len == 0))
+	{
+		if (mmap_mgr_delete(NULL, info) == false)
+			return -1;
+
+		if (info->func_type == MMAP_FUNC_TYPE_FILE)
+		{
+			if (info->map_addr != NULL)
+				::UnmapViewOfFile(info->map_addr);
+
+			if (info->map_handle != NULL)
+				::CloseHandle(info->map_handle);
+		}
+
+		if (info->name != NULL)
+			::free(info->name);
+
+		mmap_info_free(info);
+		return 0;
+	}
+	else
+	{
+		//分片释放
+
+		//合并释放
+
+	}
+	return -1;
+}
+
