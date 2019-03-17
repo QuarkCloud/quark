@@ -231,8 +231,8 @@ void * mmap_mem(mmap_info_t * info, void * addr, size_t len, int prot, int flags
 			wflags |= MEM_COMMIT;
 
 		map_addr = ::VirtualAlloc(addr, len, wflags , PAGE_READWRITE);
-		::printf("mmap_mem : VritualAlloc addr = %p , map_addr = %p , len = %u wflags = %u , prot = %d , flags = %d \n" , 
-			addr , map_addr , len , wflags , prot , flags );
+		::printf("mmap_mem : VritualAlloc addr = %p , map_addr = %p , len = %x wflags = %s , prot = %d , flags = %d \n" , 
+			addr , map_addr , len , __mmap_str_wflags(wflags) , prot , flags );
 		if (map_addr == NULL)
 		{
 			DWORD errcode = ::GetLastError();
@@ -314,18 +314,6 @@ int mmap_unmem_head(mmap_info_t * info, void * addr, size_t len)
 	info->map_addr = (void *)((uintptr_t)addr + len);
 	info->len -= len;
 	return 0;
-	/**
-	}
-	else if ((uintptr_t)info->map_addr + info->len == (uintptr_t)addr + len)
-	{
-		//ÊÍ·ÅÎ²²¿
-		::VirtualFree((void *)((uintptr_t)addr + len), len, MEM_RELEASE);
-		info->len -= len;
-		return 0;
-	}
-	else
-		return -1;
-	*/
 }
 
 int mmap_unmem_tail(mmap_info_t * info, void * addr, size_t len)

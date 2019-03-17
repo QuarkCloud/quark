@@ -671,12 +671,19 @@ int pthread_cond_timedwait(pthread_cond_t * cond , pthread_mutex_t * mutex , con
     ::ReleaseMutex(obj->handle) ;
 
     uint64_t timeout = ElapseToMSec(abstime) ;
-    BOOL result = ::SleepConditionVariableCS((PCONDITION_VARIABLE)&cond->locker , data->handle_critical_section , (DWORD)timeout) ;
+	int result = 0;
+    if(::SleepConditionVariableCS((PCONDITION_VARIABLE)&cond->locker , data->handle_critical_section , (DWORD)timeout) == FALSE)
+	{
+		if (::GetLastError() == ERROR_TIMEOUT)
+			result = ETIMEDOUT;
+		else
+			result = -1;
+	}
 
     ::WaitForSingleObject(obj->handle , INFINITE) ;
     ::LeaveCriticalSection(data->handle_critical_section) ;
 
-    return (result?0:-1) ;
+	return result;
 }
 
 int pthread_condattr_init(pthread_condattr_t *attr) 

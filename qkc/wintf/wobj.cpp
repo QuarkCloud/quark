@@ -2,6 +2,7 @@
 #include <wintf/wobj.h>
 #include <windows.h>
 #include <string.h>
+#include <stdio.h>
 
 INIT_ONCE __wobj_inited__ = INIT_ONCE_STATIC_INIT ;
 SRWLOCK __wobj_rwlock__ =  SRWLOCK_INIT ;
@@ -9,8 +10,9 @@ SRWLOCK __wobj_rwlock__ =  SRWLOCK_INIT ;
 /**
     暂时先开4096个，后续再扩。
 */
-static const int wObjMaxSize =  4096 ;
+static const int wObjMaxSize =  16384 ;
 static int wObjLastIndex = 0 ;
+static int wObjCounter = 0;
 static wobj_t __wobjs__[wObjMaxSize] ;
 
 
@@ -75,7 +77,7 @@ int wobj_set(wobj_type type , HANDLE handle , void * addition)
     int wid = INVALID_WOBJ_ID ;
     int xid = wObjLastIndex + 1;
     ::AcquireSRWLockExclusive(&__wobj_rwlock__) ;
-    while(xid != wObjLastIndex)
+    while(xid != wObjLastIndex && wObjCounter < wObjMaxSize)
     {
         if(xid >= wObjMaxSize)
             xid = 0 ;
@@ -95,11 +97,16 @@ int wobj_set(wobj_type type , HANDLE handle , void * addition)
         ko->addition = addition ;
 
         wObjLastIndex = xid ;
+		++wObjCounter;
 
         break ;    
     }
-
     ::ReleaseSRWLockExclusive(&__wobj_rwlock__) ;
+
+	if (wid == INVALID_WOBJ_ID)
+	{
+		::printf("failed to alloc wid for type = %d handle = %p \n" , type , handle);
+	}
     return wid ;
 }
 
@@ -127,6 +134,7 @@ bool wobj_del(int wid)
         */
         result = true ;
         ::memset(ko , 0 , sizeof(wobj_t)) ;
+		--wObjCounter;
     }
 
     ::ReleaseSRWLockExclusive(&__wobj_rwlock__) ;

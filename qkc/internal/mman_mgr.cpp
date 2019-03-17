@@ -279,3 +279,21 @@ DWORD __mmap_flag_to_win(int flags)
 	return 0;
 }
 
+const char * __mmap_str_wflags(DWORD wflags)
+{
+	static const char * __str_wflags__[] = {
+		"MEM_COMMIT | MEM_RESERVE" ,
+		"MEM_COMMIT" , "MEM_RESERVE" ,
+		"NOFLAGS"
+	};
+
+	if ((wflags & MEM_COMMIT) && (wflags & MEM_RESERVE))
+		return __str_wflags__[0];
+	else if (wflags & MEM_COMMIT)
+		return __str_wflags__[1];
+	else if (wflags & MEM_RESERVE)
+		return __str_wflags__[2];
+	else
+		return __str_wflags__[3];
+}
+

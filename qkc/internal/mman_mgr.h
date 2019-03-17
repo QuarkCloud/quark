@@ -89,6 +89,7 @@ static inline bool mmap_info_inside(mmap_info_t * info, void * addr , size_t siz
 
 DWORD __mmap_prot_to_win(int prot);
 DWORD __mmap_flag_to_win(int flags);
+const char * __mmap_str_wflags(DWORD wflags);
 
 __END_DECLS
 
