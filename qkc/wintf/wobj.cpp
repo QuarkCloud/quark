@@ -105,7 +105,7 @@ int wobj_set(wobj_type type , HANDLE handle , void * addition)
 
 	if (wid == INVALID_WOBJ_ID)
 	{
-		::printf("failed to alloc wid for type = %d handle = %p \n" , type , handle);
+		//::printf("failed to alloc wid for type = %d handle = %p \n" , type , handle);
 	}
     return wid ;
 }
