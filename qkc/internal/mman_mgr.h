@@ -69,6 +69,7 @@ mmap_mgr_t * mmap_mgr_default();
 bool mmap_mgr_insert(mmap_mgr_t * mgr , mmap_info_t * info);
 bool mmap_mgr_delete(mmap_mgr_t * mgr, mmap_info_t *info);
 mmap_info_t * mmap_mgr_find(mmap_mgr_t * mgr , void * addr);
+bool mmap_mgr_validate(mmap_mgr_t * mgr, void * addr, size_t size);
 
 bool mmap_info_alloc(mmap_info_t *& info);
 bool mmap_info_free(mmap_info_t * info);
@@ -81,6 +82,7 @@ static inline bool mmap_info_inside(mmap_info_t * info, void * addr , size_t siz
 	if((uintptr_t)info->map_addr > (uintptr_t)addr)
 		return false ;
 
+	bool result = false;
 	if (size == 0)
 		return ((uintptr_t)info->map_addr + info->len > (uintptr_t)addr);
 	else

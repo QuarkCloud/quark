@@ -77,6 +77,27 @@ mmap_info_t * mmap_mgr_find(mmap_mgr_t * mgr, void * addr)
 	return info;
 }
 
+bool mmap_mgr_validate(mmap_mgr_t * mgr, void * addr, size_t size)
+{
+	if (mgr == NULL)
+		mgr = mmap_mgr_default();
+
+	void * ptr = addr;
+	size_t max_size = size;
+	mmap_info_t * info = NULL;
+
+	while ((info = mmap_mgr_find(mgr, ptr)) != NULL)
+	{
+		size_t move_size = ((uintptr_t)info->map_addr + info->len) - (uintptr_t)ptr;
+		if (move_size >= max_size)
+			return true;
+
+		max_size -= move_size;
+		ptr = (void *)((uintptr_t)ptr + move_size);
+	}
+	return true;
+}
+
 bool mmap_info_alloc(mmap_info_t *& info)
 {
 	info = (mmap_info_t *)mmap_heap_alloc(sizeof(mmap_info_t));
@@ -138,7 +159,7 @@ mmap_commits_t * mmap_info_find(mmap_info_t * info, void * addr, size_t size)
 	{
 		mmap_commits_t * commit = (mmap_commits_t *)next;
 		next = next->next;
-		if (commit->start_addr == addr && commit->len == size)
+		if (commit->start_addr == addr && (commit->len == size || size == 0))
 			return commit;
 	}
 	return NULL;
@@ -148,86 +169,193 @@ bool mmap_info_commit(mmap_info_t * info, void * addr, size_t size)
 {
 	if (info == NULL || addr == NULL || size == 0)
 		return false;
-
-	if (mmap_info_inside(info, addr, size) == false)
-		return false;
+	/**
+		2019-03-20
+		一个超级无敌的应用场景，提交可以跨多个mmap区块，真是少见识了，还是之前太中规中矩了。
+	*/
+	//if (mmap_info_inside(info, addr, size) == false)
+	//	return false;
 
 	//如果是全部提交，这是大部分情况，则直接表示在info上
 	if (info->map_addr == addr && info->len == size)
 	{
 		if (info->wflags & MEM_COMMIT)
+		{
+			::printf("whole info = %p addr = %p , size = %x had commit \n" , info , addr , size);
 			return true;
+		}
 
 		::AcquireSRWLockExclusive(&info->locker);
 		if (::VirtualAlloc(addr, size, MEM_COMMIT, PAGE_READWRITE) == NULL)
 		{
 			DWORD errcode = ::GetLastError();
+			::printf("virtual alloc commit failed errcode = %u, addr=%p size=%x \n" , errcode , addr , size);
 			::ReleaseSRWLockExclusive(&info->locker);
 			return false;
 		}
+		::printf("virtual alloc commit succeed , addr=%p size=%x \n", addr, size);
 		info->wflags |= MEM_COMMIT;
 		::ReleaseSRWLockExclusive(&info->locker);
 		return true;
 	}
-
-	//分片提交
-	mmap_commits_t * commit = (mmap_commits_t *)mmap_heap_alloc(sizeof(mmap_commits_t));
-	if (commit == NULL)
+	else if ((uintptr_t)info->map_addr > (uintptr_t)addr)
 	{
-		errno = ENOMEM;
+		//地址不在区间内
 		return false;
 	}
-	rlist_init(&commit->link);
 
-	::AcquireSRWLockExclusive(&info->locker);
-
-	if (mmap_info_find(info, addr, size) != NULL)
+	if ((uintptr_t)info->map_addr + info->len >= (uintptr_t)addr + size)
 	{
+		//片内分片提交
+		mmap_commits_t * commit = (mmap_commits_t *)mmap_heap_alloc(sizeof(mmap_commits_t));
+		if (commit == NULL)
+		{
+			errno = ENOMEM;
+			return false;
+		}
+		rlist_init(&commit->link);
+
+		::AcquireSRWLockExclusive(&info->locker);
+
+		if (mmap_info_find(info, addr, size) != NULL)
+		{
+			::ReleaseSRWLockExclusive(&info->locker);
+			::printf("piece info = %p addr = %p , size = %x had commit \n", info , addr, size);
+			mmap_heap_free(commit);
+			return true;
+		}
+
+		if (::VirtualAlloc(addr, size, MEM_COMMIT, PAGE_READWRITE) == NULL)
+		{
+			DWORD errcode = ::GetLastError();
+			::printf("virtual alloc commit failed errcode = %u, addr=%p size=%x \n", errcode, addr, size);
+			::ReleaseSRWLockExclusive(&info->locker);
+
+			mmap_heap_free(commit);
+			return false;
+		}
+		::printf("virtual alloc commit succeed , addr=%p size=%x \n", addr, size);
+		commit->start_addr = addr;
+		commit->len = size;
+		rlist_add_tail(&info->commits, &commit->link);
 		::ReleaseSRWLockExclusive(&info->locker);
-		mmap_heap_free(commit);
 		return true;
 	}
 
-	if (::VirtualAlloc(addr, size, MEM_COMMIT, PAGE_READWRITE) == NULL)
-	{
-		DWORD errcode = ::GetLastError();
-		::ReleaseSRWLockExclusive(&info->locker);
-
-		mmap_heap_free(commit);
+	//跨界提交，除了本地mmap块外，还涉及到另外的mmap块
+	//1、先检查是否是mgr内部连续内存块
+	if (mmap_mgr_validate(NULL, addr, size) == false)
 		return false;
+	//2、逐块提交
+	mmap_info_t * node = NULL;
+	void * ptr = addr;
+	size_t max_size = size;
+	while ((node = mmap_mgr_find(NULL, ptr)) != NULL)
+	{
+		size_t move_size = ((uintptr_t)node->map_addr + node->len) - (uintptr_t)ptr;
+		if (max_size <= move_size)
+			return mmap_info_commit(node, ptr, max_size);
+		else
+			mmap_info_commit(node, ptr, move_size);
+
+		max_size -= move_size;
+		ptr = (void *)((uintptr_t)ptr + move_size);
 	}
-	commit->start_addr = addr;
-	commit->len = size;
-	rlist_add_tail(&info->commits, &commit->link);
-	::ReleaseSRWLockExclusive(&info->locker);
-	return true;
+
+	return false;	
 }
 
 bool mmap_info_decommit(mmap_info_t * info, void * addr, size_t size)
 {
 	if (info == NULL || addr == NULL || size == 0)
+	{
+		::printf("decommit failed , info=%p addr = %p size = %x \n" , info , addr , size);
 		return false;
+	}
 
-	if (mmap_info_inside(info, addr, size) == false)
+	if (mmap_info_inside(info, addr, 0) == false)
+	{
+		::printf("decommit failed for addr not inside , info=%p addr = %p size = %x \n", info, addr, size);
 		return false;
+	}
 
 	bool result = false;
 	::AcquireSRWLockExclusive(&info->locker);
-	mmap_commits_t * commit = mmap_info_find(info, addr, size);
+	mmap_commits_t * commit = mmap_info_find(info, addr, 0);
 	if (commit == NULL)
 	{
-		::VirtualFree(addr, size, MEM_DECOMMIT);
-		info->wflags &= MEM_COMMIT;
-		result = true;
-	}
-	else
-	{
-		rlist_del(&info->commits, &commit->link);
-		::VirtualFree(addr, size, MEM_DECOMMIT);
-		mmap_heap_free(commit);
-		result = true;
+		//先试试是不是整个decommit，这是最经常发生的场景
+		if ((info->wflags & MEM_COMMIT) && (info->map_addr == addr) && (info->len == size))
+		{
+			::VirtualFree(addr, size, MEM_DECOMMIT);
+			info->wflags &= MEM_COMMIT;
+			result = true;
+			::printf("decommit whole info = %p , addr = %p , len = %x \n" , info , addr , size);
+		}
+		else
+		{
+			::printf("decommit failed , info=%p wflags = %s map_addr = %p , addr = %p info->len = %x size = %x \n", 
+				info, ::__mmap_str_wflags(info->wflags) , info->map_addr , addr, info->len , size);
+		}
+		::ReleaseSRWLockExclusive(&info->locker);
+		return result;
 	}
 	::ReleaseSRWLockExclusive(&info->locker);
+
+	//多次commit，合并decommit
+	::AcquireSRWLockExclusive(&info->locker);
+	size_t max_size = size;
+	if (size == 0)
+		max_size = ((uintptr_t)info->map_addr + info->len) - (uintptr_t)addr;
+	void * ptr = addr;
+	result = true;
+	while (commit != NULL && max_size > 0)
+	{
+		size_t desize = commit->len;
+		rlist_del(&info->commits, &commit->link);
+		mmap_heap_free(commit);
+		if (::VirtualFree(ptr, desize, MEM_DECOMMIT) == FALSE)
+		{
+			::printf("virtual free piece failed , info=%p , addr=%p , size = %x \n", info, ptr, desize);
+			result = false;
+			break;
+		}
+		::printf("virtual free piece succeed , info=%p , addr=%p , size = %x \n", info, ptr, desize);
+
+		max_size -= desize;
+		ptr = (void *)((uintptr_t)ptr + desize);
+
+		commit = mmap_info_find(info, ptr, 0);
+	}
+	::ReleaseSRWLockExclusive(&info->locker);
+
+
+	if (result == true && max_size > 0)
+	{
+		//还剩下的，可能是在外部mmap_info_t
+		::printf("decommit left size = %x \n", max_size);
+		mmap_info_t * node = NULL;
+		while ((node = mmap_mgr_find(NULL, ptr)) != NULL && max_size > 0)
+		{
+			if (node->map_addr != ptr)
+			{
+				result = false;
+				break;
+			}
+			size_t desize = node->len;
+			if (desize > max_size)
+				desize = max_size;
+			if (mmap_info_decommit(node, ptr, desize) == false)
+			{
+				result = false;
+				break;
+			}
+
+			ptr = (void *)((uintptr_t)ptr + desize);
+			max_size -= desize;
+		}
+	}
+
 	return result ;
 }
 

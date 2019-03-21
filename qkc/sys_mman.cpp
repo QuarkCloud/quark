@@ -231,8 +231,8 @@ void * mmap_mem(mmap_info_t * info, void * addr, size_t len, int prot, int flags
 			wflags |= MEM_COMMIT;
 
 		map_addr = ::VirtualAlloc(addr, len, wflags , PAGE_READWRITE);
-		//::printf("mmap_mem : VritualAlloc addr = %p , map_addr = %p , len = %x wflags = %s , prot = %d , flags = %d \n" , 
-		//	addr , map_addr , len , __mmap_str_wflags(wflags) , prot , flags );
+		::printf("mmap_mem : VritualAlloc addr = %p , map_addr = %p , len = %x wflags = %s , prot = %d , flags = %d \n" , 
+			addr , map_addr , len , __mmap_str_wflags(wflags) , prot , flags );
 		if (map_addr == NULL)
 		{
 			DWORD errcode = ::GetLastError();
@@ -279,8 +279,9 @@ void * mmap_mem(mmap_info_t * info, void * addr, size_t len, int prot, int flags
 		if (prot == PROT_NONE)
 		{
 			//内存不可访问
-			mmap_info_decommit(info, addr, len);
-			//::printf("mmap_mem mmap_info_decommit addr = %p , len = %u \n", addr , len);
+			bool result = mmap_info_decommit(info, addr, len);
+			::printf("mmap_mem mmap_info_decommit info = %p , addr = %p , len = %x , result = %s \n", 
+				info , addr , len , result?"TRUE":"FALSE");
 			info->prot = prot;
 			info->flags = flags;
 			return addr;
@@ -290,9 +291,9 @@ void * mmap_mem(mmap_info_t * info, void * addr, size_t len, int prot, int flags
 			if (!(info->wflags & MEM_COMMIT))
 			{
 				bool result = mmap_info_commit(info, addr, len);
-				//::printf("mmap_mem mmap_info_commit addr = %p , map_addr = %p , "
-				//	"len = %u wflags = %u , prot = %d , flags = %d result=%s\n",
-				//	addr, info->map_addr, len, wflags, prot, flags , result?"true":"false");
+				::printf("mmap_mem mmap_info_commit info=%p , addr = %p , map_addr = %p , "
+					"len = %x wflags = %s , prot = %x , flags = %x result=%s\n",
+					info , addr, info->map_addr, len, __mmap_str_wflags(info->wflags), prot, flags , result?"true":"false");
 				if (result == false)
 					return NULL;
 			}
@@ -335,7 +336,7 @@ int mmap_unmem_single(mmap_info_t * info, void * addr, size_t len)
 	if (info->map_addr != NULL)
 	{
 		::VirtualFree(info->map_addr, 0, MEM_RELEASE);
-		//::printf("VirtualFree map_addr =%p , len = %x \n", info->map_addr , len);
+		::printf("VirtualFree map_addr =%p , len = %x \n", info->map_addr , len);
 		info->map_addr = NULL;
 	}
 
