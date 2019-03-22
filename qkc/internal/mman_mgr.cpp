@@ -183,7 +183,7 @@ bool mmap_info_commit(mmap_info_t * info, void * addr, size_t size)
 	{
 		if (info->wflags & MEM_COMMIT)
 		{
-			::printf("whole info = %p addr = %p , size = %x had commit \n" , info , addr , size);
+			//::printf("whole info = %p addr = %p , size = %x had commit \n" , info , addr , size);
 			return true;
 		}
 
@@ -191,11 +191,11 @@ bool mmap_info_commit(mmap_info_t * info, void * addr, size_t size)
 		if (::VirtualAlloc(addr, size, MEM_COMMIT, PAGE_READWRITE) == NULL)
 		{
 			DWORD errcode = ::GetLastError();
-			::printf("virtual alloc commit failed errcode = %u, addr=%p size=%x \n" , errcode , addr , size);
+			//::printf("virtual alloc commit failed errcode = %u, addr=%p size=%x \n" , errcode , addr , size);
 			::ReleaseSRWLockExclusive(&info->locker);
 			return false;
 		}
-		::printf("virtual alloc commit succeed , addr=%p size=%x \n", addr, size);
+		//::printf("virtual alloc commit succeed , addr=%p size=%x \n", addr, size);
 		info->wflags |= MEM_COMMIT;
 		::ReleaseSRWLockExclusive(&info->locker);
 		return true;
@@ -222,7 +222,7 @@ bool mmap_info_commit(mmap_info_t * info, void * addr, size_t size)
 		if (mmap_info_find(info, addr, size) != NULL)
 		{
 			::ReleaseSRWLockExclusive(&info->locker);
-			::printf("piece info = %p addr = %p , size = %x had commit \n", info , addr, size);
+			//::printf("piece info = %p addr = %p , size = %x had commit \n", info , addr, size);
 			mmap_heap_free(commit);
 			return true;
 		}
@@ -230,13 +230,13 @@ bool mmap_info_commit(mmap_info_t * info, void * addr, size_t size)
 		if (::VirtualAlloc(addr, size, MEM_COMMIT, PAGE_READWRITE) == NULL)
 		{
 			DWORD errcode = ::GetLastError();
-			::printf("virtual alloc commit failed errcode = %u, addr=%p size=%x \n", errcode, addr, size);
+			//::printf("virtual alloc commit failed errcode = %u, addr=%p size=%x \n", errcode, addr, size);
 			::ReleaseSRWLockExclusive(&info->locker);
 
 			mmap_heap_free(commit);
 			return false;
 		}
-		::printf("virtual alloc commit succeed , addr=%p size=%x \n", addr, size);
+		//::printf("virtual alloc commit succeed , addr=%p size=%x \n", addr, size);
 		commit->start_addr = addr;
 		commit->len = size;
 		rlist_add_tail(&info->commits, &commit->link);
@@ -271,13 +271,13 @@ bool mmap_info_decommit(mmap_info_t * info, void * addr, size_t size)
 {
 	if (info == NULL || addr == NULL || size == 0)
 	{
-		::printf("decommit failed , info=%p addr = %p size = %x \n" , info , addr , size);
+		//::printf("decommit failed , info=%p addr = %p size = %x \n" , info , addr , size);
 		return false;
 	}
 
 	if (mmap_info_inside(info, addr, 0) == false)
 	{
-		::printf("decommit failed for addr not inside , info=%p addr = %p size = %x \n", info, addr, size);
+		//::printf("decommit failed for addr not inside , info=%p addr = %p size = %x \n", info, addr, size);
 		return false;
 	}
 
@@ -292,12 +292,12 @@ bool mmap_info_decommit(mmap_info_t * info, void * addr, size_t size)
 			::VirtualFree(addr, size, MEM_DECOMMIT);
 			info->wflags &= ~MEM_COMMIT;
 			result = true;
-			::printf("decommit whole info = %p , addr = %p , len = %x \n" , info , addr , size);
+			//::printf("decommit whole info = %p , addr = %p , len = %x \n" , info , addr , size);
 		}
 		else
 		{
-			::printf("decommit failed , info=%p wflags = %s map_addr = %p , addr = %p info->len = %x size = %x \n", 
-				info, ::__mmap_str_wflags(info->wflags) , info->map_addr , addr, info->len , size);
+			//::printf("decommit failed , info=%p wflags = %s map_addr = %p , addr = %p info->len = %x size = %x \n", 
+			//	info, ::__mmap_str_wflags(info->wflags) , info->map_addr , addr, info->len , size);
 		}
 		::ReleaseSRWLockExclusive(&info->locker);
 		return result;
@@ -314,7 +314,7 @@ bool mmap_info_decommit(mmap_info_t * info, void * addr, size_t size)
 
 			if (::VirtualFree(addr, desize, MEM_DECOMMIT) == FALSE)
 			{
-				::printf("virtual free whole commit failed , info=%p , addr=%p , size = %x \n", info, addr, desize);
+				//::printf("virtual free whole commit failed , info=%p , addr=%p , size = %x \n", info, addr, desize);
 				result = false;
 			}
 			else
@@ -336,7 +336,7 @@ bool mmap_info_decommit(mmap_info_t * info, void * addr, size_t size)
 
 			if (::VirtualFree(addr, desize, MEM_DECOMMIT) == FALSE)
 			{
-				::printf("virtual free whole commit failed , info=%p , addr=%p , size = %x \n", info, addr, desize);
+				//::printf("virtual free whole commit failed , info=%p , addr=%p , size = %x \n", info, addr, desize);
 				result = false;
 			}
 			else
@@ -350,7 +350,7 @@ bool mmap_info_decommit(mmap_info_t * info, void * addr, size_t size)
 			//中段释放
 			if (::VirtualFree(addr, size, MEM_DECOMMIT) == FALSE)
 			{
-				::printf("virtual free whole commit failed , info=%p , addr=%p , size = %x \n", info, addr, size);
+				//::printf("virtual free whole commit failed , info=%p , addr=%p , size = %x \n", info, addr, size);
 				result = false;
 			}
 			else
@@ -398,11 +398,11 @@ bool mmap_info_decommit(mmap_info_t * info, void * addr, size_t size)
 			}
 			if (::VirtualFree(ptr, desize, MEM_DECOMMIT) == FALSE)
 			{
-				::printf("virtual free piece failed , info=%p , addr=%p , size = %x \n", info, ptr, desize);
+				//::printf("virtual free piece failed , info=%p , addr=%p , size = %x \n", info, ptr, desize);
 				result = false;
 				break;
 			}
-			::printf("virtual free piece succeed , info=%p , addr=%p , size = %x \n", info, ptr, desize);
+			//::printf("virtual free piece succeed , info=%p , addr=%p , size = %x \n", info, ptr, desize);
 
 			max_size -= desize;
 			ptr = (void *)((uintptr_t)ptr + desize);
@@ -415,7 +415,7 @@ bool mmap_info_decommit(mmap_info_t * info, void * addr, size_t size)
 		if (result == true && max_size > 0)
 		{
 			//还剩下的，可能是在外部mmap_info_t
-			::printf("decommit left size = %x , info=%p map_addr%p size=%x\n", max_size, info, info->map_addr, info->len);
+			//::printf("decommit left size = %x , info=%p map_addr%p size=%x\n", max_size, info, info->map_addr, info->len);
 			mmap_info_t * node = NULL;
 			while ((node = mmap_mgr_find(NULL, ptr)) != NULL && max_size > 0)
 			{
