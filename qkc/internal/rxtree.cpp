@@ -53,7 +53,7 @@ void rx_tree_final(rx_tree_t * tree)
                 tree->free(cur->value) ;
             if(last_value != cur->value)
             {
-                ::printf("free value error , [%u] \n" , last_value) ;
+                //::printf("free value error , [%u] \n" , last_value) ;
             }
             ++last_value ;
             cur->value = 0 ;

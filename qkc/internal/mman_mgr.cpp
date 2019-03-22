@@ -149,6 +149,7 @@ bool mmap_info_free(mmap_info_t * info)
 	return true;
 }
 
+//只要在已经提交的内存页内，都算
 mmap_commits_t * mmap_info_find(mmap_info_t * info, void * addr, size_t size)
 {
 	if (info == NULL || addr == NULL)
@@ -159,7 +160,8 @@ mmap_commits_t * mmap_info_find(mmap_info_t * info, void * addr, size_t size)
 	{
 		mmap_commits_t * commit = (mmap_commits_t *)next;
 		next = next->next;
-		if (commit->start_addr == addr && (commit->len == size || size == 0))
+		if ((commit->start_addr <= addr) && 
+			((uintptr_t)commit->start_addr + commit->len >= (uintptr_t)addr + (size?size:1)))
 			return commit;
 	}
 	return NULL;
@@ -288,7 +290,7 @@ bool mmap_info_decommit(mmap_info_t * info, void * addr, size_t size)
 		if ((info->wflags & MEM_COMMIT) && (info->map_addr == addr) && (info->len == size))
 		{
 			::VirtualFree(addr, size, MEM_DECOMMIT);
-			info->wflags &= MEM_COMMIT;
+			info->wflags &= ~MEM_COMMIT;
 			result = true;
 			::printf("decommit whole info = %p , addr = %p , len = %x \n" , info , addr , size);
 		}
@@ -300,63 +302,145 @@ bool mmap_info_decommit(mmap_info_t * info, void * addr, size_t size)
 		::ReleaseSRWLockExclusive(&info->locker);
 		return result;
 	}
-	::ReleaseSRWLockExclusive(&info->locker);
-
-	//多次commit，合并decommit
-	::AcquireSRWLockExclusive(&info->locker);
-	size_t max_size = size;
-	if (size == 0)
-		max_size = ((uintptr_t)info->map_addr + info->len) - (uintptr_t)addr;
-	void * ptr = addr;
-	result = true;
-	while (commit != NULL && max_size > 0)
+	else if (((uintptr_t)commit->start_addr <= (uintptr_t)addr) && 
+		((uintptr_t)commit->start_addr + commit->len) >= (uintptr_t)addr + (size?size:1))
 	{
-		size_t desize = commit->len;
-		rlist_del(&info->commits, &commit->link);
-		mmap_heap_free(commit);
-		if (::VirtualFree(ptr, desize, MEM_DECOMMIT) == FALSE)
+		//先排除单片decommit的情况
+		if (commit->start_addr == addr)
 		{
-			::printf("virtual free piece failed , info=%p , addr=%p , size = %x \n", info, ptr, desize);
-			result = false;
-			break;
-		}
-		::printf("virtual free piece succeed , info=%p , addr=%p , size = %x \n", info, ptr, desize);
+			size_t desize = size;
+			if (desize == 0)
+				desize = commit->len;
 
-		max_size -= desize;
-		ptr = (void *)((uintptr_t)ptr + desize);
-
-		commit = mmap_info_find(info, ptr, 0);
-	}
-	::ReleaseSRWLockExclusive(&info->locker);
-
-
-	if (result == true && max_size > 0)
-	{
-		//还剩下的，可能是在外部mmap_info_t
-		::printf("decommit left size = %x \n", max_size);
-		mmap_info_t * node = NULL;
-		while ((node = mmap_mgr_find(NULL, ptr)) != NULL && max_size > 0)
-		{
-			if (node->map_addr != ptr)
+			if (::VirtualFree(addr, desize, MEM_DECOMMIT) == FALSE)
 			{
+				::printf("virtual free whole commit failed , info=%p , addr=%p , size = %x \n", info, addr, desize);
 				result = false;
-				break;
 			}
-			size_t desize = node->len;
+			else
+				result = true;
+
+			if (desize == commit->len)
+			{
+				//整片释放
+				rlist_del(&info->commits, &commit->link);
+				mmap_heap_free(commit);
+			}
+		}
+		else if((size == 0) ||((uintptr_t)commit->start_addr + commit->len) == (uintptr_t)addr + size)
+		{
+			//尾部释放
+			size_t desize = size;
+			if (desize == 0)
+				desize = ((uintptr_t)commit->start_addr + commit->len) - (uintptr_t)addr;
+
+			if (::VirtualFree(addr, desize, MEM_DECOMMIT) == FALSE)
+			{
+				::printf("virtual free whole commit failed , info=%p , addr=%p , size = %x \n", info, addr, desize);
+				result = false;
+			}
+			else
+			{
+				commit->len -= desize;
+				result = true;
+			}
+		}
+		else
+		{
+			//中段释放
+			if (::VirtualFree(addr, size, MEM_DECOMMIT) == FALSE)
+			{
+				::printf("virtual free whole commit failed , info=%p , addr=%p , size = %x \n", info, addr, size);
+				result = false;
+			}
+			else
+			{
+				size_t new_size = sizeof(mmap_commits_t);
+				mmap_commits_t * new_commit = (mmap_commits_t *)::HeapAlloc(::GetProcessHeap(), 0, new_size);
+				if (new_commit != NULL)
+				{
+					rlist_init(&new_commit->link);
+
+					new_commit->start_addr = (void *)((uintptr_t)addr + size);
+					new_commit->len = ((uintptr_t)commit->start_addr + commit->len) - (uintptr_t)addr - size;
+
+					rlist_add_tail(&info->commits, &new_commit->link);
+
+					commit->len = (uintptr_t)addr - (uintptr_t)commit->start_addr;
+				}
+			}
+		}
+
+		::ReleaseSRWLockExclusive(&info->locker);
+		return result;
+	}
+	else
+	{
+		//多次commit，合并decommit
+		size_t max_size = size;
+		if (size == 0)
+			max_size = ((uintptr_t)info->map_addr + info->len) - (uintptr_t)addr;
+		void * ptr = addr;
+		result = true;
+		while (commit != NULL && max_size > 0)
+		{
+			size_t desize = commit->len;
 			if (desize > max_size)
-				desize = max_size;
-			if (mmap_info_decommit(node, ptr, desize) == false)
 			{
+				desize = max_size;
+				commit->start_addr = (void *)((uintptr_t)ptr + desize);
+				commit->len -= desize;
+			}
+			else
+			{
+				rlist_del(&info->commits, &commit->link);
+				mmap_heap_free(commit);
+			}
+			if (::VirtualFree(ptr, desize, MEM_DECOMMIT) == FALSE)
+			{
+				::printf("virtual free piece failed , info=%p , addr=%p , size = %x \n", info, ptr, desize);
 				result = false;
 				break;
 			}
+			::printf("virtual free piece succeed , info=%p , addr=%p , size = %x \n", info, ptr, desize);
 
-			ptr = (void *)((uintptr_t)ptr + desize);
 			max_size -= desize;
-		}
-	}
+			ptr = (void *)((uintptr_t)ptr + desize);
 
-	return result ;
+			commit = mmap_info_find(info, ptr, 0);
+		}
+		::ReleaseSRWLockExclusive(&info->locker);
+
+
+		if (result == true && max_size > 0)
+		{
+			//还剩下的，可能是在外部mmap_info_t
+			::printf("decommit left size = %x , info=%p map_addr%p size=%x\n", max_size, info, info->map_addr, info->len);
+			mmap_info_t * node = NULL;
+			while ((node = mmap_mgr_find(NULL, ptr)) != NULL && max_size > 0)
+			{
+				if (node->map_addr != ptr)
+				{
+					result = false;
+					break;
+				}
+				size_t desize = node->len;
+				if (desize > max_size)
+					desize = max_size;
+				if (mmap_info_decommit(node, ptr, desize) == false)
+				{
+					result = false;
+					break;
+				}
+
+				ptr = (void *)((uintptr_t)ptr + desize);
+				max_size -= desize;
+			}
+		}
+
+		return result;
+	}
+	return false;
 }
 
 DWORD __mmap_prot_to_win(int prot)
