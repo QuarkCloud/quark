@@ -152,7 +152,7 @@ static struct errentry __errtable__[] = {
 	{ ERROR_NOT_SAME_DEVICE,             	EXDEV	},
 	{ ERROR_INVALID_FUNCTION,            	EISDIR	},
 	{ ERROR_META_EXPANSION_TOO_LONG,     	E2BIG	} ,
-    { 0                            ,     	0	} ,
+    { 0                            ,     	0	} 
 };
 
 int oserr_map(DWORD oserr)

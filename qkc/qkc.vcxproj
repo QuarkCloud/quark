@@ -128,6 +128,7 @@
     <ClCompile Include="internal\iocp_item.cpp" />
     <ClCompile Include="internal\iocp_mgr.cpp" />
     <ClCompile Include="internal\mman_mgr.cpp" />
+    <ClCompile Include="internal\pipe_mgr.cpp" />
     <ClCompile Include="internal\rbtree.cpp" />
     <ClCompile Include="internal\ring_buffer.cpp" />
     <ClCompile Include="internal\rxtree.cpp" />
@@ -292,6 +293,7 @@
     <ClInclude Include="internal\iocp_item.h" />
     <ClInclude Include="internal\iocp_mgr.h" />
     <ClInclude Include="internal\mman_mgr.h" />
+    <ClInclude Include="internal\pipe_mgr.h" />
     <ClInclude Include="internal\rbtree.h" />
     <ClInclude Include="internal\ring_buffer.h" />
     <ClInclude Include="internal\rlist.h" />

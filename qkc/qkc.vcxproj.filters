@@ -287,6 +287,9 @@
     <ClCompile Include="internal\mman_mgr.cpp">
       <Filter>源文件\internal</Filter>
     </ClCompile>
+    <ClCompile Include="internal\pipe_mgr.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\alloca.h">
@@ -623,6 +626,9 @@
       <Filter>头文件\netpacket</Filter>
     </ClInclude>
     <ClInclude Include="internal\mman_mgr.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\pipe_mgr.h">
       <Filter>头文件\internal</Filter>
     </ClInclude>
   </ItemGroup>

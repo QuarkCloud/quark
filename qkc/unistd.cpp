@@ -9,6 +9,7 @@
 #include "internal/intrin.h"
 #include "internal/file_system.h"
 #include "internal/fpipe.h"
+#include "internal/pipe_mgr.h"
 
 
 off_t lseek(int fd , off_t offset , int whence)

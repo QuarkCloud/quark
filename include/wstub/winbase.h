@@ -2509,6 +2509,104 @@ RegCloseKey (HKEY hKey);
 WINBASEAPI BOOL WINAPI OpenProcessToken(HANDLE ProcessHandle,DWORD DesiredAccess,PHANDLE TokenHandle);
 
 
+//
+// Define the NamedPipe definitions
+//
+
+
+//
+// Define the dwOpenMode values for CreateNamedPipe
+//
+
+#define PIPE_ACCESS_INBOUND         0x00000001
+#define PIPE_ACCESS_OUTBOUND        0x00000002
+#define PIPE_ACCESS_DUPLEX          0x00000003
+
+//
+// Define the Named Pipe End flags for GetNamedPipeInfo
+//
+
+#define PIPE_CLIENT_END             0x00000000
+#define PIPE_SERVER_END             0x00000001
+
+//
+// Define the dwPipeMode values for CreateNamedPipe
+//
+
+#define PIPE_WAIT                   0x00000000
+#define PIPE_NOWAIT                 0x00000001
+#define PIPE_READMODE_BYTE          0x00000000
+#define PIPE_READMODE_MESSAGE       0x00000002
+#define PIPE_TYPE_BYTE              0x00000000
+#define PIPE_TYPE_MESSAGE           0x00000004
+#define PIPE_ACCEPT_REMOTE_CLIENTS  0x00000000
+#define PIPE_REJECT_REMOTE_CLIENTS  0x00000008
+
+//
+// Define the well known values for CreateNamedPipe nMaxInstances
+//
+
+#define PIPE_UNLIMITED_INSTANCES    255
+WINBASEAPI BOOL WINAPI CreatePipe(PHANDLE hReadPipe, PHANDLE hWritePipe, LPSECURITY_ATTRIBUTES lpPipeAttributes, DWORD nSize);
+
+WINBASEAPI HANDLE WINAPI CreateNamedPipeA(LPCSTR lpName,DWORD dwOpenMode,DWORD dwPipeMode,
+	DWORD nMaxInstances, DWORD nOutBufferSize,	DWORD nInBufferSize,DWORD nDefaultTimeOut,
+	LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+
+WINBASEAPI HANDLE WINAPI CreateNamedPipeW(LPCWSTR lpName, DWORD dwOpenMode, DWORD dwPipeMode, DWORD nMaxInstances,
+	DWORD nOutBufferSize, DWORD nInBufferSize, DWORD nDefaultTimeOut, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+
+#define CreateNamedPipe DECLEAR_FUNC_AW(CreateNamedPipe)
+
+WINBASEAPI BOOL WINAPI GetNamedPipeHandleStateA(HANDLE hNamedPipe, LPDWORD lpState, LPDWORD lpCurInstances,
+	LPDWORD lpMaxCollectionCount,LPDWORD lpCollectDataTimeout,LPSTR lpUserName,DWORD nMaxUserNameSize);
+
+WINBASEAPI BOOL WINAPI GetNamedPipeHandleStateW(HANDLE hNamedPipe, LPDWORD lpState, LPDWORD lpCurInstances,
+	LPDWORD lpMaxCollectionCount, LPDWORD lpCollectDataTimeout, LPWSTR lpUserName, DWORD nMaxUserNameSize);
+
+#define GetNamedPipeHandleState DECLEAR_FUNC_AW(GetNamedPipeHandleState)
+
+
+WINBASEAPI BOOL WINAPI CallNamedPipeA(LPCSTR lpNamedPipeName, LPVOID lpInBuffer,DWORD nInBufferSize,
+	LPVOID lpOutBuffer,  DWORD nOutBufferSize, LPDWORD lpBytesRead, DWORD nTimeOut);
+
+WINBASEAPI BOOL WINAPI CallNamedPipeW(LPCWSTR lpNamedPipeName, LPVOID lpInBuffer, DWORD nInBufferSize,
+	LPVOID lpOutBuffer, DWORD nOutBufferSize, LPDWORD lpBytesRead, DWORD nTimeOut);
+
+#define CallNamedPipe DECLEAR_FUNC_AW(CallNamedPipe)
+
+WINBASEAPI BOOL WINAPI WaitNamedPipeA(LPCSTR lpNamedPipeName, DWORD nTimeOut);
+
+WINBASEAPI BOOL WINAPI WaitNamedPipeW(LPCWSTR lpNamedPipeName, DWORD nTimeOut);
+
+#define WaitNamedPipe DECLEAR_FUNC_AW(WaitNamedPipe)
+
+
+WINBASEAPI BOOL WINAPI GetNamedPipeClientProcessId(HANDLE Pipe, PULONG ClientProcessId);
+
+WINBASEAPI BOOL WINAPI GetNamedPipeClientSessionId(HANDLE Pipe, PULONG ClientSessionId);
+
+WINBASEAPI BOOL WINAPI GetNamedPipeServerProcessId(HANDLE Pipe, PULONG ServerProcessId);
+
+WINBASEAPI BOOL WINAPI GetNamedPipeServerSessionId(HANDLE Pipe,PULONG ServerSessionId);
+
+
+WINBASEAPI BOOL WINAPI ConnectNamedPipe(HANDLE hNamedPipe, LPOVERLAPPED lpOverlapped);
+
+WINBASEAPI BOOL WINAPI DisconnectNamedPipe(HANDLE hNamedPipe);
+
+WINBASEAPI BOOL WINAPI SetNamedPipeHandleState(HANDLE hNamedPipe, LPDWORD lpMode, LPDWORD lpMaxCollectionCount,LPDWORD lpCollectDataTimeout);
+
+WINBASEAPI BOOL WINAPI PeekNamedPipe(HANDLE hNamedPipe, LPVOID lpBuffer, DWORD nBufferSize,
+	LPDWORD lpBytesRead, LPDWORD lpTotalBytesAvail, LPDWORD lpBytesLeftThisMessage);
+
+
+WINBASEAPI BOOL WINAPI GetNamedPipeInfo(HANDLE hNamedPipe,LPDWORD lpFlags,LPDWORD lpOutBufferSize,
+	LPDWORD lpInBufferSize,LPDWORD lpMaxInstances);
+
+
+
+
 #ifdef __cplusplus
 }
 #endif
