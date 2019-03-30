@@ -57,19 +57,19 @@ bool socket_final(socket_t * s)
 
     if(s->acceptor != NULL)
     {
-        accept_result_final(s->acceptor) ;
+		socket_accept_result_final(s->acceptor) ;
         s->acceptor = NULL ;
     }
 
     if(s->sender != NULL)
     {
-        send_result_final(s->sender) ;
+		socket_send_result_final(s->sender) ;
         s->sender = NULL ;
     }
 
     if(s->receiver != NULL)
     {
-        recv_result_final(s->receiver) ;
+		socket_recv_result_final(s->receiver) ;
         s->receiver = NULL ;
     }
 
@@ -83,18 +83,18 @@ bool socket_final(socket_t * s)
     return true ;
 }
 
-bool send_result_init(send_result_t * result) ;
-bool send_result_final(send_result_t * result) ;
-send_result_t * send_result_new()
+bool socket_send_result_init(socket_send_result_t * result) ;
+bool socket_send_result_final(socket_send_result_t * result) ;
+socket_send_result_t * socket_send_result_new()
 {
-    send_result_t * result = (send_result_t *)::malloc(sizeof(send_result_t)) ;
+	socket_send_result_t * result = (socket_send_result_t *)::malloc(sizeof(socket_send_result_t)) ;
     if(result == NULL)
     {
         errno = ENOMEM;
         return NULL ;
     }
 
-    if(send_result_init(result) == false)
+    if(socket_send_result_init(result) == false)
     {
         ::free(result) ;
         return NULL ;
@@ -103,19 +103,19 @@ send_result_t * send_result_new()
     return result ;
 }
 
-void send_result_free(send_result_t * result)
+void socket_send_result_free(socket_send_result_t * result)
 {
-    send_result_final(result) ;
+	socket_send_result_final(result) ;
     if(result != NULL)
         ::free(result) ;
 }
 
-bool send_result_init(send_result_t * result)
+bool socket_send_result_init(socket_send_result_t * result)
 {
     if(result == NULL)
         return false ;
 
-    ::memset(result , 0 , sizeof(send_result_t)) ;
+    ::memset(result , 0 , sizeof(socket_send_result_t)) ;
 
     if(ring_buffer_init(&result->ring_buffer , SNDBUFSIZE) == false)
     {
@@ -126,7 +126,7 @@ bool send_result_init(send_result_t * result)
     return true ;
 }
 
-bool send_result_final(send_result_t * result)
+bool socket_send_result_final(socket_send_result_t * result)
 {
     if(iocp_ovlp_lock(&result->link) == false)
         return false ;
@@ -142,19 +142,19 @@ bool send_result_final(send_result_t * result)
     return true ;
 }
 
-bool recv_result_init(recv_result_t * result) ;
-bool recv_result_final(recv_result_t * result) ;
+bool socket_recv_result_init(socket_recv_result_t * result) ;
+bool socket_recv_result_final(socket_recv_result_t * result) ;
 
-recv_result_t * recv_result_new()
+socket_recv_result_t * socket_recv_result_new()
 {
-    recv_result_t * result = (recv_result_t *)::malloc(sizeof(recv_result_t)) ;
+	socket_recv_result_t * result = (socket_recv_result_t *)::malloc(sizeof(socket_recv_result_t)) ;
     if(result == NULL)
     {
         errno = ENOMEM ;
         return NULL ;
     }
 
-    if(recv_result_init(result) == false)
+    if(socket_recv_result_init(result) == false)
     {
         ::free(result) ;
         return NULL ;
@@ -163,23 +163,23 @@ recv_result_t * recv_result_new()
     return result ;
 }
 
-void recv_result_free(recv_result_t * result)
+void socket_recv_result_free(socket_recv_result_t * result)
 {
     if(result == NULL)
         return ;
 
-    recv_result_final(result) ;
+	socket_recv_result_final(result) ;
     ::free(result) ;
 }
 
-bool recv_result_init(recv_result_t * result) 
+bool socket_recv_result_init(socket_recv_result_t * result)
 {
-    ::memset(result , 0 , sizeof(recv_result_t)) ;
+    ::memset(result , 0 , sizeof(socket_recv_result_t)) ;
     result->link.type = OVLP_INPUT ;
     return true ;
 }
 
-bool recv_result_final(recv_result_t * result) 
+bool socket_recv_result_final(socket_recv_result_t * result)
 {
     if(iocp_ovlp_lock(&result->link) == false)
         return false ;
@@ -198,7 +198,7 @@ bool recv_result_final(recv_result_t * result)
     return true ;
 }
 
-bool socket_send(send_result_t * result , int flags) 
+bool socket_send(socket_send_result_t * result , int flags)
 {
     //数据已经准备好了，需要判断下，是否在发送中。如果已经在发送中，则退出
     if(iocp_ovlp_lock(&result->link) == false)
@@ -241,7 +241,7 @@ bool socket_send(send_result_t * result , int flags)
     return true ;
 }
 
-bool socket_sendto(send_result_t * result , int flags , const struct sockaddr * addr , int addr_len)
+bool socket_sendto(socket_send_result_t * result , int flags , const struct sockaddr * addr , int addr_len)
 {
     //数据已经准备好了，需要判断下，是否在发送中。如果已经在发送中，则退出
     if(iocp_ovlp_lock(&result->link) == false)
@@ -283,7 +283,7 @@ bool socket_sendto(send_result_t * result , int flags , const struct sockaddr * 
     return true ;
 }
 
-bool socket_start_recv(recv_result_t * result) 
+bool socket_start_recv(socket_recv_result_t * result)
 {
     if(iocp_ovlp_lock(&result->link) == false)
         return false ;
@@ -319,7 +319,7 @@ bool socket_start_recv(recv_result_t * result)
     return true ;
 }
 
-bool socket_start_recvfrom(recv_result_t * result , int flags , struct sockaddr * addr , int * addr_len)
+bool socket_start_recvfrom(socket_recv_result_t * result , int flags , struct sockaddr * addr , int * addr_len)
 {
     if(iocp_ovlp_lock(&result->link) == false)
         return false ;
@@ -359,7 +359,7 @@ void update_contex_acceptex(SOCKET& new_socket , SOCKET&listen_socket)
     ::_imp_setsockopt(new_socket , SOL_SOCKET , SO_UPDATE_ACCEPT_CONTEXT , (char *)&listen_socket , sizeof(listen_socket)) ;
 }
 
-bool socket_accept(accept_result_t * result , SOCKET& new_socket , struct sockaddr * local , struct sockaddr * remote)
+bool socket_accept(socket_accept_result_t * result , SOCKET& new_socket , struct sockaddr * local , struct sockaddr * remote)
 {
     iocp_item_t * item = result->link.owner ;
     if(item == NULL || item->addition == NULL)
@@ -385,7 +385,7 @@ bool socket_accept(accept_result_t * result , SOCKET& new_socket , struct sockad
     return true ;
 }
 
-bool socket_start_accept(accept_result_t * result)
+bool socket_start_accept(socket_accept_result_t * result)
 {
     if(iocp_ovlp_lock(&result->link) == false)
         return false ;
@@ -415,18 +415,18 @@ bool socket_start_accept(accept_result_t * result)
     return true ;
 }
 
-bool accept_result_init(accept_result_t * result) ;
-bool accept_result_final(accept_result_t * result) ;
-accept_result_t * accept_result_new()
+bool socket_accept_result_init(socket_accept_result_t * result) ;
+bool socket_accept_result_final(socket_accept_result_t * result) ;
+socket_accept_result_t * socket_accept_result_new()
 {
-    accept_result_t * result = (accept_result_t *)::malloc(sizeof(accept_result_t)) ;
+	socket_accept_result_t * result = (socket_accept_result_t *)::malloc(sizeof(socket_accept_result_t)) ;
     if(result == NULL)
     {
         errno = ENOMEM ;
         return NULL ;
     }
 
-    if(accept_result_init(result) == false)
+    if(socket_accept_result_init(result) == false)
     {
         ::free(result) ;
         return NULL ;
@@ -435,23 +435,23 @@ accept_result_t * accept_result_new()
     return result ;
 }
 
-void accept_result_free(accept_result_t * result)
+void socket_accept_result_free(socket_accept_result_t * result)
 {
     if(result == NULL)
         return ;
 
-    accept_result_final(result) ;
+	socket_accept_result_final(result) ;
     ::free(result) ;
 }
 
-bool accept_result_init(accept_result_t * result)
+bool socket_accept_result_init(socket_accept_result_t * result)
 {
-    ::memset(result , 0 , sizeof(accept_result_t)) ;
+    ::memset(result , 0 , sizeof(socket_accept_result_t)) ;
     result->link.type = OVLP_INPUT ;
     return true ;
 }
 
-bool accept_result_final(accept_result_t * result)
+bool socket_accept_result_final(socket_accept_result_t * result)
 {
     if(result == NULL)
         return false ;

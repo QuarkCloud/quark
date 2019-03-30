@@ -97,10 +97,10 @@ ssize_t send(int fd , const void * buf , size_t n , int flags)
     if(data->noblock == 0)
         return ::_imp_send((SOCKET)obj->handle , (const char *)buf , n , flags) ;
 
-    send_result_t * sender = data->sender ;
+	socket_send_result_t * sender = data->sender ;
     if(sender == NULL)
     {
-        if((sender = send_result_new()) == NULL)
+        if((sender = socket_send_result_new()) == NULL)
             return -1 ;
 
         sender->link.owner->addition = data ;
@@ -134,10 +134,10 @@ ssize_t recv(int fd , void *buf , size_t n , int flags)
     if(data->noblock == 0)
         return recv_size ;
 
-    recv_result_t * receiver = data->receiver ;
+	socket_recv_result_t * receiver = data->receiver ;
     if(receiver == NULL)
     {
-        if((receiver = recv_result_new()) == NULL)
+        if((receiver = socket_recv_result_new()) == NULL)
             return -1 ;
         receiver->link.owner->addition = data ;
         data->receiver = receiver ;
@@ -157,10 +157,10 @@ ssize_t sendto(int fd , const void *buf , size_t n , int flags , const struct so
     if(data->noblock == 0)
         return ::_imp_send((SOCKET)obj->handle , (const char *)buf , n , flags) ;
 
-    send_result_t * sender = data->sender ;
+	socket_send_result_t * sender = data->sender ;
     if(sender == NULL)
     {
-        if((sender = send_result_new()) == NULL)
+        if((sender = socket_send_result_new()) == NULL)
             return -1 ;
 
         sender->link.owner->addition = data ;
@@ -194,10 +194,10 @@ ssize_t recvfrom(int fd , void * buf , size_t n , int flags , struct sockaddr * 
     if(data->noblock == 0)
         return recv_size ;
 
-    recv_result_t * receiver = data->receiver ;
+	socket_recv_result_t * receiver = data->receiver ;
     if(receiver == NULL)
     {
-        if((receiver = recv_result_new()) == NULL)
+        if((receiver = socket_recv_result_new()) == NULL)
             return -1 ;
         receiver->link.owner->addition = data ;
         data->receiver = receiver ;
@@ -235,7 +235,7 @@ int listen(int fd , int n)
     if(data->stage != SOCKET_STAGE_BIND)
         return -1 ;
     data->stage = SOCKET_STAGE_LISTEN ;
-    accept_result_t * result = accept_result_new() ;
+	socket_accept_result_t * result = socket_accept_result_new() ;
     if(result != NULL)
     {
         result->link.owner->addition = data ;
@@ -273,7 +273,7 @@ int accept(int fd , struct sockaddr * addr , socklen_t * addr_len)
     }
 
     //异步模式的话，需要更新状态，accept_result的状态，同时启动新的accept
-    accept_result_t * acceptor = data->acceptor ;
+	socket_accept_result_t * acceptor = data->acceptor ;
     if(acceptor == NULL)
         return -1 ;
 

@@ -1573,6 +1573,18 @@ GetOverlappedResult(
     __in  BOOL bWait
     );
 
+
+WINBASEAPI
+BOOL
+WINAPI
+GetOverlappedResultEx(
+	HANDLE hFile,
+	LPOVERLAPPED lpOverlapped,
+	LPDWORD lpNumberOfBytesTransferred,
+	DWORD dwMilliseconds,
+	BOOL bAlertable
+);
+
 WINBASEAPI
 __out_opt
 HANDLE

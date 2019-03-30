@@ -8,7 +8,7 @@
 #include "internal/sysconf.h"
 #include "internal/intrin.h"
 #include "internal/file_system.h"
-#include "internal/fpipe.h"
+//#include "internal/fpipe.h"
 #include "internal/pipe_mgr.h"
 
 
@@ -123,22 +123,24 @@ int pause()
     _mm_pause() ;
     return 0 ;
 }
-
+/**
 #ifndef O_BINARY
 #define O_BINARY 0x8000
 #endif
 
 #define PIPE_SIZE 4096
-
+*/
 
 int pipe (int pipedes[2])
 {
-    return _pipe(pipedes , PIPE_SIZE , O_BINARY) ;
+    //return _pipe(pipedes , PIPE_SIZE , O_BINARY) ;
+	return pipe_init(pipedes, 0);
 }
 
 int pipe2(int pipedes[2] , int flags) 
 {
-    return _pipe(pipedes , PIPE_SIZE , O_BINARY) ;
+    //return _pipe(pipedes , PIPE_SIZE , O_BINARY) ;
+	return pipe_init(pipedes, flags);
 }
 
 int chown(const char * file , uid_t owner , gid_t group)

@@ -21,10 +21,10 @@ __BEGIN_DECLS
 #define SOCKET_STAGE_CONNECT    11
 #define SOCKET_STAGE_DESROTY    -1
 
-typedef struct __st_socket_ovlp     socket_ovlp_t ;
-typedef struct __st_send_result     send_result_t ;
-typedef struct __st_recv_result     recv_result_t ;
-typedef struct __st_accept_result   accept_result_t;
+typedef struct __st_socket_ovlp				socket_ovlp_t ;
+typedef struct __st_socket_send_result		socket_send_result_t ;
+typedef struct __st_socket_recv_result		socket_recv_result_t ;
+typedef struct __st_socket_accept_result	socket_accept_result_t;
 typedef struct __st_socket          socket_t;
 
 int iocp_socket_callback(iocp_item_t * item , int evt , int result) ;
@@ -37,9 +37,9 @@ typedef struct __st_socket{
     int8_t noblock :1;            //默认阻塞，是一个很重要的标识!!!，其他貌似没有必要。
 
     HANDLE            locker ;    //创建销毁保护
-    accept_result_t * acceptor ;
-    send_result_t   * sender ;
-    recv_result_t   * receiver ;
+	socket_accept_result_t * acceptor ;
+	socket_send_result_t   * sender ;
+	socket_recv_result_t   * receiver ;
 
     void * addition ;               //附加的信息
 } socket_t;
@@ -54,20 +54,20 @@ typedef struct __st_socket{
     如果通过TCP将同一块数据同时向多个连接发送，那么性能损失会因为拷贝而下降更加严重。
 */
 #define SNDBUFSIZE      8192
-struct __st_send_result{
+struct __st_socket_send_result{
     iocp_ovlp_t   link ;
 
     WSABUF          data ;
     ring_buffer_t   ring_buffer ;
 };
 
-struct __st_recv_result{
+struct __st_socket_recv_result{
     iocp_ovlp_t   link ;
     WSABUF data ;
 };
 
 #define ACCEPT_ADDRESS_SIZE 256
-struct __st_accept_result{
+struct __st_socket_accept_result{
     iocp_ovlp_t   link ;
 
     SOCKET insocket ;           //接收到客户端连接请求的套接字   
@@ -82,30 +82,30 @@ bool socket_init(socket_t * s) ;
 void socket_free(socket_t * s) ;
 bool socket_final(socket_t * s) ;
 
-send_result_t * send_result_new() ;
-void send_result_free(send_result_t * result) ;
-bool send_result_init(send_result_t * result) ;
-bool send_result_final(send_result_t * result) ;
+socket_send_result_t * socket_send_result_new() ;
+void socket_send_result_free(socket_send_result_t * result) ;
+bool socket_send_result_init(socket_send_result_t * result) ;
+bool socket_send_result_final(socket_send_result_t * result) ;
 
-bool socket_send(send_result_t * result , int flags) ;
-bool socket_sendto(send_result_t * result , int flags , const struct sockaddr * addr , int addr_len) ;
+bool socket_send(socket_send_result_t * result , int flags) ;
+bool socket_sendto(socket_send_result_t * result , int flags , const struct sockaddr * addr , int addr_len) ;
 
-recv_result_t * recv_result_new() ;
-void recv_result_free(recv_result_t * result) ;
-bool recv_result_init(recv_result_t * result) ;
-bool recv_result_final(recv_result_t * result) ;
+socket_recv_result_t * socket_recv_result_new() ;
+void socket_recv_result_free(socket_recv_result_t * result) ;
+bool socket_recv_result_init(socket_recv_result_t * result) ;
+bool socket_recv_result_final(socket_recv_result_t * result) ;
 
-bool socket_start_recv(recv_result_t * result) ;
-bool socket_start_recvfrom(recv_result_t * result , int flags , struct sockaddr * addr , int * addr_len) ;
+bool socket_start_recv(socket_recv_result_t * result) ;
+bool socket_start_recvfrom(socket_recv_result_t * result , int flags , struct sockaddr * addr , int * addr_len) ;
 
-accept_result_t * accept_result_new() ;
-void accept_result_free(accept_result_t * result) ;
-bool accept_result_init(accept_result_t * result) ;
-bool accept_result_final(accept_result_t * result) ;
+socket_accept_result_t * socket_accept_result_new() ;
+void socket_accept_result_free(socket_accept_result_t * result) ;
+bool socket_accept_result_init(socket_accept_result_t * result) ;
+bool socket_accept_result_final(socket_accept_result_t * result) ;
 
 //从accept缓冲区中，提取结果
-bool socket_accept(accept_result_t * result , SOCKET& new_socket , struct sockaddr * local , struct sockaddr * remote) ;
-bool socket_start_accept(accept_result_t * result) ;
+bool socket_accept(socket_accept_result_t * result , SOCKET& new_socket , struct sockaddr * local , struct sockaddr * remote) ;
+bool socket_start_accept(socket_accept_result_t * result) ;
 
 SOCKET socket_from_ovlp(iocp_ovlp_t * ovlp) ;
 

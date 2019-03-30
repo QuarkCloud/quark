@@ -12,13 +12,19 @@ __BEGIN_DECLS
 /**
     2018-08-29
     匿名管道不支持异步读写，而有名管道和socket没有本质的区别，因此在iocp中不支持管道操作。
+	2019-03-29
+	为了实现Linux下的管道，使用有名管道，模拟匿名管道，同时支持异步操作，能够被IOCP支持。
+	之所以要支持管道，是因为libuv需要支持管道作为信号传输句柄。
 */
 typedef struct __st_iocp_item iocp_item_t ;
 typedef struct __st_iocp_mgr iocp_mgr_t ;
 typedef enum{
     IOCP_ITEM_UNKNOWN ,
-    IOCP_ITEM_SOCKET 
+    IOCP_ITEM_SOCKET , 
+	IOCP_ITEM_FILE ,
+	IOCP_ITEM_PIPE
 } iocp_item_type_t ;
+
 typedef enum{
     IOCP_EVENT_OPEN     = 1 ,
     IOCP_EVENT_CLOSE    = 2 ,

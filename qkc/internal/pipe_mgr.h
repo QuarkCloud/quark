@@ -19,26 +19,31 @@ typedef struct __st_pipe {
 	char * name ;
 	int fd ;
 	int flags;	//flags°üÀ¨ O_CLOEXEC O_DIRECT (since Linux 3.4)  O_NONBLOCK
-	int reader;
-	int writer;
+	int direct;	
 	SRWLOCK locker;
 	OVERLAPPED ovlp;
 	bool connected;
+
+	void * addition;
 } pipe_t ;
 
-#define  PIPE_SIZE 4096
-
+#define PIPE_SIZE 4096
+#define PIPE_READER	0x01 
+#define PIPE_WRITER	0x02 
 
 QKCAPI char * pipe_anonymous_name();
-QKCAPI pipe_t * pipe_new_server(int flags);
-QKCAPI bool pipe_init_server(pipe_t * p , int flags);
-QKCAPI void pipe_final_server(pipe_t * p);
-QKCAPI void pipe_free_server(pipe_t * p);
+QKCAPI pipe_t * pipe_server_new(int flags);
+QKCAPI bool pipe_server_init(pipe_t * p , int flags);
+QKCAPI void pipe_server_final(pipe_t * p);
+QKCAPI void pipe_server_free(pipe_t * p);
+QKCAPI bool pipe_server_connected(pipe_t * p , int timeout);
 
-QKCAPI pipe_t * pipe_new_client(const char * name , int flags);
-QKCAPI bool pipe_init_client(pipe_t * p, const char * name, int flags);
-QKCAPI void pipe_final_client(pipe_t * p);
-QKCAPI void pipe_free_client(pipe_t * p);
+QKCAPI pipe_t * pipe_client_new(const char * name , int flags);
+QKCAPI bool pipe_client_init(pipe_t * p, const char * name, int flags);
+QKCAPI void pipe_client_final(pipe_t * p);
+QKCAPI void pipe_client_free(pipe_t * p);
+
+QKCAPI int pipe_init(int pfd[2], int flags);
 
 __END_DECLS
 

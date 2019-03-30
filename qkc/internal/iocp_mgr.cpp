@@ -9,6 +9,7 @@
 #include <windows.h>
 #include <sys/socket.h>
 #include "fsocket.h"
+#include "fpipe.h"
 
 iocp_mgr_t * iocp_mgr_new()
 {
@@ -175,7 +176,7 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
     if(wobj == NULL)
         return false ;
     wobj_type wtype = wobj->type ;
-    if(wtype != WOBJ_SOCK)
+    if(wtype != WOBJ_SOCK || wtype != WOBJ_FILE || wtype != WOBJ_PIPE)
         return false ;
 
     iocp_item_t * item = (iocp_item_t *)::malloc(sizeof(iocp_item_t)) ;
@@ -218,6 +219,18 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
             return true ;
         }
     }
+	else if (wtype == WOBJ_PIPE)
+	{
+		pipe_t * p = (pipe_t *)wobj->addition;
+		p->addition = item;
+		item->type = IOCP_ITEM_PIPE;
+
+
+	}
+	else if (wtype == WOBJ_FILE)
+	{
+		//
+	}
 
     ::free(item) ;
     return false ;

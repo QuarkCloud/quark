@@ -24,21 +24,21 @@ char * pipe_anonymous_name()
 	return name;
 }
 
-pipe_t * pipe_new_server(int flags)
+pipe_t * pipe_server_new(int flags)
 {
 	size_t pipe_size = sizeof(pipe_t);
 	pipe_t * p = (pipe_t *)::malloc(pipe_size);
 	if (p == NULL)
 		return NULL;
 
-	if (pipe_init_server(p, flags) == true)
+	if (pipe_server_init(p, flags) == true)
 		return p;
 
 	::free(p);
 	return NULL;
 }
 
-bool pipe_init_server(pipe_t * p, int flags)
+bool pipe_server_init(pipe_t * p, int flags)
 {
 	if (p == NULL)
 		return false;
@@ -59,11 +59,14 @@ bool pipe_init_server(pipe_t * p, int flags)
 		return false;
 	}
 
-	p->reader = p->writer = p->fd = -1;
+	p->fd = -1;
+	p->direct = PIPE_READER;
 	p->handle = handle;
 	p->locker = SRWLOCK_INIT;
 	p->flags = flags;
 	p->name = name;
+	p->addition = NULL;
+
 	p->fd = ::wobj_set(WOBJ_PIPE, handle, p);
 
 	::memset(&p->ovlp, 0, sizeof(p->ovlp));
@@ -73,7 +76,8 @@ bool pipe_init_server(pipe_t * p, int flags)
 	BOOL result = ::ConnectNamedPipe(handle, &p->ovlp);
 	if (result == FALSE)
 	{
-		if (::GetLastError() == ERROR_PIPE_CONNECTED)
+		DWORD errcode = ::GetLastError();
+		if (errcode == ERROR_PIPE_CONNECTED || errcode == ERROR_IO_PENDING)
 			result = TRUE;
 	}
 	if (result == TRUE)
@@ -81,14 +85,29 @@ bool pipe_init_server(pipe_t * p, int flags)
 	return true;
 }
 
-void pipe_free_server(pipe_t * p)
+bool pipe_server_connected(pipe_t * p, int timeout)
 {
-	pipe_final_server(p);
+	if (p == NULL)
+		return false;
+	if (p->connected == true)
+		return true;
+
+	if (::GetOverlappedResultEx(p->handle , &p->ovlp , NULL , timeout, FALSE) == TRUE)
+	{
+		p->connected = true;
+	}
+
+	return p->connected;
+}
+
+void pipe_server_free(pipe_t * p)
+{
+	pipe_server_final(p);
 	if (p != NULL)
 		::free(p);
 }
 
-void pipe_final_server(pipe_t * p)
+void pipe_server_final(pipe_t * p)
 {
 	if (p == NULL)
 		return;
@@ -114,7 +133,7 @@ void pipe_final_server(pipe_t * p)
 	::ReleaseSRWLockExclusive(&p->locker);
 }
 
-pipe_t * pipe_new_client(const char * name, int flags)
+pipe_t * pipe_client_new(const char * name, int flags)
 {
 	if (name == NULL)
 		return NULL;
@@ -123,13 +142,13 @@ pipe_t * pipe_new_client(const char * name, int flags)
 	pipe_t * p = (pipe_t *)::malloc(pipe_size);
 	if (p == NULL)
 		return NULL;
-	if (pipe_init_client(p, name, flags) == true)
+	if (pipe_client_init(p, name, flags) == true)
 		return p;
 	::free(p);
 	return NULL;
 }
 
-bool pipe_init_client(pipe_t * p, const char * name, int flags)
+bool pipe_client_init(pipe_t * p, const char * name, int flags)
 {
 	if (p == NULL || name == NULL)
 		return false;
@@ -141,10 +160,12 @@ bool pipe_init_client(pipe_t * p, const char * name, int flags)
 	if (handle == INVALID_HANDLE_VALUE || handle == NULL)
 		return false;
 
-	p->fd = p->reader = p->writer = -1;
+	p->fd = -1;
+	p->direct = PIPE_WRITER;
 	p->handle = handle;
 	p->locker = SRWLOCK_INIT;
 	p->flags = flags;
+	p->addition = NULL;
 
 	int name_size = ::strlen(name) + 1;
 	char * str = (char *)::malloc(name_size);
@@ -155,7 +176,7 @@ bool pipe_init_client(pipe_t * p, const char * name, int flags)
 	return true;
 }
 
-void pipe_final_client(pipe_t * p)
+void pipe_client_final(pipe_t * p)
 {
 	if (p == NULL)
 		return;
@@ -181,9 +202,46 @@ void pipe_final_client(pipe_t * p)
 	::ReleaseSRWLockExclusive(&p->locker);
 }
 
-void pipe_free_client(pipe_t * p)
+void pipe_client_free(pipe_t * p)
 {
-	pipe_final_client(p);
+	pipe_client_final(p);
 	if (p != NULL)
 		::free(p);
+}
+
+int pipe_init(int pfd[2], int flags)
+{
+	pipe_t * server = ::pipe_server_new(flags);
+	if (server == NULL)
+		return -1;
+
+	pipe_t * client = ::pipe_client_new(server->name, flags);
+	if (client == NULL)
+	{
+		::pipe_server_free(server);
+		return -1;
+	}
+
+	bool result = true;
+	int counter = 0;
+	while (pipe_server_connected(server, 1000) == false)
+	{
+		++counter;
+		if (counter >= 60)
+		{
+			result = false;
+			break;
+		}
+	}
+
+	if (result == true)
+	{
+		pfd[0] = server->fd;
+		pfd[1] = client->fd;
+		return 0;
+	}
+
+	pipe_server_free(server);
+	pipe_client_free(client);
+	return -1;
 }

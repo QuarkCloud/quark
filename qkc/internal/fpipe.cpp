@@ -45,99 +45,23 @@ int iocp_pipe_callback(iocp_item_t * item , int evt , int result)
 
 void iocp_pipe_free(iocp_item_t * item)
 {
-
+	if (item != NULL && item->addition != NULL)
+	{
+		pipe_t * p = (pipe_t *)item->addition;
+		item->addition = NULL;
+	}
 }
 
-pipe_t * pipe_new()
+pipe_write_result_t * pipe_write_result_new()
 {
-    pipe_t * data = (pipe_t *)::malloc(sizeof(pipe_t)) ;
-    if(data == NULL)
-        return NULL ;
-
-    if(pipe_init(data) == true)
-        return data ;
-
-    ::free(data) ;
-    return NULL ;
-}
-
-bool pipe_init(pipe_t * pipe)
-{
-    ::memset(pipe , 0 , sizeof(pipe_t)) ;
-    pipe->locker = ::CreateMutex(NULL , FALSE , NULL) ;
-    if(pipe->locker == INVALID_HANDLE_VALUE)
-        return false ;
-    return true ;
-}
-
-void pipe_free(pipe_t * pipe)
-{
-    pipe_final(pipe) ;
-    if(pipe != NULL)
-        ::free(pipe) ;
-}
-
-bool pipe_final(pipe_t * pipe)
-{
-    if(pipe == NULL)
-        return false ;
-
-    if(pipe->locker == INVALID_HANDLE_VALUE)
-        return false ;
-
-    iocp_item_t * item = (iocp_item_t *)pipe->addition ;
-    if(item == NULL)
-        return false ;
-
-    iocp_pipe_callback(item , IOCP_EVENT_CLOSE , 0) ;
-
-    if(::WaitForSingleObject(pipe->locker , INFINITE) != WAIT_OBJECT_0)
-        return false ;
-
-    if(pipe->writer != NULL)
-    {
-        write_result_final(pipe->writer) ;
-        pipe->writer = NULL ;
-    }
-
-    if(pipe->reader != NULL)
-    {
-        read_result_final(pipe->reader) ;
-        pipe->reader = NULL ;
-    }
-
-    if(pipe->handle != NULL)
-    {
-        ::CloseHandle(pipe->handle) ;
-        pipe->handle = NULL ;
-    }
-
-    ::ReleaseMutex(pipe->locker) ;
-    ::CloseHandle(pipe->locker) ;
-    pipe->locker = INVALID_HANDLE_VALUE ;
-
-    return true ;
-}
-
-int add_pipe_obj(int fd) 
-{
-    pipe_t * pipe = pipe_new() ;
-    pipe->handle = (HANDLE)::_get_osfhandle(fd) ;
-    pipe->crtfd = fd ;
-
-    return ::wobj_set(WOBJ_PIPE , (HANDLE)fd , pipe) ;
-}
-
-write_result_t * write_result_new()
-{
-    write_result_t * result = (write_result_t *)::malloc(sizeof(write_result_t)) ;
+	pipe_write_result_t * result = (pipe_write_result_t *)::malloc(sizeof(pipe_write_result_t)) ;
     if(result == NULL)
     {
         errno = ENOMEM;
         return NULL ;
     }
 
-    if(write_result_init(result) == false)
+    if(pipe_write_result_init(result) == false)
     {
         ::free(result) ;
         return NULL ;
@@ -146,19 +70,19 @@ write_result_t * write_result_new()
     return result ;
 }
 
-void write_result_free(write_result_t * result)
+void pipe_write_result_free(pipe_write_result_t * result)
 {
-    write_result_final(result) ;
+	pipe_write_result_final(result) ;
     if(result != NULL)
         ::free(result) ;
 }
 
-bool write_result_init(write_result_t * result)
+bool pipe_write_result_init(pipe_write_result_t * result)
 {
     if(result == NULL)
         return false ;
 
-    ::memset(result , 0 , sizeof(write_result_t)) ;
+    ::memset(result , 0 , sizeof(pipe_write_result_t)) ;
 
     if(ring_buffer_init(&result->ring_buffer , PIPEBUFSIZE) == false)
     {
@@ -169,7 +93,7 @@ bool write_result_init(write_result_t * result)
     return true ;
 }
 
-bool write_result_final(write_result_t * result)
+bool pipe_write_result_final(pipe_write_result_t * result)
 {
     if(iocp_ovlp_lock(&result->link) == false)
         return false ;
@@ -188,7 +112,7 @@ bool write_result_final(write_result_t * result)
     return true ;
 }
 
-bool pipe_write(write_result_t * result , int flags)
+bool pipe_write(pipe_write_result_t * result , int flags)
 {
     //数据已经准备好了，需要判断下，是否在发送中。如果已经在发送中，则退出
     if(iocp_ovlp_lock(&result->link) == false)
@@ -230,16 +154,16 @@ bool pipe_write(write_result_t * result , int flags)
     return true ;
 }
 
-read_result_t * read_result_new()
+pipe_read_result_t * pipe_read_result_new()
 {
-    read_result_t * result = (read_result_t *)::malloc(sizeof(read_result_t)) ;
+	pipe_read_result_t * result = (pipe_read_result_t *)::malloc(sizeof(pipe_read_result_t)) ;
     if(result == NULL)
     {
         errno = ENOMEM ;
         return NULL ;
     }
 
-    if(read_result_init(result) == false)
+    if(pipe_read_result_init(result) == false)
     {
         ::free(result) ;
         return NULL ;
@@ -248,23 +172,23 @@ read_result_t * read_result_new()
     return result ;
 }
 
-void read_result_free(read_result_t * result)
+void pipe_read_result_free(pipe_read_result_t * result)
 {
     if(result == NULL)
         return ;
 
-    read_result_final(result) ;
+	pipe_read_result_final(result) ;
     ::free(result) ;
 }
 
-bool read_result_init(read_result_t * result)
+bool pipe_read_result_init(pipe_read_result_t * result)
 {
-    ::memset(result , 0 , sizeof(read_result_t)) ;
+    ::memset(result , 0 , sizeof(pipe_read_result_t)) ;
     result->link.type = OVLP_INPUT ;
     return true ;
 }
 
-bool read_result_final(read_result_t * result)
+bool pipe_read_result_final(pipe_read_result_t * result)
 {
     if(iocp_ovlp_lock(&result->link) == false)
         return false ;
@@ -283,7 +207,7 @@ bool read_result_final(read_result_t * result)
     return true ;
 }
 
-bool pipe_start_read(read_result_t * result)
+bool pipe_start_read(pipe_read_result_t * result)
 {
     if(iocp_ovlp_lock(&result->link) == false)
         return false ;
