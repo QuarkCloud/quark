@@ -222,10 +222,32 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
 	else if (wtype == WOBJ_PIPE)
 	{
 		pipe_t * p = (pipe_t *)wobj->addition;
-		p->addition = item;
+		pipe_item_t * pipe_item = pipe_item_new();
+		p->addition = pipe_item;
+		pipe_item->pipe = p;
+		pipe_item->iocp_item = item;
 		item->type = IOCP_ITEM_PIPE;
+		item->callback = iocp_pipe_callback;
+		item->free = iocp_pipe_free;
+		item->addition = pipe_item ;
 
+		//°ó¶¨µ½IOCPÖĞ
+		if (::CreateIoCompletionPort(p->handle , mgr->iocp , 0 , 0) != NULL)
+		{
+			if (((ev->events & EPOLLIN) == EPOLLIN) && (p->direct == PIPE_READER))
+			{
+				if (pipe_item->reader == NULL)
+					pipe_item->reader = pipe_read_result_new();
+				::pipe_start_read(pipe_item->reader);
+			}
+			else if (((ev->events & EPOLLOUT) == EPOLLOUT) && (p->direct == PIPE_WRITER))
+			{
+				if (pipe_item->writer == NULL)
+					pipe_item->writer = pipe_write_result_new();
+			}
 
+			return true;
+		}
 	}
 	else if (wtype == WOBJ_FILE)
 	{
@@ -251,6 +273,11 @@ bool iocp_mgr_mod(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
         socket_t * s = (socket_t *)wobj->addition ;
         item = (iocp_item_t *)s->addition ;
     }
+	else if (wobj->type == WOBJ_PIPE)
+	{
+		pipe_item_t * p = (pipe_item_t *)wobj->addition;
+		item = p->iocp_item;
+	}
 
     if(item == NULL || item->fd != fd)
         return false ;

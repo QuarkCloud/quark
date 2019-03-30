@@ -52,6 +52,35 @@ void iocp_pipe_free(iocp_item_t * item)
 	}
 }
 
+pipe_item_t * pipe_item_new()
+{
+	size_t item_size = sizeof(pipe_item_t);
+	pipe_item_t * item = (pipe_item_t *)::malloc(item_size);
+	if (item == NULL)
+		return NULL;
+	::memset(item, 0, item_size);
+	return item;
+}
+
+void pipe_item_free(pipe_item_t * item)
+{
+	if (item == NULL)
+		return;
+	if (item->reader != NULL)
+	{
+		pipe_read_result_free(item->reader);
+		item->reader = NULL;
+	}
+
+	if (item->writer != NULL)
+	{
+		pipe_write_result_free(item->writer);
+		item->writer = NULL;
+	}
+
+	::free(item);
+}
+
 pipe_write_result_t * pipe_write_result_new()
 {
 	pipe_write_result_t * result = (pipe_write_result_t *)::malloc(sizeof(pipe_write_result_t)) ;

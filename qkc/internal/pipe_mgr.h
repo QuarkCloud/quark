@@ -23,7 +23,6 @@ typedef struct __st_pipe {
 	SRWLOCK locker;
 	OVERLAPPED ovlp;
 	bool connected;
-
 	void * addition;
 } pipe_t ;
 

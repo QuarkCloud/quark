@@ -11,8 +11,9 @@
 
 __BEGIN_DECLS
 
-typedef struct __st_pipe_write_result    pipe_write_result_t ;
-typedef struct __st_pipe_read_result     pipe_read_result_t ;
+typedef struct __st_pipe_item				pipe_item_t;
+typedef struct __st_pipe_write_result		pipe_write_result_t ;
+typedef struct __st_pipe_read_result		pipe_read_result_t ;
 
 int iocp_pipe_callback(iocp_item_t * item , int evt , int result) ;
 void iocp_pipe_free(iocp_item_t * item) ;
@@ -28,6 +29,17 @@ struct __st_pipe_read_result {
     iocp_ovlp_t   link ;
 };
 
+struct __st_pipe_item {
+	pipe_t * pipe;
+	pipe_write_result_t * writer;
+	pipe_read_result_t	* reader;
+
+	iocp_item_t * iocp_item; 
+};
+
+
+pipe_item_t * pipe_item_new();
+void pipe_item_free(pipe_item_t * item);
 
 pipe_write_result_t * pipe_write_result_new() ;
 void pipe_write_result_free(pipe_write_result_t * result) ;
