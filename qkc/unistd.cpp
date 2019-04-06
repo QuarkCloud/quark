@@ -8,7 +8,7 @@
 #include "internal/sysconf.h"
 #include "internal/intrin.h"
 #include "internal/file_system.h"
-//#include "internal/fpipe.h"
+#include "internal/fpipe.h"
 #include "internal/pipe_mgr.h"
 
 
@@ -62,6 +62,20 @@ int close(int fd)
             fs->close(fd) ;
         }
     }
+	else if (type == WOBJ_PIPE)
+	{
+		pipe_t * p = (pipe_t *)wobj->addition;
+		if (p != NULL)
+		{
+			wobj->addition = NULL;
+			pipe_item_t * item = (pipe_item_t *)p->addition;
+			p->addition = NULL;
+			pipe_free(p);
+
+			pipe_item_free(item);
+		}
+
+	}
     else
     {
         errno = ENOSYS ;
@@ -78,15 +92,22 @@ ssize_t read(int fd , void * buf , size_t nbytes)
         return ::_read(fd , buf , nbytes) ;
 
     wobj_t * obj = wobj_get(fd) ;
-    if(obj == NULL)
+    if(obj == NULL || obj->addition == NULL)
         return -1 ;
 
-    if(obj->type != WOBJ_FILE || obj->addition == NULL)
-        return -1 ;
-
-    file_system_t * file_system = (file_system_t *)obj->addition ;
-    
-    return file_system->read(fd , buf , nbytes) ;
+	if (obj->type == WOBJ_FILE)
+	{
+		file_system_t * file_system = (file_system_t *)obj->addition;
+		return file_system->read(fd, buf, nbytes);
+	}
+	else if (obj->type == WOBJ_PIPE)
+	{
+		pipe_t * pipe = (pipe_t *)obj->addition;
+		pipe_item_t * pipe_item = (pipe_item_t *)pipe->addition;
+		return pipe_read(pipe_item, buf, nbytes);
+	}
+	else
+		return -1;
 }
 
 ssize_t write(int fd , const void * buf , size_t nbytes)
@@ -98,12 +119,43 @@ ssize_t write(int fd , const void * buf , size_t nbytes)
     if(obj == NULL)
         return -1 ;
 
-    if(obj->type != WOBJ_FILE || obj->addition == NULL)
-        return -1 ;
+	if (obj->type == WOBJ_FILE)
+	{
+		if (obj->addition == NULL)
+			return -1;
 
-    file_system_t * file_system = (file_system_t *)obj->addition ;
-    
-    return file_system->write(fd , buf , nbytes) ;
+		file_system_t * file_system = (file_system_t *)obj->addition;
+
+		return file_system->write(fd, buf, nbytes);
+	}
+	else if (obj->type == WOBJ_PIPE)
+	{
+		if (obj->addition == NULL)
+			return -1;
+
+		pipe_t * pipe = (pipe_t *)obj->addition;
+		if (pipe->addition == NULL)
+		{
+			//没有绑定到异步管理器中
+			DWORD writed_bytes = 0;
+			if (WriteFile(pipe->handle, buf, nbytes , &writed_bytes, NULL) == FALSE)
+			{
+				DWORD errcode = ::GetLastError();
+				return -1;
+			}
+			else
+			{
+				return (ssize_t)writed_bytes;
+			}
+		}
+		else
+		{
+			pipe_item_t * pipe_item = (pipe_item_t *)pipe->addition;
+			return pipe_write(pipe_item, buf, nbytes);
+		}
+	}
+	else
+		return -1;
 }
 
 unsigned int sleep(unsigned int seconds)

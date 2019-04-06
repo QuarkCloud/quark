@@ -43,6 +43,7 @@ QKCAPI void pipe_client_final(pipe_t * p);
 QKCAPI void pipe_client_free(pipe_t * p);
 
 QKCAPI int pipe_init(int pfd[2], int flags);
+QKCAPI int pipe_free(pipe_t * p);
 
 __END_DECLS
 

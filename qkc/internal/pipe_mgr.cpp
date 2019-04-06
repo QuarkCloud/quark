@@ -11,7 +11,7 @@ char * pipe_anonymous_name()
 	::AcquireSRWLockExclusive(&__pipe_anonymous_name_gen_locker__);
 	__pipe_anonymous_sequence__++;
 
-	slen = ::sprintf(tmpstr , "\\.\\pipe\\anonymous.%u.%u" , (uint32_t)::_getpid() , __pipe_anonymous_sequence__);
+	slen = ::sprintf(tmpstr , "\\\\.\\pipe\\anonymous.%u.%u" , (uint32_t)::_getpid() , __pipe_anonymous_sequence__);
 	::ReleaseSRWLockExclusive(&__pipe_anonymous_name_gen_locker__);
 	if (slen <= 0)
 		return NULL;
@@ -55,6 +55,7 @@ bool pipe_server_init(pipe_t * p, int flags)
 		PIPE_SIZE , PIPE_SIZE, 0 , NULL);
 	if (handle == INVALID_HANDLE_VALUE)
 	{
+		DWORD errcode = ::GetLastError();
 		::free(name);
 		return false;
 	}
@@ -77,7 +78,7 @@ bool pipe_server_init(pipe_t * p, int flags)
 	if (result == FALSE)
 	{
 		DWORD errcode = ::GetLastError();
-		if (errcode == ERROR_PIPE_CONNECTED || errcode == ERROR_IO_PENDING)
+		if (errcode == ERROR_PIPE_CONNECTED || errcode == ERROR_IO_PENDING || errcode == ERROR_PIPE_LISTENING)
 			result = TRUE;
 	}
 	if (result == TRUE)
@@ -244,4 +245,17 @@ int pipe_init(int pfd[2], int flags)
 	pipe_server_free(server);
 	pipe_client_free(client);
 	return -1;
+}
+
+int pipe_free(pipe_t * p)
+{
+	if (p == NULL)
+		return -1;
+	if (p->direct == PIPE_READER)
+		pipe_server_free(p);
+	else if (p->direct == PIPE_WRITER)
+		pipe_client_free(p);
+	else
+		return -1;
+	return 0;
 }

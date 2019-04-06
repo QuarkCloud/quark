@@ -46,7 +46,8 @@ void pipe_write_result_free(pipe_write_result_t * result) ;
 bool pipe_write_result_init(pipe_write_result_t * result) ;
 bool pipe_write_result_final(pipe_write_result_t * result) ;
 
-bool pipe_write(pipe_write_result_t * result , int flags) ;
+bool pipe_write_iocp(pipe_write_result_t * result) ;
+ssize_t pipe_write(pipe_item_t * pipe_item, const void * buf, size_t nbytes);
 
 pipe_read_result_t * pipe_read_result_new() ;
 void pipe_read_result_free(pipe_read_result_t * result) ;
@@ -54,6 +55,7 @@ bool pipe_read_result_init(pipe_read_result_t * result) ;
 bool pipe_read_result_final(pipe_read_result_t * result) ;
 
 bool pipe_start_read(pipe_read_result_t * result) ;
+ssize_t pipe_read(pipe_item_t * pipe_item, void * buf, size_t nbytes);
 
 __END_DECLS
 

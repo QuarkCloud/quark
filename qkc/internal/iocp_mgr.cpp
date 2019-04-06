@@ -176,7 +176,7 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
     if(wobj == NULL)
         return false ;
     wobj_type wtype = wobj->type ;
-    if(wtype != WOBJ_SOCK || wtype != WOBJ_FILE || wtype != WOBJ_PIPE)
+    if(wtype != WOBJ_SOCK && wtype != WOBJ_FILE && wtype != WOBJ_PIPE)
         return false ;
 
     iocp_item_t * item = (iocp_item_t *)::malloc(sizeof(iocp_item_t)) ;
@@ -237,13 +237,19 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
 			if (((ev->events & EPOLLIN) == EPOLLIN) && (p->direct == PIPE_READER))
 			{
 				if (pipe_item->reader == NULL)
+				{
 					pipe_item->reader = pipe_read_result_new();
+					pipe_item->reader->link.owner = item;
+				}
 				::pipe_start_read(pipe_item->reader);
 			}
 			else if (((ev->events & EPOLLOUT) == EPOLLOUT) && (p->direct == PIPE_WRITER))
 			{
 				if (pipe_item->writer == NULL)
+				{
 					pipe_item->writer = pipe_write_result_new();
+					pipe_item->writer->link.owner = item;
+				}
 			}
 
 			return true;
@@ -306,6 +312,14 @@ bool iocp_mgr_del(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
         item = (iocp_item_t *)s->addition ;
         s->addition = NULL ;
     }
+	else if (wobj->type == WOBJ_PIPE)
+	{
+		pipe_t * p = (pipe_t *)wobj->addition;
+		pipe_item_t * pi = (pipe_item_t *)p->addition;
+		item = pi->iocp_item;
+		p->addition = NULL;
+		pipe_item_free(pi);
+	}
 
     if(item == NULL)
         return true ;

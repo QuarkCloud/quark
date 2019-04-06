@@ -141,7 +141,7 @@ bool pipe_write_result_final(pipe_write_result_t * result)
     return true ;
 }
 
-bool pipe_write(pipe_write_result_t * result , int flags)
+bool pipe_write_iocp(pipe_write_result_t * result)
 {
     //数据已经准备好了，需要判断下，是否在发送中。如果已经在发送中，则退出
     if(iocp_ovlp_lock(&result->link) == false)
@@ -181,6 +181,28 @@ bool pipe_write(pipe_write_result_t * result , int flags)
     }
 
     return true ;
+}
+
+ssize_t pipe_write(pipe_item_t * pipe_item, const void * buf, size_t nbytes)
+{
+	if (pipe_item == NULL || buf == NULL || nbytes == 0 || pipe_item->writer == NULL)
+		return -1;
+
+	pipe_write_result_t * writer = pipe_item->writer;
+	size_t write_bytes = ring_buffer_write_stream(&writer->ring_buffer, buf, nbytes);
+	if (write_bytes == 0)
+		return 0;
+
+	pipe_write_iocp(writer);
+
+	if (write_bytes == 0)
+	{
+		errno = EAGAIN;
+		iocp_pipe_callback(pipe_item->iocp_item, IOCP_EVENT_WRITE, errno);
+		return -1;
+	}
+	else
+		return write_bytes;
 }
 
 pipe_read_result_t * pipe_read_result_new()
@@ -250,7 +272,8 @@ bool pipe_start_read(pipe_read_result_t * result)
         iocp_ovlp_unlock(&result->link) ;
         return false ;
     }
-    pipe_t * pipe = (pipe_t *)item->addition ;
+	pipe_item_t * pipe_item = (pipe_item_t *)item->addition ;
+	pipe_t * pipe = pipe_item->pipe;
 
     int status = ::ReadFile(pipe->handle , NULL , 0 ,  &read_bytes , &result->link.ovlp) ;
     if(status != 0)
@@ -270,5 +293,30 @@ bool pipe_start_read(pipe_read_result_t * result)
     }
 
     return true ;
+}
+
+ssize_t pipe_read(pipe_item_t * pipe_item , void * buf, size_t nbytes)
+{
+	if (pipe_item == NULL || pipe_item->pipe == NULL)
+		return -1;
+
+	pipe_t * pipe = pipe_item->pipe;
+
+	if (pipe->direct != PIPE_READER)
+		return -1;
+
+
+	DWORD read_bytes = 0;
+	if (::ReadFile(pipe->handle, buf, nbytes, &read_bytes, NULL) == FALSE)
+	{
+		DWORD errcode = ::GetLastError();
+		if (errcode == ERROR_IO_PENDING)
+			return 0;
+		else
+			return -1;
+	}
+
+	pipe_start_read(pipe_item->reader);
+	return read_bytes;
 }
 
