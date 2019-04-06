@@ -119,6 +119,7 @@
     <ClCompile Include="iconv.cpp" />
     <ClCompile Include="ifaddrs.cpp" />
     <ClCompile Include="internal\addr_mgr.cpp" />
+    <ClCompile Include="internal\ffile.cpp" />
     <ClCompile Include="internal\file_system.cpp" />
     <ClCompile Include="internal\file_system_dev_null.cpp" />
     <ClCompile Include="internal\file_system_proc.cpp" />
@@ -284,6 +285,7 @@
     <ClInclude Include="..\include\wintf\wtime.h" />
     <ClInclude Include="internal\addr_mgr.h" />
     <ClInclude Include="internal\bitop.h" />
+    <ClInclude Include="internal\ffile.h" />
     <ClInclude Include="internal\file_system.h" />
     <ClInclude Include="internal\file_system_dev_null.h" />
     <ClInclude Include="internal\file_system_proc.h" />

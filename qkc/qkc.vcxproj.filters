@@ -293,6 +293,9 @@
     <ClCompile Include="internal\fpipe.cpp">
       <Filter>源文件\internal</Filter>
     </ClCompile>
+    <ClCompile Include="internal\ffile.cpp">
+      <Filter>源文件\internal</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\alloca.h">
@@ -635,6 +638,9 @@
       <Filter>头文件\internal</Filter>
     </ClInclude>
     <ClInclude Include="internal\fpipe.h">
+      <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\ffile.h">
       <Filter>头文件\internal</Filter>
     </ClInclude>
   </ItemGroup>

@@ -21,7 +21,7 @@ __BEGIN_DECLS
 #define SOCKET_STAGE_CONNECT    11
 #define SOCKET_STAGE_DESROTY    -1
 
-typedef struct __st_socket_ovlp				socket_ovlp_t ;
+//typedef struct __st_socket_ovlp				socket_ovlp_t ;
 typedef struct __st_socket_send_result		socket_send_result_t ;
 typedef struct __st_socket_recv_result		socket_recv_result_t ;
 typedef struct __st_socket_accept_result	socket_accept_result_t;
