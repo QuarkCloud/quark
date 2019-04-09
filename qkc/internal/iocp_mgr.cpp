@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 #include "fsocket.h"
 #include "fpipe.h"
+#include "ffile.h"
 
 iocp_mgr_t * iocp_mgr_new()
 {
@@ -257,7 +258,30 @@ bool iocp_mgr_add(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
 	}
 	else if (wtype == WOBJ_FILE)
 	{
-		//
+
+		file_t * f = (file_t *)wobj->addition;
+		f->addition = item;
+
+		item->type = IOCP_ITEM_SOCKET;
+		item->callback = iocp_file_callback;
+		item->free = iocp_file_free;
+		item->addition = f;
+
+		//°ó¶¨µ½iocpÖÐ
+		if (::CreateIoCompletionPort(f->handle, mgr->iocp, 0, 0) != NULL)
+		{
+			if ((ev->events & EPOLLIN) == EPOLLIN)
+			{
+				::file_start_read(f->reader);
+			}
+
+			return true;
+		}
+		else
+		{
+			DWORD errcode = ::GetLastError();
+			::printf("errcode = %u \n" , errcode);
+		}
 	}
 
     ::free(item) ;
@@ -319,6 +343,15 @@ bool iocp_mgr_del(iocp_mgr_t * mgr , int fd , struct epoll_event * ev)
 		item = pi->iocp_item;
 		p->addition = NULL;
 		pipe_item_free(pi);
+	}
+	else if (wobj->type == WOBJ_FILE)
+	{
+		file_t * f = (file_t *)wobj->addition;
+		if (f != NULL)
+		{
+			item = (iocp_item_t *)f->addition;
+			f->addition = NULL;
+		}
 	}
 
     if(item == NULL)
