@@ -94,7 +94,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)include\wstub</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include;$(ProjectDir)..\include\wstub</AdditionalIncludeDirectories>
       <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
     </ClCompile>
     <Link>
@@ -158,7 +158,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="quark-svr.cpp" />
+    <ClCompile Include="pipe_base.cpp" />
+    <ClCompile Include="pipe_client.cpp" />
+    <ClCompile Include="pipe_connection.cpp" />
+    <ClCompile Include="pipe_server.cpp" />
+    <ClCompile Include="quark_svr.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pipe_client.h" />
+    <ClInclude Include="pipe_connection.h" />
+    <ClInclude Include="pipe_base.h" />
+    <ClInclude Include="pipe_server.h" />
+    <ClInclude Include="pipe_util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

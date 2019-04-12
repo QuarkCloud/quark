@@ -15,8 +15,37 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="quark-svr.cpp">
+    <ClCompile Include="pipe_client.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="pipe_server.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pipe_connection.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="quark_svr.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pipe_base.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pipe_server.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe_client.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe_connection.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe_util.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe_base.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
