@@ -23,6 +23,26 @@ PipeConnection::~PipeConnection()
 
 }
 
+bool PipeConnection::Start()
+{
+	if (::ConnectNamedPipe(Handle(), Ovlp()) == FALSE)
+	{
+		DWORD errcode = ::GetLastError();
+		if (errcode != ERROR_PIPE_CONNECTED && errcode != ERROR_IO_PENDING)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool PipeConnection::StartRead()
+{
+	return false;
+}
+
+
 PipeConnectionMgr::PipeConnectionMgr()
 {
 	guard_ = SRWLOCK_INIT;
@@ -102,6 +122,8 @@ void PipeConnectionMgr::Final()
 {
 
 }
+
+
 
 
 

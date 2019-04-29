@@ -161,15 +161,25 @@
     <ClCompile Include="pipe_base.cpp" />
     <ClCompile Include="pipe_client.cpp" />
     <ClCompile Include="pipe_connection.cpp" />
+    <ClCompile Include="pipe_loop.cpp" />
+    <ClCompile Include="pipe_page.cpp" />
+    <ClCompile Include="pipe_reader.cpp" />
     <ClCompile Include="pipe_server.cpp" />
+    <ClCompile Include="pipe_spinlock.cpp" />
+    <ClCompile Include="pipe_writer.cpp" />
     <ClCompile Include="quark_svr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pipe_client.h" />
     <ClInclude Include="pipe_connection.h" />
     <ClInclude Include="pipe_base.h" />
+    <ClInclude Include="pipe_spinlock.h" />
+    <ClInclude Include="pipe_loop.h" />
+    <ClInclude Include="pipe_page.h" />
+    <ClInclude Include="pipe_reader.h" />
     <ClInclude Include="pipe_server.h" />
     <ClInclude Include="pipe_util.h" />
+    <ClInclude Include="pipe_writer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

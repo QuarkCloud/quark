@@ -3,8 +3,9 @@
 #define __QUARK_PIPE_CLIENT_H 1
 
 #include <windows.h>
+#include "pipe_base.h"
 
-class PipeClient {
+class PipeClient : public PipeBase{
 public:
 	PipeClient();
 	~PipeClient();

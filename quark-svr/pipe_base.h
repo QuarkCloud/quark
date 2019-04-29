@@ -17,6 +17,9 @@ public:
 
 	inline const int Type() const { return type_; }
 	inline void Type(int type) {type_ = type; }
+	inline HANDLE Handle() { return handle_; }
+	inline void Handle(HANDLE handle) {handle_ = handle; }
+	inline bool Valid() const { return (handle_ != INVALID_HANDLE_VALUE && handle_ != NULL); }
 
 	static const int kPipeUnknown	= 0;
 	static const int kPipeConnection= 1;
@@ -26,6 +29,7 @@ public:
 	static const int kPipeWriter	= 5;
 
 private:
+	HANDLE handle_;
 	int type_;
 	mutable volatile long ref_counter_ ;
 };

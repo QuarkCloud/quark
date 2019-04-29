@@ -30,6 +30,21 @@
     <ClCompile Include="pipe_base.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="pipe_reader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pipe_writer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pipe_loop.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pipe_page.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pipe_spinlock.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pipe_server.h">
@@ -45,6 +60,21 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="pipe_base.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe_reader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe_writer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe_loop.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe_page.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe_spinlock.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,6 +4,8 @@
 
 #include <windows.h>
 #include "pipe_base.h"
+#include "pipe_reader.h"
+#include "pipe_writer.h"
 
 class PipeConnection : public PipeBase{
 public:
@@ -14,10 +16,19 @@ public:
 	inline const HANDLE Handle() const { return handle_; }
 	inline HANDLE Handle() { return handle_; }
 	inline OVERLAPPED *  Ovlp() { return ovlp_.Value(); }
+	inline bool Connected() const { return connected_; }
+	inline void Connected(bool val) { connected_ = val; }
+
+	bool Start();
+
+	bool StartRead();
 
 private:
 	HANDLE handle_;
 	PipeOvlp ovlp_;
+	PipeReader reader_;
+	PipeWriter writer_;
+	bool connected_;
 };
 
 class PipeConnectionMgr {

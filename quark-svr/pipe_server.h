@@ -5,6 +5,7 @@
 #include <windows.h>
 
 #include "pipe_connection.h"
+#include "pipe_loop.h"
 
 class PipeServer {
 public:
@@ -20,7 +21,7 @@ public:
 	inline bool Terminated() const { return terminated_; }
 
 private:
-	HANDLE handle_;
+	PipeLoop loop_;
 	char * name_;
 	bool terminated_;
 	PipeConnectionMgr connections_;

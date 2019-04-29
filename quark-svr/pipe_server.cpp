@@ -5,7 +5,6 @@
 
 PipeServer::PipeServer()
 {
-	handle_ = INVALID_HANDLE_VALUE;
 	name_ = NULL;
 }
 
@@ -19,11 +18,8 @@ bool PipeServer::Init(const char * name)
 	if (name == NULL)
 		return false;
 
-	HANDLE iocp = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
-	if (iocp == INVALID_HANDLE_VALUE)
+	if (loop_.Init() == false)
 		return false;
-
-	handle_ = iocp;
 
 	size_t nsize = ::strlen(name) + 1;
 	char * str = (char *)::malloc(nsize);
@@ -37,12 +33,9 @@ bool PipeServer::Init(const char * name)
 
 void PipeServer::Final()
 {
-	connections_.Clear();
-	if (handle_ != INVALID_HANDLE_VALUE)
-	{
-		::CloseHandle(handle_);
-		handle_ = INVALID_HANDLE_VALUE;
-	}
+	connections_.Final();
+	loop_.Final();
+
 	if (name_ != NULL)
 	{
 		::free(name_);
@@ -56,11 +49,13 @@ void PipeServer::Run()
 
 	while (terminated_ == false)
 	{
+		PipeBase * obj = NULL;
+		PipeOvlp * ovlp = NULL;
 		DWORD bytes = 0;
-		OVERLAPPED * ovlp = NULL;
-		ULONG_PTR key = 0;
-		::GetQueuedCompletionStatus(handle_, &bytes, &key, &ovlp, 1000);
 
+		if (loop_.Wait(bytes, obj, ovlp, 1) == true)
+		{
+		}
 	}
 }
 
@@ -81,25 +76,17 @@ bool PipeServer::StartListen()
 	}
 
 	PipeConnection * conn = new PipeConnection(pipe);
-	if (::CreateIoCompletionPort(pipe, handle_, (ULONG_PTR)PipeBase::kPipeConnection, 0) != handle_)
-	{
-		DWORD errcode = ::GetLastError();
-		::CloseHandle(pipe);
-		delete conn;
+	PipeAccess<PipeConnection> scoped_access(conn);
+	if (loop_.Bind(conn->Handle(), conn) == false)
 		return false;
-	}
 
 	if (connections_.InsertConnection(conn) == false)
 		return false;
 
-	if (::ConnectNamedPipe(conn->Handle(), conn->Ovlp()) == FALSE)
+	if (conn->Start() == false)
 	{
-		DWORD errcode = ::GetLastError();
-		if (errcode != ERROR_PIPE_CONNECTED && errcode != ERROR_IO_PENDING)
-		{
-			connections_.DeleteConnection(conn);
-			return false;
-		}
+		connections_.DeleteConnection(conn);
+		return false;
 	}
 
 	return true;
