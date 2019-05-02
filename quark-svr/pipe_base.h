@@ -73,16 +73,14 @@ private:
 	}
 };
 
-class PipeOvlp {
+class PipeOvlp : public  OVERLAPPED{
 public:
 	PipeOvlp();
 	virtual ~PipeOvlp();
 
 	inline PipeBase * Owner() { return owner_; }
 	inline void Owner(PipeBase * owner) {owner_ = owner; }
-	inline OVERLAPPED * Value() { return &ovlp_; }
 private:
-	OVERLAPPED ovlp_;
 	PipeBase * owner_;
 };
 

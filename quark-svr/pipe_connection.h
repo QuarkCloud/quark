@@ -15,7 +15,7 @@ public:
 
 	inline const HANDLE Handle() const { return handle_; }
 	inline HANDLE Handle() { return handle_; }
-	inline OVERLAPPED *  Ovlp() { return ovlp_.Value(); }
+	inline OVERLAPPED *  Ovlp() { return &ovlp_; }
 	inline bool Connected() const { return connected_; }
 	inline void Connected(bool val) { connected_ = val; }
 

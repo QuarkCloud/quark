@@ -17,7 +17,7 @@ PipeReader::~PipeReader()
 int PipeReader::Read(void  * buffer, int size)
 {
 	DWORD bytes = 0;
-	if (::ReadFile(this->Handle(), buffer, (DWORD)size, &bytes, this->ovlp_.Value()) == FALSE)
+	if (::ReadFile(this->Handle(), buffer, (DWORD)size, &bytes, &ovlp_) == FALSE)
 	{
 		DWORD errcode = ::GetLastError();
 		return -1;
@@ -28,7 +28,7 @@ int PipeReader::Read(void  * buffer, int size)
 bool PipeReader::StartRead()
 {
 	DWORD bytes = 0;
-	if (::ReadFile(this->Handle(), NULL, 0, &bytes, this->ovlp_.Value()) == FALSE)
+	if (::ReadFile(this->Handle(), NULL, 0, &bytes, &ovlp_) == FALSE)
 	{
 		DWORD errcode = ::GetLastError();
 		return false;

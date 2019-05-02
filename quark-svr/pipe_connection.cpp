@@ -20,12 +20,12 @@ PipeConnection::PipeConnection(HANDLE handle)
 
 PipeConnection::~PipeConnection()
 {
-
+	::CloseHandle(handle_);
 }
 
 bool PipeConnection::Start()
 {
-	if (::ConnectNamedPipe(Handle(), Ovlp()) == FALSE)
+	if (::ConnectNamedPipe(Handle(), &ovlp_) == FALSE)
 	{
 		DWORD errcode = ::GetLastError();
 		if (errcode != ERROR_PIPE_CONNECTED && errcode != ERROR_IO_PENDING)
@@ -39,7 +39,7 @@ bool PipeConnection::Start()
 
 bool PipeConnection::StartRead()
 {
-	return false;
+	return reader_.StartRead();
 }
 
 

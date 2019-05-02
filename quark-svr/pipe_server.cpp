@@ -53,7 +53,26 @@ void PipeServer::Run()
 		PipeOvlp * ovlp = NULL;
 		DWORD bytes = 0;
 
-		if (loop_.Wait(bytes, obj, ovlp, 1) == true)
+		if (loop_.Wait(bytes, obj, ovlp, 1) == false)
+			break;
+
+		if (obj == NULL)
+			continue;
+
+		int type = obj->Type();
+		if (type == PipeBase::kPipeConnection)
+		{
+			//接收到链接了
+			PipeConnection * conn = (PipeConnection *)obj;
+			conn->StartRead();
+		}
+		else if (type == PipeBase::kPipeReader)
+		{
+			PipeReader * reader = (PipeReader *)obj;
+			char data[4096];
+			int size = reader->Read(data , sizeof(data));
+		}
+		else if (type == PipeBase::kPipeWriter)
 		{
 		}
 	}

@@ -37,15 +37,16 @@ long PipeBase::Derefer() const
 
 PipeOvlp::PipeOvlp()
 {
-	::memset(&ovlp_, 0, sizeof(ovlp_));
-	ovlp_.hEvent = ::CreateEventA(NULL, TRUE, FALSE, NULL);
+	owner_ = NULL;
+	::memset(this, 0, sizeof(*this));
+	hEvent = ::CreateEventA(NULL, TRUE, FALSE, NULL);
 }
 
 PipeOvlp::~PipeOvlp()
 {
-	if (ovlp_.hEvent != INVALID_HANDLE_VALUE)
+	if (hEvent != INVALID_HANDLE_VALUE)
 	{
-		::CloseHandle(ovlp_.hEvent);
-		ovlp_.hEvent = INVALID_HANDLE_VALUE;
+		::CloseHandle(hEvent);
+		hEvent = INVALID_HANDLE_VALUE;
 	}
 }

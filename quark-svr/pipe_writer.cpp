@@ -105,7 +105,7 @@ void PipeWriter::StartSend()
 
 	if (page != NULL)
 	{
-		::WriteFile(this->Handle(), page->Head(), page->Size(), NULL, this->ovlp_.Value());
+		::WriteFile(this->Handle(), page->Head(), page->Size(), NULL, &ovlp_);
 	}
 }
 
