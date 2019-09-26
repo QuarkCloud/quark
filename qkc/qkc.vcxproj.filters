@@ -311,6 +311,15 @@
     <ClCompile Include="wobjs\RWLocker.cpp">
       <Filter>源文件\wobjs</Filter>
     </ClCompile>
+    <ClCompile Include="wobjs\DllLoader.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\AdvAPI32Loader.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\UserEnvLoader.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\alloca.h">
@@ -665,6 +674,15 @@
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
     <ClInclude Include="..\include\wobjs\RWLocker.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\DllLoader.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\AdvAPI32Loader.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\UserEnvLoader.h">
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
   </ItemGroup>

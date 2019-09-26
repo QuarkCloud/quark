@@ -272,9 +272,12 @@
     <ClCompile Include="wintf\wps.cpp" />
     <ClCompile Include="wintf\wthr.cpp" />
     <ClCompile Include="wintf\wtime.cpp" />
+    <ClCompile Include="wobjs\AdvAPI32Loader.cpp" />
+    <ClCompile Include="wobjs\DllLoader.cpp" />
     <ClCompile Include="wobjs\GlobalLocker.cpp" />
     <ClCompile Include="wobjs\Object.cpp" />
     <ClCompile Include="wobjs\RWLocker.cpp" />
+    <ClCompile Include="wobjs\UserEnvLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\alloca.h" />
@@ -370,9 +373,12 @@
     <ClInclude Include="..\include\wintf\wps.h" />
     <ClInclude Include="..\include\wintf\wthr.h" />
     <ClInclude Include="..\include\wintf\wtime.h" />
+    <ClInclude Include="..\include\wobjs\AdvAPI32Loader.h" />
+    <ClInclude Include="..\include\wobjs\DllLoader.h" />
     <ClInclude Include="..\include\wobjs\GlobalLocker.h" />
     <ClInclude Include="..\include\wobjs\Object.h" />
     <ClInclude Include="..\include\wobjs\RWLocker.h" />
+    <ClInclude Include="..\include\wobjs\UserEnvLoader.h" />
     <ClInclude Include="internal\addr_mgr.h" />
     <ClInclude Include="internal\bitop.h" />
     <ClInclude Include="internal\ffile.h" />
