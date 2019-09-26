@@ -6,7 +6,6 @@
 #include <winsock2.h>
 #include "internal/inotify_mgr.h"
 #include "internal/sysconf.h"
-#include "internal/intrin.h"
 #include "internal/file_system.h"
 #include "internal/fpipe.h"
 #include "internal/pipe_mgr.h"

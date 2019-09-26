@@ -1,6 +1,5 @@
 
 #include <builtin.h>
-#include "internal/intrin.h"
 #include <stdlib.h>
 #include <windows.h>
 
@@ -13,17 +12,23 @@
 #pragma intrinsic(labs)
 #pragma intrinsic(_lrotl)
 #pragma intrinsic(_lrotr)
+#pragma intrinsic(_rotl)
+#pragma intrinsic(_rotr)
+
+/***
 #pragma intrinsic(memcmp)
 #pragma intrinsic(memcpy)
 #pragma intrinsic(memset)
-#pragma intrinsic(_rotl)
-#pragma intrinsic(_rotr)
+*/
+
+/***
 #pragma intrinsic(strcat)
 #pragma intrinsic(strcmp)
 #pragma intrinsic(strcpy)
 #pragma intrinsic(strlen)
 #pragma intrinsic(_strset)
 #pragma intrinsic(strset)
+*/
 #pragma intrinsic(_rotl64)
 #pragma intrinsic(_rotr64)
 #pragma intrinsic(_abs64)
@@ -68,7 +73,7 @@
 #pragma intrinsic(_ReadWriteBarrier)
 
 
-#if (__MACHINEW64 == __MACHINEZ)
+#if defined(_X86_) || defined(_M_IX86)
 unsigned char _BitScanForward64(unsigned long* index, unsigned __int64 mask)
 {
     if(index == NULL)    return 0 ;
@@ -84,8 +89,10 @@ unsigned char _BitScanForward64(unsigned long* index, unsigned __int64 mask)
     }
     return 0 ;
 }
-
 #endif
+
+#define BitScanForward64		_BitScanForward64
+
 
 int __builtin_ffs (int x) 
 { 
@@ -104,7 +111,7 @@ int __builtin_ffsl(long x)
 int __builtin_ffsll (long long x)
 {
     unsigned long index = 0 ;
-    unsigned char result = _BitScanForward64(&index , (unsigned __int64)x) ;
+    unsigned char result = BitScanForward64(&index , (unsigned __int64)x) ;
     return ((result == 0) ? 0 : (int)(index + 1)) ;
 }
 

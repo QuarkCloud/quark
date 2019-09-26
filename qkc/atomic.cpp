@@ -2,7 +2,6 @@
 #include <windows.h>
 #include <atomic.h>
 #include <bits/wordsize.h>
-#include "internal/intrin.h"
 
 uint32_t atomic_load32(uint32_t volatile * target)
 {
@@ -102,6 +101,14 @@ static inline LONGLONG InterlockedOr64(LONGLONG volatile * target , LONGLONG val
     return old ;
 }
 
+#elif defined(_AMD64_)
+
+#define InterlockedExchange64		_InterlockedExchange64
+#define InterlockedExchangeAdd64	_InterlockedExchangeAdd64
+#define InterlockedAnd64			_InterlockedAnd64
+#define InterlockedXor64			_InterlockedXor64
+#define InterlockedOr64				_InterlockedOr64
+
 #endif
 
 
@@ -182,7 +189,7 @@ void * atomic_load_ptr(void * volatile * target)
 
 void * atomic_store_ptr(void * volatile * target , void * value)
 {
-    return (void *)::InterlockedExchange64(target , (LONGLONG)value) ;
+    return (void *)::InterlockedExchange64((LONGLONG volatile *)target , (LONGLONG)value) ;
 }
 
 void * atomic_exchange_ptr(void * volatile * target, void * value)

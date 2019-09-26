@@ -16,6 +16,7 @@
 
 #if defined(_M_AMD64)
 #define __amd64__
+#define _AMD64_
 #endif
 
 #if defined(_M_X64)

@@ -2041,15 +2041,61 @@ GetSystemTimes(
     __out_opt LPFILETIME lpUserTime
     );
 
+
+WINBASEAPI DWORD WINAPI GetTickCount(VOID);
+
+#ifdef _X86_
+
+WINBASEAPI LONG WINAPI InterlockedIncrement(LONG volatile *lpAddend);
+WINBASEAPI LONG WINAPI InterlockedDecrement(LONG volatile *lpAddend);
+WINBASEAPI LONG WINAPI InterlockedExchange(LONG volatile *Target, LONG Value);
+WINBASEAPI LONG WINAPI InterlockedExchangeAdd(LONG volatile *Addend, LONG Value);
+WINBASEAPI LONG WINAPI InterlockedCompareExchange(LONG volatile *Destination, LONG Exchange, LONG Comperand);
+WINBASEAPI LONGLONG WINAPI InterlockedCompareExchange64(LONGLONG volatile *Destination, LONGLONG Exchange, LONGLONG Comperand);
+
+#pragma warning( push )
+#pragma warning( disable : 4793 )
+__forceinline VOID MemoryBarrier(VOID)
+{
+	LONG Barrier;
+	__asm {
+		xchg Barrier, eax
+	}
+}
+#pragma warning( pop )
+
+__forceinline PVOID _InlineInterlockedCompareExchangePointer(PVOID volatile * Destination, PVOID ExChange, PVOID Comperand)
+{
+	return (PVOID)InterlockedCompareExchange((LONG volatile *)Destination,
+		(LONG)ExChange,
+		(LONG)Comperand);
+}
+
+#define InterlockedCompareExchangePointer _InlineInterlockedCompareExchangePointer
+
+
+#elif defined(_AMD64_)
+#define MemoryBarrier __faststorefence
+
+#define InterlockedIncrement _InterlockedIncrement
+#define InterlockedDecrement _InterlockedDecrement
+#define InterlockedExchange _InterlockedExchange
+#define InterlockedExchangeAdd _InterlockedExchangeAdd
+#define InterlockedCompareExchange _InterlockedCompareExchange
+#define InterlockedCompareExchange64 _InterlockedCompareExchange64
+#define InterlockedCompareExchangePointer _InterlockedCompareExchangePointer
+
+#else
+#define MemoryBarrier()
+#endif
+
+/****
 WINBASEAPI
 DWORD
 WINAPI
 GetTickCount(
     VOID
     );
-
-
-
 
 WINBASEAPI LONG WINAPI InterlockedIncrement(LONG volatile *lpAddend);
 WINBASEAPI LONG WINAPI InterlockedDecrement(LONG volatile *lpAddend);
@@ -2069,6 +2115,7 @@ __forceinline VOID MemoryBarrier (VOID)
     }
 }
 #pragma warning( pop )
+*/
 
 WINBASEAPI VOID WINAPI ExitThread(DWORD dwExitCode);
 WINBASEAPI BOOL WINAPI TerminateThread(HANDLE hThread, DWORD dwExitCode);

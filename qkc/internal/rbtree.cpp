@@ -431,7 +431,7 @@ rb_node_t *rb_prev(rb_node_t *node)
 }
 // EXPORT_SYMBOL(rb_prev);
 
-void rb_replace_node(rb_node_t *victim, rb_node_t *new_node,   rb_tree_t *root)
+void rb_replace_node(rb_tree_t *root , rb_node_t *victim, rb_node_t *new_node)
 {
 	rb_node_t *parent = victim->parent;
 

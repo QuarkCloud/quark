@@ -47,5 +47,8 @@
     <ClInclude Include="..\include\wstub\winnt.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\wstub\intrin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -42,6 +42,12 @@
     <Filter Include="源文件\ucrt">
       <UniqueIdentifier>{f62933a5-68eb-4fa3-b6fe-640127e6311e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\wobjs">
+      <UniqueIdentifier>{36cb36d4-4adb-4e66-8df7-f197274cc638}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\wobjs">
+      <UniqueIdentifier>{b47967fe-96da-4f5d-b0a5-1fc4282b0fde}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="advapi32_imp.cpp">
@@ -295,6 +301,15 @@
     </ClCompile>
     <ClCompile Include="internal\ffile.cpp">
       <Filter>源文件\internal</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\GlobalLocker.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\Object.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\RWLocker.cpp">
+      <Filter>源文件\wobjs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -642,6 +657,15 @@
     </ClInclude>
     <ClInclude Include="internal\ffile.h">
       <Filter>头文件\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\GlobalLocker.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\Object.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\RWLocker.h">
+      <Filter>头文件\wobjs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

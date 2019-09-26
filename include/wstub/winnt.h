@@ -4,6 +4,7 @@
 
 #include <winerror.h>
 #include <windef.h>
+#include <intrin.h>
 
 #ifdef __cplusplus
 extern "C" {

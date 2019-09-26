@@ -1,6 +1,6 @@
 
-#ifndef __QKC_INTERNAL_INTRIN_H
-#define __QKC_INTERNAL_INTRIN_H 1
+#ifndef __QKC_WSTUB_INTRIN_H
+#define __QKC_WSTUB_INTRIN_H 1
 
 #include <quark_compile.h>
 
@@ -217,9 +217,12 @@ __MACHINE(unsigned long __cdecl _lrotr(unsigned long,int))
 __MACHINEI(unsigned __int64  __ll_lshift(unsigned __int64,int))
 __MACHINEI(__int64  __ll_rshift(__int64,int))
 
+/*****
 __MACHINE(int __cdecl memcmp(const void *,const void *,size_t _Size))
 __MACHINE(void * __cdecl memcpy(void *,const void *,size_t _Size))
 __MACHINE(void * __cdecl memset(void *,int,size_t _Size))
+*/
+
 __MACHINEIA64(void __mf(void))
 __MACHINEIA64(void __mfa(void))
 
@@ -255,12 +258,16 @@ __MACHINEIA64(void __setReg(int,unsigned __int64))
 
 __MACHINEIA64(void __store128(void *, __int64, __int64))
 __MACHINEIA64(void __store128_rel(void *, __int64, __int64))
+
+/****
 __MACHINE(char * __cdecl strcat(char *,const char * _Source))
 __MACHINE(int __cdecl strcmp(const char *,const char *))
 __MACHINE(char * __cdecl strcpy(char *,const char * _Source))
 __MACHINE(size_t __cdecl strlen(const char *))
 __MACHINE(char * __cdecl _strset(char *,int))
 __MACHINE(char * __cdecl strset(char *,int))
+*/
+
 __MACHINEIA64(void __ssm(int))
 __MACHINEIA64(void __sum(int))
 __MACHINESA(int __swi(unsigned, ...))
@@ -384,4 +391,4 @@ __MACHINEX86X_X64(void _mm_pause(void))
 
 __END_DECLS
 
-#endif /** __QKC_INTERNAL_INTRIN_H */
+#endif /** __QKC_WSTUB_INTRIN_H */

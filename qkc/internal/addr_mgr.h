@@ -1,4 +1,4 @@
-
+ 
 #ifndef __QKC_INTERNAL_ADDR_MGR_H
 #define __QKC_INTERNAL_ADDR_MGR_H 1
 
