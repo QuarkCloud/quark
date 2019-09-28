@@ -320,6 +320,15 @@
     <ClCompile Include="wobjs\UserEnvLoader.cpp">
       <Filter>源文件\wobjs</Filter>
     </ClCompile>
+    <ClCompile Include="wobjs\RBTree.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\RXTree.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\MemMgr.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\alloca.h">
@@ -683,6 +692,15 @@
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
     <ClInclude Include="..\include\wobjs\UserEnvLoader.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\RBTree.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\RXTree.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\MemMgr.h">
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
   </ItemGroup>

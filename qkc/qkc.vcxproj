@@ -275,8 +275,15 @@
     <ClCompile Include="wobjs\AdvAPI32Loader.cpp" />
     <ClCompile Include="wobjs\DllLoader.cpp" />
     <ClCompile Include="wobjs\GlobalLocker.cpp" />
+    <ClCompile Include="wobjs\MemMgr.cpp" />
     <ClCompile Include="wobjs\Object.cpp" />
+    <ClCompile Include="wobjs\RBTree.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)RBTree.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="wobjs\RWLocker.cpp" />
+    <ClCompile Include="wobjs\RXTree.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)RXTree.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="wobjs\UserEnvLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -376,8 +383,11 @@
     <ClInclude Include="..\include\wobjs\AdvAPI32Loader.h" />
     <ClInclude Include="..\include\wobjs\DllLoader.h" />
     <ClInclude Include="..\include\wobjs\GlobalLocker.h" />
+    <ClInclude Include="..\include\wobjs\MemMgr.h" />
     <ClInclude Include="..\include\wobjs\Object.h" />
+    <ClInclude Include="..\include\wobjs\RBTree.h" />
     <ClInclude Include="..\include\wobjs\RWLocker.h" />
+    <ClInclude Include="..\include\wobjs\RXTree.h" />
     <ClInclude Include="..\include\wobjs\UserEnvLoader.h" />
     <ClInclude Include="internal\addr_mgr.h" />
     <ClInclude Include="internal\bitop.h" />
