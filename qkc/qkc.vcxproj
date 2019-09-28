@@ -280,6 +280,7 @@
     <ClCompile Include="wobjs\RBTree.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)RBTree.obj</ObjectFileName>
     </ClCompile>
+    <ClCompile Include="wobjs\RList.cpp" />
     <ClCompile Include="wobjs\RWLocker.cpp" />
     <ClCompile Include="wobjs\RXTree.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)RXTree.obj</ObjectFileName>
@@ -386,6 +387,7 @@
     <ClInclude Include="..\include\wobjs\MemMgr.h" />
     <ClInclude Include="..\include\wobjs\Object.h" />
     <ClInclude Include="..\include\wobjs\RBTree.h" />
+    <ClInclude Include="..\include\wobjs\RList.h" />
     <ClInclude Include="..\include\wobjs\RWLocker.h" />
     <ClInclude Include="..\include\wobjs\RXTree.h" />
     <ClInclude Include="..\include\wobjs\UserEnvLoader.h" />

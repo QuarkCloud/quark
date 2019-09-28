@@ -23,6 +23,17 @@ namespace qkc {
 			*link = this;
 	}
 
+	int RBNode::Compare(const RBNode * dst) const
+	{
+		intptr_t diff = (intptr_t)this - (intptr_t)dst;
+		if (diff == 0)
+			return 0;
+		if (diff < 0)
+			return -1;
+		else
+			return 1;
+	}
+
 	void RBNode::SetParentColor(RBNode * parent, int color)
 	{
 		Parent = parent;
@@ -32,13 +43,6 @@ namespace qkc {
 	RBTree::RBTree()
 	{
 		root_ = NULL;
-		key_compare_ = NULL;
-	}
-
-	RBTree::RBTree(KeyCompare func)
-	{
-		root_ = NULL;
-		key_compare_ = func;
 	}
 
 	RBTree::~RBTree()
@@ -48,15 +52,12 @@ namespace qkc {
 
 	bool RBTree::Insert(RBNode * node)
 	{
-		if (key_compare_ == NULL)
-			return false;
-
 		RBNode ** link = &root_, *parent = NULL;
 
 		while ((*link) != NULL)
 		{
 			parent = *link;
-			int value = key_compare_(node, parent);
+			int value = node->Compare(parent);
 			if (value < 0)
 				*link = parent->Left;
 			else if (value > 0)
@@ -99,9 +100,21 @@ namespace qkc {
 		return;
 	}
 
-	RBNode * RBTree::Find(const RBNode * node)
+	const RBNode * RBTree::Find(const RBNode * node) const
 	{
-		return NULL;
+		const RBNode * cur = root_;
+		while (cur != NULL)
+		{
+			int value = node->Compare(cur);
+			if (value == 0)
+				break;
+			if (value < 0)
+				cur = cur->Left;
+			else
+				cur = cur->Right;
+		}
+
+		return cur;
 	}
 
 	void RBTree::RotateSetParents(RBNode * old_node, RBNode * new_node, int color)

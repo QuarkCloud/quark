@@ -329,6 +329,9 @@
     <ClCompile Include="wobjs\MemMgr.cpp">
       <Filter>源文件\wobjs</Filter>
     </ClCompile>
+    <ClCompile Include="wobjs\RList.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\alloca.h">
@@ -701,6 +704,9 @@
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
     <ClInclude Include="..\include\wobjs\MemMgr.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\RList.h">
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
   </ItemGroup>

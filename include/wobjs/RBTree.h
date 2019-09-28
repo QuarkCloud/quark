@@ -20,6 +20,9 @@ namespace qkc {
 		virtual ~RBNode();
 		void Link(RBNode * parent, RBNode ** link);
 
+		//返回this->key - dst->key的值，默认是地址指针比较
+		virtual int Compare(const RBNode * dst) const;
+
 		RBNode * Parent;
 		RBNode * Right;
 		RBNode * Left;
@@ -42,15 +45,12 @@ namespace qkc {
 
 	class QKCAPI RBTree {
 	public:
-		typedef int(*KeyCompare)(const RBNode * src, const RBNode * dst);
-
 		RBTree();
-		RBTree(KeyCompare func);
 		virtual ~RBTree();
 
 		bool Insert(RBNode * node);
 		void Erase(RBNode * node);
-		RBNode * Find(const RBNode * node);
+		const RBNode * Find(const RBNode * node) const;
 
 		const RBNode * First() const;
 		const RBNode * Last() const;
@@ -59,10 +59,8 @@ namespace qkc {
 
 		inline const RBNode * Root() const { return root_; }
 		inline RBNode * Root() { return root_; }
-		inline void CompareFunction(KeyCompare func) { key_compare_ = func; }
 	private:
 		RBNode * root_;
-		KeyCompare key_compare_;
 
 		void RotateSetParents(RBNode * old_node, RBNode * new_node, int color);
 		//__rb_change_child
