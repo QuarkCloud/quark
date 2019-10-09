@@ -332,6 +332,12 @@
     <ClCompile Include="wobjs\RList.cpp">
       <Filter>源文件\wobjs</Filter>
     </ClCompile>
+    <ClCompile Include="wobjs\SpinLocker.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\Mutex.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\alloca.h">
@@ -601,9 +607,6 @@
     <ClInclude Include="internal\inotify_mgr.h">
       <Filter>头文件\internal</Filter>
     </ClInclude>
-    <ClInclude Include="internal\intrin.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
     <ClInclude Include="internal\iocp_item.h">
       <Filter>头文件\internal</Filter>
     </ClInclude>
@@ -707,6 +710,12 @@
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
     <ClInclude Include="..\include\wobjs\RList.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\SpinLocker.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\Mutex.h">
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
   </ItemGroup>

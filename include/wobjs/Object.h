@@ -32,9 +32,14 @@ namespace qkc {
 		static const int kShareMemory = 10;
 		static const int kFileWatcher = 11;
 		static const int kIOCP = 12;
-		static const int kRWLock = 13;
-		static const int kPipe = 14;
-		static const int kPipeAlias = 15;
+		static const int kRWLocker = 13;
+		static const int kSpinLocker = 14;
+		static const int kPipe = 15;
+		static const int kPipeAlias = 16;
+		static const int kMaxType = 32;
+
+		static const char * kEmptyName;
+		static const char * Type2Name(int type);
 	private:
 		int oid_;
 		int type_;

@@ -22,6 +22,23 @@ namespace qkc {
 		return (int)::InterlockedIncrement(&__internal_object_id__);	
 	}
 
+	const char * Object::kEmptyName = "";
+
+	const char * Object::Type2Name(int type)
+	{
+		static const char * __object_type_names__[Object::kMaxType] = {
+			"Void" , "Other" , "Process" , "Thread" , "File" , "Module" , "Mutex" , "Semaphore" ,
+			"Event" , "Socket" , "ShareMemory" , "FileWatcher" , "IOCP" , "RWLock" , "SpinLock" , "Pipe" ,
+			"PipeAlias" , "" , "" , "" , "" , "" , "" , "" ,
+			"" , "" , "" , "" , "" , "" , "" , "" 		
+		}; 
+
+		if (type < 0 || type >= Object::kMaxType)
+			return Object::kEmptyName;
+		else
+			return __object_type_names__[type];	
+	}
+
 	SafeObj::SafeObj()
 	{
 		refcounter_ = 0;
