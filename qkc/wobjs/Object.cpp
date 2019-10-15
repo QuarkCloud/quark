@@ -8,11 +8,18 @@ namespace qkc {
 		oid_ = Object::AllocID();
 		type_ = Object::kVoid;
 		name_ = NULL;
+
+		SetInfo();
 	}
 
 	Object::~Object()
 	{
 		//
+	}
+
+	void Object::SetInfo()
+	{
+	
 	}
 
 	int Object::AllocID()
@@ -27,10 +34,10 @@ namespace qkc {
 	const char * Object::Type2Name(int type)
 	{
 		static const char * __object_type_names__[Object::kMaxType] = {
-			"Void" , "Other" , "Process" , "Thread" , "File" , "Module" , "Mutex" , "Semaphore" ,
-			"Event" , "Socket" , "ShareMemory" , "FileWatcher" , "IOCP" , "RWLock" , "SpinLock" , "Pipe" ,
-			"PipeAlias" , "" , "" , "" , "" , "" , "" , "" ,
-			"" , "" , "" , "" , "" , "" , "" , "" 		
+			"Void" , "Other" , "Process" , "Thread" , "File" , "Module" , "Mutex" , "Semaphore" ,       /** 0 ~ 7  */
+			"Event" , "Socket" , "ShareMemory" , "FileWatcher" , "IOCP" , "RWLock" , "SpinLock" , "Condition" ,  /** 8 ~ 15 */
+			"" ,"" , "" , "" , "Pipe" , "PipeAlias" , "" , "" ,		/** 16 ~ 23 */
+			"" ,"" , "" , "" , "" , "" , "" , "" 		/** 24 ~ 31 */
 		}; 
 
 		if (type < 0 || type >= Object::kMaxType)

@@ -16,6 +16,8 @@ namespace qkc {
 		int Lock();
 		int TryLock();
 		int Unlock();
+	protected:
+		void SetInfo();
 	private:
 		SpinLocker(const SpinLocker& locker);
 		SpinLocker& operator=(const SpinLocker& locker);

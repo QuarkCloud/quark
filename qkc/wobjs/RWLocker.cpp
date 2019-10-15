@@ -6,13 +6,16 @@ namespace qkc {
 	RWLocker::RWLocker()
 	{
 		locker_ = SRWLOCK_INIT;
-		OID(Object::AllocID());
-		OType(Object::kRWLocker);
-		OName(Object::Type2Name(OType()));
 	}
 	RWLocker::~RWLocker()
 	{
 		//
+	}
+
+	void RWLocker::SetInfo()
+	{
+		OType(Object::kRWLocker);
+		OName(Object::Type2Name(OType()));
 	}
 
 	void RWLocker::Lock()

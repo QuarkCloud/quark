@@ -5,11 +5,13 @@ namespace qkc {
 
 	Mutex::Mutex()
 	{
-		OID(Object::AllocID());
+		handle_ = ::CreateMutexA(NULL, FALSE, NULL);
+	}
+
+	void Mutex::SetInfo()
+	{
 		OType(Object::kMutex);
 		OName(Object::Type2Name(OType()));
-
-		handle_ = ::CreateMutexA(NULL, FALSE, NULL);
 	}
 
 	Mutex::~Mutex()

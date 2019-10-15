@@ -11,7 +11,7 @@ namespace qkc {
 		virtual ~Object();
 
 		inline int OID() const { return oid_; }
-		inline void OID(int oid) { oid_ = oid; }
+		//inline void OID(int oid) { oid_ = oid; }	//×Ô¶¯·ÖÅä
 		inline int OType() const { return type_; }
 		inline void OType(int type) { type_ = type; }
 		inline const char * OName() const { return name_; }
@@ -34,12 +34,16 @@ namespace qkc {
 		static const int kIOCP = 12;
 		static const int kRWLocker = 13;
 		static const int kSpinLocker = 14;
-		static const int kPipe = 15;
-		static const int kPipeAlias = 16;
+		static const int kCondition = 15;
+
+		static const int kPipe = 20;
+		static const int kPipeAlias = 21;
 		static const int kMaxType = 32;
 
 		static const char * kEmptyName;
 		static const char * Type2Name(int type);
+	protected:
+		virtual void SetInfo();
 	private:
 		int oid_;
 		int type_;

@@ -17,11 +17,8 @@ namespace qkc {
 	class QKCAPI RBNode {
 	public:
 		RBNode();
-		virtual ~RBNode();
+		~RBNode();
 		void Link(RBNode * parent, RBNode ** link);
-
-		//返回this->key - dst->key的值，默认是地址指针比较
-		virtual int Compare(const RBNode * dst) const;
 
 		RBNode * Parent;
 		RBNode * Right;
@@ -59,6 +56,8 @@ namespace qkc {
 
 		inline const RBNode * Root() const { return root_; }
 		inline RBNode * Root() { return root_; }
+
+		virtual int Compare(const RBNode * src, const RBNode * dst) const;
 	private:
 		RBNode * root_;
 

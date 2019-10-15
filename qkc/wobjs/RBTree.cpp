@@ -23,17 +23,6 @@ namespace qkc {
 			*link = this;
 	}
 
-	int RBNode::Compare(const RBNode * dst) const
-	{
-		intptr_t diff = (intptr_t)this - (intptr_t)dst;
-		if (diff == 0)
-			return 0;
-		if (diff < 0)
-			return -1;
-		else
-			return 1;
-	}
-
 	void RBNode::SetParentColor(RBNode * parent, int color)
 	{
 		Parent = parent;
@@ -50,6 +39,17 @@ namespace qkc {
 		//
 	}
 
+	int RBTree::Compare(const RBNode * src, const RBNode * dst) const
+	{
+		intptr_t diff = (intptr_t)src - (intptr_t)dst;
+		if (diff == 0)
+			return 0;
+		if (diff < 0)
+			return -1;
+		else
+			return 1;
+	}
+
 	bool RBTree::Insert(RBNode * node)
 	{
 		RBNode ** link = &root_, *parent = NULL;
@@ -57,7 +57,7 @@ namespace qkc {
 		while ((*link) != NULL)
 		{
 			parent = *link;
-			int value = node->Compare(parent);
+			int value = Compare(node , parent);//node->Compare(parent);
 			if (value < 0)
 				*link = parent->Left;
 			else if (value > 0)
@@ -105,7 +105,7 @@ namespace qkc {
 		const RBNode * cur = root_;
 		while (cur != NULL)
 		{
-			int value = node->Compare(cur);
+			int value = Compare(node, cur);
 			if (value == 0)
 				break;
 			if (value < 0)

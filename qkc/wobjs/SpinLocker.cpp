@@ -9,10 +9,12 @@ namespace qkc {
 		token_ = 0;
 		allow_ = 1;
 		owner_ = 0;
+	}
 
-		OID(Object::AllocID());
+	void SpinLocker::SetInfo()
+	{
 		OType(Object::kSpinLocker);
-		OName(Object::Type2Name(OType()));	
+		OName(Object::Type2Name(OType()));
 	}
 
 	SpinLocker::~SpinLocker()

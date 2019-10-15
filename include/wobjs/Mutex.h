@@ -16,6 +16,20 @@ namespace qkc {
 		int Lock();
 		int TryLock();
 		int Unlock();
+
+		class QKCAPI ScopedLock {
+		public:
+			ScopedLock(Mutex& locker) : locker_(locker) { locker_.Lock(); }
+			~ScopedLock() { locker_.Unlock(); }
+		private:
+			ScopedLock(const ScopedLock& locker);
+			ScopedLock& operator=(const ScopedLock&);
+
+			Mutex& locker_;
+		};
+	
+	protected:
+		void SetInfo();
 	private:
 		Mutex(const Mutex& locker);
 		Mutex& operator=(const Mutex& locker);

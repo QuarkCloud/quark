@@ -338,6 +338,15 @@
     <ClCompile Include="wobjs\Mutex.cpp">
       <Filter>源文件\wobjs</Filter>
     </ClCompile>
+    <ClCompile Include="wobjs\Condition.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\Semaphore.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\AddrMgr.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\alloca.h">
@@ -716,6 +725,15 @@
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
     <ClInclude Include="..\include\wobjs\Mutex.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\Condition.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\Semaphore.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\AddrMgr.h">
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
   </ItemGroup>

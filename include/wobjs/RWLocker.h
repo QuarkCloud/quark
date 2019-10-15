@@ -17,6 +17,8 @@ namespace qkc {
 		void Unlock();
 		void LockShared();
 		void UnlockShared();
+	protected:
+		void SetInfo();
 	private:
 		RWLocker(const RWLocker& locker);
 		RWLocker& operator=(const RWLocker& locker);
