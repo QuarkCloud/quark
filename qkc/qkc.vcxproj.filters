@@ -341,10 +341,10 @@
     <ClCompile Include="wobjs\Condition.cpp">
       <Filter>源文件\wobjs</Filter>
     </ClCompile>
-    <ClCompile Include="wobjs\Semaphore.cpp">
+    <ClCompile Include="wobjs\AddrMgr.cpp">
       <Filter>源文件\wobjs</Filter>
     </ClCompile>
-    <ClCompile Include="wobjs\AddrMgr.cpp">
+    <ClCompile Include="wobjs\SemaphoreW.cpp">
       <Filter>源文件\wobjs</Filter>
     </ClCompile>
   </ItemGroup>

@@ -288,7 +288,7 @@
     <ClCompile Include="wobjs\RXTree.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)RXTree.obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="wobjs\Semaphore.cpp" />
+    <ClCompile Include="wobjs\SemaphoreW.cpp" />
     <ClCompile Include="wobjs\SpinLocker.cpp" />
     <ClCompile Include="wobjs\UserEnvLoader.cpp" />
   </ItemGroup>

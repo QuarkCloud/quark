@@ -50,9 +50,13 @@ namespace qkc {
 		const RBNode * Find(const RBNode * node) const;
 
 		const RBNode * First() const;
+		RBNode * First() ;
 		const RBNode * Last() const;
+		RBNode * Last();
 		const RBNode * Prev(const RBNode * node) const;
+		RBNode * Prev(RBNode * node);
 		const RBNode * Next(const RBNode * node) const;
+		RBNode * Next(RBNode * node);
 
 		inline const RBNode * Root() const { return root_; }
 		inline RBNode * Root() { return root_; }
@@ -66,6 +70,8 @@ namespace qkc {
 		void ChangeChild(RBNode * old_node, RBNode * new_node, RBNode * parent);
 		//__rb_insert
 		void InternalInsert(RBNode * node , bool newleft , RBNode ** leftmost);
+		//__rb_erase_augmented
+		RBNode * InternalErase(RBNode * node, RBNode** leftmost);
 		//____rb_erase_color
 		void InternalEraseColor(RBNode * parent);
 		//rb_replace_node

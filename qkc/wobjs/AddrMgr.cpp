@@ -44,7 +44,8 @@ namespace qkc {
 
 	bool AddrMgr::Delete(void * addr, void *& data)
 	{
-	
+		AddrNode tmp(addr, NULL);
+		
 	}
 
 	bool AddrMgr::Find(void * addr, void *& data) const

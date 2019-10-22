@@ -97,7 +97,9 @@ namespace qkc {
 
 	void RBTree::Erase(RBNode * node)
 	{
-		return;
+		RBNode * rebalance = InternalErase(node, NULL);
+		if (rebalance != NULL)
+			InternalEraseColor(rebalance);
 	}
 
 	const RBNode * RBTree::Find(const RBNode * node) const
@@ -269,6 +271,133 @@ namespace qkc {
 				break;
 			}
 		}
+	}
+
+	RBNode * RBTree::InternalErase(RBNode * node, RBNode** leftmost)
+	{
+		RBNode * child = node->Right;
+		RBNode * tmp = node->Left;
+		RBNode * parent = NULL, *rebalance = NULL;
+		RBNode * tp = NULL;
+		int tc = 0;
+
+		if (leftmost != NULL && node == *leftmost)
+			*leftmost = Next(node);
+
+		if (!tmp) {
+			/*
+			 * Case 1: node to erase has no more than 1 child (easy!)
+			 *
+			 * Note that if there is one child it must be red due to 5)
+			 * and node must be black due to 4). We adjust colors locally
+			 * so as to bypass __rb_erase_color() later on.
+			 */
+			parent = tp = node->Parent;
+			tc = node->Color;
+			ChangeChild(node, child, parent);
+			if (child != NULL)
+			{
+				child->Parent = tp;
+				child->Color = tc;
+				rebalance = NULL;
+			}
+			else
+			{
+				if (tc == RBNode::kBlack)
+					rebalance = parent;
+				else
+					rebalance = NULL;
+			}
+
+			tmp = parent;
+		}
+		else if (!child) {
+			/* Still case 1, but this time the child is node->rb_left */
+			tp = node->Parent;
+			tc = node->Color;
+
+			parent = tmp->Parent = tp;
+			tmp->Color = tc;
+			ChangeChild(node, tmp, parent);
+			rebalance = NULL;
+			tmp = parent;
+		}
+		else {
+			RBNode * successor = child, *child2 = NULL;
+			tmp = child->Left;
+
+			if (!tmp) {
+				/*
+				 * Case 2: node's successor is its right child
+				 *
+				 *    (n)          (s)
+				 *    / \          / \
+				 *  (x) (s)  ->  (x) (c)
+				 *        \
+				 *        (c)
+				 */
+				parent = successor;
+				child2 = successor->Right;
+			}
+			else {
+				/*
+				 * Case 3: node's successor is leftmost under
+				 * node's right child subtree
+				 *
+				 *    (n)          (s)
+				 *    / \          / \
+				 *  (x) (y)  ->  (x) (y)
+				 *      /            /
+				 *    (p)          (p)
+				 *    /            /
+				 *  (s)          (c)
+				 *    \
+				 *    (c)
+				 */
+				do {
+					parent = successor;
+					successor = tmp;
+					tmp = tmp->Left;
+				} while (tmp);
+				child2 = successor->Right;
+				parent->Left = child2;
+				successor->Right = child;
+				child->Parent = successor;
+			}
+
+			tmp = node->Left;
+			successor->Left = tmp;
+			tmp->Parent = successor;
+
+			tmp = tp = node->Parent;
+			tc = node->Color;
+			ChangeChild(node, successor, tmp);
+
+			if (child2 != NULL)
+			{
+				successor->Parent = tp;
+				successor->Color = tc;
+
+				child2->Parent = parent;
+				child2->Color = RBNode::kBlack;
+				rebalance = NULL;
+			}
+			else
+			{
+				RBNode * tp2 = successor->Parent;
+				int tc2 = successor->Color;
+
+				successor->Parent = tp;
+				successor->Color = tc;
+				if (tc2 == RBNode::kBlack)
+					rebalance = parent;
+				else
+					rebalance = NULL;
+			}
+
+			tmp = successor;
+		}
+		return rebalance;
 	}
 
 	void RBTree::InternalEraseColor(RBNode * parent)
@@ -456,6 +585,17 @@ namespace qkc {
 		return n;
 	}
 
+	RBNode * RBTree::First()
+	{
+		RBNode * n;
+		n = root_;
+		if (n == NULL)
+			return NULL;
+		while (n->Left != NULL)
+			n = n->Left;
+		return n;
+	}
+
 	const RBNode * RBTree::Last() const
 	{
 		const RBNode * n;
@@ -465,6 +605,17 @@ namespace qkc {
 		while (n->Right != NULL)
 			n = n->Right;
 		return n ;	
+	}
+
+	RBNode * RBTree::Last() 
+	{
+		RBNode * n;
+		n = root_;
+		if (n == NULL)
+			return NULL;
+		while (n->Right != NULL)
+			n = n->Right;
+		return n;
 	}
 
 	const RBNode * RBTree::Prev(const RBNode * node) const
@@ -486,6 +637,26 @@ namespace qkc {
 			node = parent;
 		return parent;	
 	}
+	RBNode * RBTree::Prev(RBNode * node)
+	{
+		RBNode * parent;
+		if (node->IsEmpty() == true)
+			return NULL;
+
+		//If we have a left-hand child, go down and then right as far as we can.
+		if (node->Left != NULL)
+		{
+			node = node->Left;
+			while (node->Right != NULL)
+				node = node->Right;
+			return node;
+		}
+
+		while ((parent = node->Parent) && node == parent->Left)
+			node = parent;
+		return parent;
+	}
+
 
 	const RBNode * RBTree::Next(const RBNode * node) const
 	{
@@ -503,6 +674,26 @@ namespace qkc {
 
 		while ((parent = node->Parent) && node == parent->Right)
 			node = parent;	
+
+		return parent;
+	}
+
+	RBNode * RBTree::Next(RBNode * node) 
+	{
+		RBNode * parent;
+		if (node->IsEmpty() == true)
+			return NULL;
+		//If we have a right-hand child, go down and then left as far as we can.
+		if (node->Right != NULL)
+		{
+			node = node->Right;
+			while (node->Left != NULL)
+				node = node->Left;
+			return node;
+		}
+
+		while ((parent = node->Parent) && node == parent->Right)
+			node = parent;
 
 		return parent;
 	}

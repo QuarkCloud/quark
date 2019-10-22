@@ -9,7 +9,7 @@
 namespace qkc {
 
 	/**
-		先用红黑树，性能和内存还是可控的。暂时不用基数树。
+		先用红黑树，性能和内存是可控的。暂时不用基数树。
 	*/
 	class QKCAPI AddrNode : public RBNode {
 	public:
