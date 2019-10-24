@@ -398,7 +398,7 @@
     <ClInclude Include="..\include\wobjs\RList.h" />
     <ClInclude Include="..\include\wobjs\RWLocker.h" />
     <ClInclude Include="..\include\wobjs\RXTree.h" />
-    <ClInclude Include="..\include\wobjs\Semaphore.h" />
+    <ClInclude Include="..\include\wobjs\SemaphoreW.h" />
     <ClInclude Include="..\include\wobjs\SpinLocker.h" />
     <ClInclude Include="..\include\wobjs\UserEnvLoader.h" />
     <ClInclude Include="internal\addr_mgr.h" />

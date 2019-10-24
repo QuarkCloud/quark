@@ -45,6 +45,7 @@ namespace qkc {
 		RBTree();
 		virtual ~RBTree();
 
+	protected :
 		bool Insert(RBNode * node);
 		void Erase(RBNode * node);
 		const RBNode * Find(const RBNode * node) const;
@@ -62,9 +63,9 @@ namespace qkc {
 		inline RBNode * Root() { return root_; }
 
 		virtual int Compare(const RBNode * src, const RBNode * dst) const;
-	private:
-		RBNode * root_;
 
+
+		RBNode * root_;
 		void RotateSetParents(RBNode * old_node, RBNode * new_node, int color);
 		//__rb_change_child
 		void ChangeChild(RBNode * old_node, RBNode * new_node, RBNode * parent);

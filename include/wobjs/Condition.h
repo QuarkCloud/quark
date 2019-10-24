@@ -6,7 +6,7 @@
 #include <windows.h>
 #include "wobjs/Object.h"
 #include "wobjs/Mutex.h"
-#include "wobjs/Semaphore.h"
+#include "wobjs/SemaphoreW.h"
 
 namespace qkc {
 

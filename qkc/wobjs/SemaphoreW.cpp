@@ -1,5 +1,5 @@
 
-#include "wobjs/Semaphore.h"
+#include "wobjs/SemaphoreW.h"
 #include <errno.h>
 
 namespace qkc {

@@ -730,10 +730,10 @@
     <ClInclude Include="..\include\wobjs\Condition.h">
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\wobjs\Semaphore.h">
+    <ClInclude Include="..\include\wobjs\AddrMgr.h">
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\wobjs\AddrMgr.h">
+    <ClInclude Include="..\include\wobjs\SemaphoreW.h">
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
   </ItemGroup>

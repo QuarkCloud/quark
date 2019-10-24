@@ -20,15 +20,25 @@ namespace qkc {
 		void * Data;
 	};
 
-	class QKCAPI AddrMgr : private RBTree{
+	class QKCAPI AddrMgr : public RBTree{
 	public:
 		AddrMgr();
 		virtual ~AddrMgr();
 
 		bool Insert(void * addr, void * data);
-		bool Delete(void * addr, void *& data);
-		bool Find(void * addr, void *& data) const;
+		bool Delete(void * addr, AddrNode *& node);
+		bool Find(void * addr, const AddrNode *& node) const;
 
+		const AddrNode * First() const;
+		AddrNode * First();
+		const AddrNode * Last() const;
+		AddrNode * Last();
+		const AddrNode * Prev(const AddrNode * node) const;
+		AddrNode * Prev(AddrNode * node);
+		const AddrNode * Next(const AddrNode * node) const;
+		AddrNode * Next(AddrNode * node);
+
+	protected:
 		int Compare(const RBNode * src, const RBNode * dst) const;
 	private:
 		//
