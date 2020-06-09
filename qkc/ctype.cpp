@@ -1,12 +1,7 @@
 
 #include <ctype.h>
+#include "wobjs/CrtLinker.h"
 
-
-__BEGIN_DECLS
-
-QUARK_LINKAGE int _isctype (int c , int mask);
-
-__END_DECLS
 
 int isblank (int c) 
 {

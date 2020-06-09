@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <wintf/wobj.h>
-#include <wintf/wcrt.h>
+#include "wobjs/CrtLinker.h"
 
 ssize_t sendfile(int out_fd , int in_fd , off_t * offset , size_t count)
 {

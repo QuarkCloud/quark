@@ -11,7 +11,7 @@ char * pipe_anonymous_name()
 	::AcquireSRWLockExclusive(&__pipe_anonymous_name_gen_locker__);
 	__pipe_anonymous_sequence__++;
 
-	slen = ::sprintf(tmpstr , "\\\\.\\pipe\\anonymous.%u.%u" , (uint32_t)::_getpid() , __pipe_anonymous_sequence__);
+	slen = ::sprintf(tmpstr , "\\\\.\\pipe\\anonymous.%u.%u" , (uint32_t)::getpid() , __pipe_anonymous_sequence__);
 	::ReleaseSRWLockExclusive(&__pipe_anonymous_name_gen_locker__);
 	if (slen <= 0)
 		return NULL;

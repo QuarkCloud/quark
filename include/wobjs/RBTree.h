@@ -17,8 +17,11 @@ namespace qkc {
 	class QKCAPI RBNode {
 	public:
 		RBNode();
+		RBNode(const RBNode& node);
 		~RBNode();
+		RBNode& operator=(const RBNode& node);
 		void Link(RBNode * parent, RBNode ** link);
+		void Reset();
 
 		RBNode * Parent;
 		RBNode * Right;
@@ -34,16 +37,23 @@ namespace qkc {
 		inline void Clear() { Parent = this; }
 
 		void SetParentColor(RBNode * parent, int color);
-
+		void Assign(const RBNode& node);
 
 		static const int kRed = 0;
 		static const int kBlack = 1;
 	};
 
+	/***
+		2019-11-27
+		RBTree只管理节点的指针及其关系，并没有管理节点内存的分配和释放，以及节点所包含的内容。
+	*/
 	class QKCAPI RBTree {
 	public:
 		RBTree();
 		virtual ~RBTree();
+
+		void Clear();
+		inline size_t Size() const { return size_; }
 
 	protected :
 		bool Insert(RBNode * node);
@@ -61,11 +71,13 @@ namespace qkc {
 
 		inline const RBNode * Root() const { return root_; }
 		inline RBNode * Root() { return root_; }
+		inline bool Empty() const { return (root_ == NULL); }
 
 		virtual int Compare(const RBNode * src, const RBNode * dst) const;
 
 
 		RBNode * root_;
+		size_t size_;
 		void RotateSetParents(RBNode * old_node, RBNode * new_node, int color);
 		//__rb_change_child
 		void ChangeChild(RBNode * old_node, RBNode * new_node, RBNode * parent);

@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include "wintf/wcrt.h"
+#include "wobjs/CrtLinker.h"
 
 #ifndef _FILE_DEFINED
 #define _FILE_DEFINED
@@ -10,10 +10,6 @@ struct _iobuf
     void* _Placeholder;
 };
 #endif
-
-__BEGIN_DECLS
-QUARK_LINKAGE FILE *  __cdecl __acrt_iob_func(unsigned idx);
-__END_DECLS
 
 QKCAPI FILE *  __qkc_iob_func__(unsigned idx)
 {

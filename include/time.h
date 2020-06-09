@@ -60,9 +60,9 @@ QKCAPI struct tm *gmtime_r (const time_t *ts, struct tm * tp) ;
 QKCAPI struct tm *localtime_r (const time_t * ts, struct tm * tp) ;
 
 /* Defined in localtime.c.  */
-QUARK_LINKAGE extern char *__tzname[2];	/* Current timezone names.  */
+//QUARK_LINKAGE extern char *__tzname[2];	/* Current timezone names.  */
 QUARK_LINKAGE extern int __daylight;		/* If daylight-saving time is ever in use.  */
-QUARK_LINKAGE extern long int __timezone;	/* Seconds west of UTC.  */
+//QUARK_LINKAGE extern long int __timezone;	/* Seconds west of UTC.  */
 
 /* Same as above.  */
 QUARK_LINKAGE extern char *tzname[2];

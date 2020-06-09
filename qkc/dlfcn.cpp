@@ -1,7 +1,7 @@
 
 #include <dlfcn.h>
 #include <windows.h>
-#include <wintf/wthr.h>
+#include "wobjs/DllInit.h"
 
 void *dlopen (const char * file, int mode)
 {
@@ -18,7 +18,7 @@ int dlclose (void * handle)
 
 void *dlsym_default(const char * name)
 {
-    HMODULE handle = (HMODULE)dll_handle_get() ;
+    HMODULE handle = (HMODULE)qkc::GetThisDllHandle() ;
     if(handle == NULL)
         return NULL ;
 

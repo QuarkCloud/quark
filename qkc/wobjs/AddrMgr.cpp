@@ -7,21 +7,47 @@ namespace qkc {
 	{
 		Assign(NULL, NULL);
 	}
+	AddrNode::AddrNode(const AddrNode& node)
+	{
+		Assign(node);
+	}
 
-	AddrNode::AddrNode(void * addr, void * data)
+	AddrNode::AddrNode(void * addr, uintptr_t data)
 	{
 		Assign(addr, data);
 	}
 
-	void AddrNode::Assign(void * addr, void * data)
+	AddrNode& AddrNode::operator=(const AddrNode& node)
+	{
+		Assign(node);
+		return (*this);
+	}
+
+	void AddrNode::Assign(void * addr, uintptr_t data)
 	{
 		Addr = addr;
 		Data = data;
 	}
-
-	AddrMgr::AddrMgr()
+	void AddrNode::Assign(const AddrNode& node)
 	{
-		//
+		Addr = node.Addr;
+		Data = node.Data;
+
+		RBNode::Assign(node);		
+	}
+
+	void AddrNode::Reset()
+	{
+		Addr = NULL;
+		Data = 0;
+		RBNode::Reset();
+	}
+
+	AddrMgr::AddrMgr(MemMgr * mmgr)
+	{
+		mmgr_ = mmgr;
+		if (mmgr_ == NULL)
+			mmgr_ = &MemMgr::Singleton;
 	}
 
 	AddrMgr::~AddrMgr()
@@ -29,7 +55,7 @@ namespace qkc {
 		//	
 	}
 
-	bool AddrMgr::Insert(void * addr, void * data)
+	bool AddrMgr::Insert(void * addr, uintptr_t data)
 	{
 		RBNode * parent = NULL, **link = &root_;
 		
@@ -47,7 +73,7 @@ namespace qkc {
 		}
 
 
-		AddrNode *node = (AddrNode *)MemAlloc(sizeof(AddrNode), true);
+		AddrNode *node = NodeAlloc();
 		node->Assign(addr, data);
 
 		node->Link(parent, link);
@@ -55,7 +81,7 @@ namespace qkc {
 		return true;
 	}
 
-	bool AddrMgr::Delete(void * addr , AddrNode *& node)
+	bool AddrMgr::Delete(const void * addr , uintptr_t& data)
 	{
 		RBNode *cur = Root();
 		while (cur != NULL)
@@ -74,15 +100,16 @@ namespace qkc {
 		if (cur == NULL)
 			return false;
 
-		node = (AddrNode *)cur;
-
-		RBNode * rebalance = InternalErase(node, NULL);
+		data = ((AddrNode *)cur)->Data;
+		RBNode * rebalance = InternalErase(cur, NULL);
 		if(rebalance != NULL)
 			InternalEraseColor(rebalance);
+
+		NodeFree((AddrNode *)cur);
 		return true;
 	}
 
-	bool AddrMgr::Find(void * addr, const AddrNode *& node) const
+	bool AddrMgr::Find(const void * addr, uintptr_t& data) const
 	{
 		const RBNode *cur = Root();
 		while (cur != NULL)
@@ -98,8 +125,115 @@ namespace qkc {
 				cur = cur->Right;
 		}
 
-		node = (const AddrNode *)cur;
-		return (node != NULL);
+		if (cur == NULL)
+			return false;
+
+		data = ((const AddrNode *)cur)->Data;
+		return true;
+	}
+
+	bool AddrMgr::Update(void * addr, uintptr_t data)
+	{
+		RBNode *cur = Root();
+		while (cur != NULL)
+		{
+			void * key = ((AddrNode *)cur)->Addr;
+			intptr_t diff = (intptr_t)key - (intptr_t)addr;
+			if (diff == 0)
+				break;
+
+			if (diff < 0)
+				cur = cur->Left;
+			else
+				cur = cur->Right;
+		}
+
+		if (cur == NULL)
+			return false;
+		
+
+		((AddrNode *)cur)->Data = data;
+		return true;
+	}
+
+	void AddrMgr::Clear()
+	{
+		AddrNode * cur = First(), *next = NULL;
+		while (cur != NULL)
+		{
+			next = Next(cur);
+			NodeFree(cur);	
+			cur = next;
+		}	
+	}
+
+	AddrNode *AddrMgr::LowerBound(const void * addr) const
+	{
+		if (addr == NULL)
+			return NULL;
+		const AddrNode * cur = (const AddrNode *)Root() , *result = NULL;
+		while (cur != NULL)
+		{
+			int diff = Compare(cur->Addr, addr);
+			if (diff == 0)
+			{
+				result = cur;
+				break;
+			}
+			else if (diff < 0)
+			{
+				cur = (const AddrNode *)cur->Right;
+			}
+			else
+			{
+				result = cur;
+				cur = (const AddrNode *)cur->Left;
+			}
+		}
+
+		return (AddrNode *)result;
+	}
+
+	AddrNode *AddrMgr::UpperBound(const void * addr) const
+	{
+		if (addr == NULL)
+			return NULL;
+
+		const AddrNode * cur = (const AddrNode *)Root(), *parent = NULL, *gparent = NULL;
+		intptr_t prev_diff = 0;
+		while (cur != NULL)
+		{
+			intptr_t diff = (intptr_t)addr - (intptr_t)cur->Addr;
+			if (diff == 0)
+				return (AddrNode *)cur;
+
+			gparent = parent;
+			parent = cur;
+			if (diff < 0)
+			{
+				if (prev_diff > 0)
+
+					cur = (const AddrNode *)cur->Left;
+			}
+			else
+				cur = (const AddrNode *)cur->Right;
+		}
+
+		//没有找到相等的，那就是到了叶子节点。
+		if (parent == NULL)
+			return NULL;
+
+		intptr_t diff = (intptr_t)addr - (intptr_t)parent->Addr;
+		if (diff < 0)
+			return (AddrNode *)parent;
+
+		if (gparent == NULL || parent == gparent->Right)
+			return NULL;
+
+		diff = (intptr_t)addr - (intptr_t)gparent->Addr;
+		if (diff < 0)
+			return (AddrNode *)gparent;
+		return NULL;
 	}
 
 	int AddrMgr::Compare(const RBNode * src, const RBNode * dst) const
@@ -108,6 +242,16 @@ namespace qkc {
 		const AddrNode * n2 = (const AddrNode *)dst;
 
 		intptr_t result = (intptr_t)(n1->Addr) - (intptr_t)(n2->Addr);	
+		if (result < 0)
+			return -1;
+		else if (result > 0)
+			return 1;
+		return 0;
+	}
+
+	int AddrMgr::Compare(const void * src, const void * dst) const
+	{
+		intptr_t result = (intptr_t)src - (intptr_t)dst;
 		if (result < 0)
 			return -1;
 		else if (result > 0)
@@ -155,5 +299,17 @@ namespace qkc {
 		return (AddrNode *)RBTree::Next(node);
 	}
 
+	AddrNode * AddrMgr::NodeAlloc()
+	{
+		size_t size = sizeof(AddrNode);
+		return (AddrNode *)mmgr_->Alloc(size, true);
+	}
+
+	void AddrMgr::NodeFree(AddrNode * node)
+	{
+		if (node == NULL)
+			return;
+		mmgr_->Free(node);
+	}
 }
 

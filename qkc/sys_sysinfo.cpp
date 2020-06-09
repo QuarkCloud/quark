@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <wintf/wcap.h>
+#include "wobjs/SysInfo.h"
 
 int sysinfo (struct sysinfo * info)
 {
@@ -27,8 +27,8 @@ int sysinfo (struct sysinfo * info)
 
     memory_status.dwLength = sizeof (MEMORYSTATUSEX);
     GlobalMemoryStatusEx (&memory_status);
-    totalram = memory_status.ullTotalPhys / GetPageSize ();
-    freeram = memory_status.ullAvailPhys / GetPageSize ();
+	totalram = memory_status.ullTotalPhys / qkc::SysInfo::Singleton().PageSize(); //GetPageSize ();
+    freeram = memory_status.ullAvailPhys / qkc::SysInfo::Singleton().PageSize();  //GetPageSize ();
 
     spi = (PSYSTEM_PAGEFILE_INFORMATION) malloc (sizeof_spi);
     if (spi)
@@ -45,8 +45,8 @@ int sysinfo (struct sysinfo * info)
     if (!spi || status != STATUS_SUCCESS)
     {
         //printf ("NtQuerySystemInformation(SystemPagefileInformation), status %y", status);
-        totalswap = (memory_status.ullTotalPageFile - memory_status.ullTotalPhys)   / GetPageSize ();
-        freeswap = (memory_status.ullAvailPageFile - memory_status.ullTotalPhys)   / GetPageSize ();
+        totalswap = (memory_status.ullTotalPageFile - memory_status.ullTotalPhys)   / qkc::SysInfo::Singleton().PageSize();//etPageSize ();
+        freeswap = (memory_status.ullAvailPageFile - memory_status.ullTotalPhys)   / qkc::SysInfo::Singleton().PageSize(); //GetPageSize ();
     }
     else
     {
@@ -67,7 +67,7 @@ int sysinfo (struct sysinfo * info)
     info->totalswap = (unsigned long) totalswap;
     info->freeswap = (unsigned long) freeswap;
     info->procs = 0;
-    info->mem_unit = (unsigned int) GetPageSize ();
+    info->mem_unit = (unsigned int)qkc::SysInfo::Singleton().PageSize();//GetPageSize ();
 
     /* FIXME: unsupported */
     info->loads[0] = 0UL;
@@ -83,12 +83,12 @@ int sysinfo (struct sysinfo * info)
 
 int get_nprocs_conf (void)
 {
-    return (int)GetNumberOfProcessors() ;
+	return (int)qkc::SysInfo::Singleton().NumberOfProcessors();//GetNumberOfProcessors() ;
 }
 
 int get_nprocs (void)
 {
-    return (int)GetNumberOfProcessors() ;
+	return (int)qkc::SysInfo::Singleton().NumberOfProcessors(); //GetNumberOfProcessors() ;
 }
 
 long int get_phys_pages (void)

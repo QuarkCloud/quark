@@ -19,6 +19,17 @@ namespace qkc {
 		return ((Prev == this) && (Next == this));
 	}
 
+	void RLNode::Remove()
+	{
+		RLNode * prev = Prev;
+		RLNode * next = Next;
+
+		prev->Next = next;
+		next->Prev = prev;
+
+		Init();
+	}
+
 	void RList::Add(RLNode * entry)
 	{
 		RLNode * last = Prev;

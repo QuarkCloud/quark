@@ -2,19 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <wintf/wcrt.h>
-#include <wintf/werr.h>
-
-__BEGIN_DECLS
-
-QUARK_LINKAGE errno_t rand_s (unsigned int * value);
-QUARK_LINKAGE errno_t getenv_s(size_t * return_size , char * dst_buf , size_t dst_size, const char * name);
-
-
-QUARK_LINKAGE int _putenv(char *str);
-QUARK_LINKAGE int _putenv_s(const char *envname, const char *envval) ;
-
-__END_DECLS
+#include "wobjs/ErrorMap.h"
+#include "wobjs/CrtLinker.h"
 
 char *** __f_environ()
 {

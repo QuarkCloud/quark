@@ -1,63 +1,46 @@
 
 #include <pthread.h>
-#include <wintf/wobj.h>
-#include <wintf/wthr.h>
-#include <wintf/wtime.h>
 #include <windows.h>
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include "wobjs/DateTime.h"
+#include "wobjs/Thread.h"
+#include "wobjs/ThreadLocal.h"
+#include "wobjs/Object.h"
+#include "wobjs/ObjMgr.h"
+#include "wimpl/PThreadMutex.h"
+#include "wimpl/PThreadRWLocker.h"
+#include "wimpl/PThreadCond.h"
 
-typedef struct _st_wthr_start_data
-{
-	void * (*start_routine)(void *) ;
-    void * param ;
-    wthr_info_t * info ;
-} wthr_start_data_t;
+typedef void * (*pthread_start_routine_t)(void * param);
+class pthread : public qkc::Thread {
+public:
+	pthread(pthread_start_routine_t routine, void * param) { routine_ = routine; param_ = param; }
+	virtual ~pthread() {}
 
-
-DWORD WINAPI WinThreadFunction(LPVOID lpParam )
-{
-    wthr_start_data_t * data = (wthr_start_data_t *)lpParam ;
-    wthr_info_save(data->info) ;
-
-    data->start_routine(data->param) ;
-
-    //在最后阶段，需要回收资源
-    wthr_tls_cleanup_vals()  ;
-    return 0 ;
-}
+	virtual void Run()
+	{
+		if (routine_ != NULL)
+			routine_(param_);
+	}
+private:
+	pthread_start_routine_t routine_;
+	void * param_;
+};
 
 int pthread_create(pthread_t * newthread , const pthread_attr_t * attr , void *(*start_routine)(void *) , void * arg) 
 {
-	wthr_start_data_t * data = NULL ;
-	size_t data_size = sizeof(wthr_start_data_t) ;
-	data = (wthr_start_data_t *)::HeapAlloc(::default_heap_get() , 0 , data_size) ;
-    ::memset(data , 0 , data_size) ;
-
-	data->param = arg ;
-	data->start_routine = start_routine ;
-
-    DWORD tid = 0 ;
-	HANDLE handle = ::CreateThread(NULL , 0 , WinThreadFunction , data , CREATE_SUSPENDED , &tid) ;
-	if(handle == NULL || handle == INVALID_HANDLE_VALUE)
+	pthread * thr = new pthread(start_routine, arg);
+	if (thr->Init() == false)
 	{
-		::HeapFree(::default_heap_get() , 0 , data) ;
-		return -1 ;
+		delete thr;
+		return -1;
 	}
 
-    wthr_info_t * info  = ::wthr_info_alloc() ;
-    info->handle = (uintptr_t)handle ;
-    info->wid  = ::wobj_set(WOBJ_THRD , handle , info) ;    
-    info->tid = (int)tid ;
-
-    data->info = info ;
-
-    if(newthread != NULL)
-        *newthread = info->wid ;
-
-    ::ResumeThread(handle) ;
+	if (newthread != NULL)
+		*newthread = thr->OIndex();
 	return 0;
 }
 
@@ -71,25 +54,17 @@ int pthread_join(pthread_t th , void **thread_return)
     if(thread_return != NULL)
         *thread_return = NULL ;
 
-    wobj_t * obj = wobj_get(th) ;
-    if(obj == NULL || obj->type != WOBJ_THRD)
-        return -1 ;
+	qkc::Object * obj = qkc::ObjMgr::Singleton().Get(th);
+	if (obj == NULL || obj->IsThread() == false)
+		return -1;
 
-    HANDLE handle = obj->handle ;
-    DWORD ret = WaitForSingleObject(handle , INFINITE) ;
-    if(ret == WAIT_OBJECT_0)
-    {
-        if(thread_return != NULL)
-        {
-            DWORD exit_code = 0 ;
-            if(::GetExitCodeThread(handle , &exit_code) == TRUE)
-                *thread_return = (void *)exit_code ;
-        }
+	qkc::Thread * thread = (qkc::Thread *)obj;
+	thread->Wait();
 
-        return 0 ;
-    }
-    else
-        return -1 ;
+	if (thread_return != NULL)
+		*thread_return = (void *)thread->ExitCode();
+
+	return 0;
 }
 
 int pthread_detach(pthread_t th) 
@@ -99,11 +74,8 @@ int pthread_detach(pthread_t th)
 
 pthread_t pthread_self(void) 
 {
-    wthr_info_t * info = wthr_info_load() ;
-    if(info == NULL)
-        return 0 ;
-    else
-        return info->wid ;
+	const qkc::ThreadInfo * info = qkc::Thread::DefaultInfo();
+	return info->Owner()->OIndex();
 }
 
 int pthread_equal(pthread_t thread1 , pthread_t thread2) 
@@ -134,556 +106,317 @@ int pthread_once(pthread_once_t *once_control , init_routine routine)
         return -1 ;
 }
 
-typedef struct __st_pthread_mutex_data{
-    HANDLE handle ;
-    LPCRITICAL_SECTION handle_critical_section ;
-} pthread_mutex_data;
-
-static SRWLOCK __pthread_mutex_anonymous__ = SRWLOCK_INIT ;
-bool pthread_mutex_anonymous_init(pthread_mutex_t *mutex)
-{
-    bool result = true ;
-    if(mutex->index == 0)
-    {
-        ::AcquireSRWLockExclusive(&__pthread_mutex_anonymous__) ;
-        result = (pthread_mutex_init(mutex , NULL) == 0) ;
-        ::ReleaseSRWLockExclusive(&__pthread_mutex_anonymous__) ;
-    }
-
-    return result ;
-}
-
 int pthread_mutex_init(pthread_mutex_t *mutex , const pthread_mutexattr_t *mutexattr) 
 {
-    HANDLE handle = ::CreateMutex(NULL , FALSE , NULL) ;
-    if(handle == INVALID_HANDLE_VALUE)
-        return -1 ;
-
-    pthread_mutex_data * data = (pthread_mutex_data *)::malloc(sizeof(pthread_mutex_data)) ;
-    data->handle = handle ;
-    data->handle_critical_section = NULL ;
-
-    int wid = wobj_set(WOBJ_MUTEX , handle , data) ;
-    mutex->index = wid ;
+	qkc::PThreadMutex * locker = new qkc::PThreadMutex();
+	mutex->index = locker->OIndex();
     return 0 ;
 }
 
 int pthread_mutex_destroy(pthread_mutex_t *mutex)
 {
-    int wid = mutex->index ;
-    wobj_t *obj = wobj_get(wid) ;
-    if(obj == NULL || obj->type != WOBJ_MUTEX)
-        return -1 ;
+	if (mutex == NULL)
+		return -1;
 
-    pthread_mutex_data * data = (pthread_mutex_data *)obj->addition ;
-    if(data == NULL)
-        return -1 ;
+	int index = mutex->index;
+	qkc::Object *obj = qkc::ObjMgr::Singleton().Get(index);
+	if (obj == NULL || obj->IsPThreadMutex() == false)
+		return -1;
 
-    HANDLE handle = data->handle ;
-    LPCRITICAL_SECTION cs = data->handle_critical_section ;
-    if(handle != INVALID_HANDLE_VALUE)
-    {
-        if(::WaitForSingleObject(handle , INFINITE) == WAIT_OBJECT_0)
-        {
-            if(cs != NULL)
-            {
-                ::DeleteCriticalSection(cs) ;
-                ::free(cs) ;
-            }
-            ::CloseHandle(handle) ;
-        }
+	qkc::Object *dobj = NULL;
+	if (qkc::ObjMgr::Singleton().Delete(index, dobj) == false || dobj != obj)
+		return -1;
 
-        data->handle_critical_section = NULL ;
-        data->handle = INVALID_HANDLE_VALUE ;
-    }
-
-    ::wobj_del(wid) ;
-    return 0 ;
-}
-
-static inline HANDLE mutex_handle(pthread_mutex_t * mutex)
-{
-    wobj_t * obj = wobj_get(mutex->index) ;
-    if(obj == NULL || obj->type != WOBJ_MUTEX)
-        return INVALID_HANDLE_VALUE ;
-    else
-        return obj->handle ;
+	delete obj;
+	return 0;
 }
 
 int pthread_mutex_trylock(pthread_mutex_t *mutex) 
 {
-    if(pthread_mutex_anonymous_init(mutex) == false)
+	if (mutex == NULL)
+		return -1;
+	if(qkc::EnsurePThreadMutexInited(&mutex->index) == false)
         return -1 ;
 
-    HANDLE handle = mutex_handle(mutex) ;
-    if(::WaitForSingleObject(handle , 0) == WAIT_OBJECT_0)
-        return 0 ;
-    else
-        return -1 ;
+	qkc::Object * obj = qkc::ObjMgr::Singleton().Get(mutex->index);
+	if (obj == NULL || obj->IsPThreadMutex() == false)
+		return -1;
+
+	qkc::PThreadMutex * locker = (qkc::PThreadMutex *)obj;
+	return locker->TryLock();
 }
 
 int pthread_mutex_lock(pthread_mutex_t *mutex) 
 {
-    if(pthread_mutex_anonymous_init(mutex) == false)
-        return -1 ;
+	if (mutex == NULL)
+		return -1;
+	if (qkc::EnsurePThreadMutexInited(&mutex->index) == false)
+		return -1;
 
-    HANDLE handle = mutex_handle(mutex) ;
-    if(::WaitForSingleObject(handle , INFINITE) == WAIT_OBJECT_0)
-        return 0 ;
-    else
-        return -1 ;
+	qkc::Object * obj = qkc::ObjMgr::Singleton().Get(mutex->index);
+	if (obj == NULL || obj->IsPThreadMutex() == false)
+		return -1;
+
+	qkc::PThreadMutex * locker = (qkc::PThreadMutex *)obj;
+	return locker->Lock();
 }
 
 int pthread_mutex_timedlock(pthread_mutex_t * mutex , const struct timespec * abstime) 
 {
-    if(pthread_mutex_anonymous_init(mutex) == false)
-        return -1 ;
+	if (mutex == NULL)
+		return -1;
+	if (qkc::EnsurePThreadMutexInited(&mutex->index) == false)
+		return -1;
 
-    DWORD elapse = (DWORD)ElapseToMSec(abstime) ;
-    if(elapse == 0)
-    {
-         if(pthread_mutex_trylock(mutex) == 0)
-             return 0 ;
+	qkc::Object * obj = qkc::ObjMgr::Singleton().Get(mutex->index);
+	if (obj == NULL || obj->IsPThreadMutex() == false)
+		return -1;
 
-         errno = ETIMEDOUT ;
-         return -1 ;
-    }
+	qkc::PThreadMutex * locker = (qkc::PThreadMutex *)obj;
 
-    HANDLE handle = mutex_handle(mutex) ;
-    if(::WaitForSingleObject(handle , elapse) == WAIT_OBJECT_0)
-        return 0 ;
-
-    errno = ETIMEDOUT ;
-    return -1 ;
+	return locker->TimedLock((int)qkc::ElapseToMSec(abstime));
 }
 
 int pthread_mutex_unlock(pthread_mutex_t *mutex) 
 {
-    if(pthread_mutex_anonymous_init(mutex) == false)
-        return -1 ;
+	if (mutex == NULL)
+		return -1;
+	if (qkc::EnsurePThreadMutexInited(&mutex->index) == false)
+		return -1;
 
-    HANDLE handle = mutex_handle(mutex) ;
-    if(::ReleaseMutex(handle) == TRUE)
-        return 0 ;
-    else
-        return -1 ;
+	qkc::Object * obj = qkc::ObjMgr::Singleton().Get(mutex->index);
+	if (obj == NULL || obj->IsPThreadMutex() == false)
+		return -1;
+
+	qkc::PThreadMutex * locker = (qkc::PThreadMutex *)obj;
+
+	return locker->Unlock();
 }
-
-typedef struct __st_pthread_rwlock_data{
-    HANDLE mutex ;
-    SRWLOCK locker ;
-    int writers ;
-    int readers ;
-}  pthread_rwlock_data_t ;
-
-
-static SRWLOCK __pthread_rwlock_anonymous__ = SRWLOCK_INIT ;
-bool pthread_rwlock_anonymous_init(pthread_rwlock_t *rwlock)
-{
-    bool result = true ;
-    if(rwlock->index == 0)
-    {
-        ::AcquireSRWLockExclusive(&__pthread_rwlock_anonymous__) ;
-        if(rwlock->index == 0)
-            result = (pthread_rwlock_init(rwlock , NULL) == 0) ;
-        ::ReleaseSRWLockExclusive(&__pthread_rwlock_anonymous__) ;
-    }
-
-    return result ;
-}
-
-bool rwlock_handle(pthread_rwlock_t *rwlock , HANDLE * handle , pthread_rwlock_data_t ** data)
-{
-    int widx = rwlock->index ;
-    wobj_t * obj = wobj_get(widx) ;
-    if(obj == NULL || obj->type != WOBJ_RWLOCK || obj->handle == NULL || obj->addition == NULL)
-        return false ;
-
-    *handle = obj->handle ;
-    *data = (pthread_rwlock_data_t *)obj->addition ;
-    return true ;
-}
-
 
 int pthread_rwlock_init(pthread_rwlock_t * rwlock , const pthread_rwlockattr_t * attr) 
 {
-    HANDLE handle = ::CreateMutex(NULL , TRUE , NULL) ;
-    size_t data_size = sizeof(pthread_rwlock_data_t) ;
-    pthread_rwlock_data_t * data = (pthread_rwlock_data_t *)::malloc(data_size) ;
-    if(data != NULL)        
-    {
-        ::memset(data , 0 , data_size) ;
-        data->mutex = handle ;
-        ::InitializeSRWLock(&data->locker) ;
+	if (rwlock == NULL)
+		return -1;
 
-        int wid = wobj_set(WOBJ_RWLOCK , handle , data) ;
-        rwlock->index = wid ;
-        ::ReleaseMutex(handle) ;
-    }
-    else
-    {
-        ::ReleaseMutex(handle) ;
-        ::CloseHandle(handle) ;
-        return -1 ;
-    }
-    
-    return 0 ;
+	qkc::PThreadRWLocker * locker = new qkc::PThreadRWLocker();
+	rwlock->index = locker->OIndex();
+	return 0;
 }
 
 int pthread_rwlock_destroy(pthread_rwlock_t *rwlock) 
 {
-    int widx = rwlock->index ;
-    wobj_t * obj = wobj_get(widx) ;
-    if(obj == NULL || obj->type != WOBJ_RWLOCK || obj->handle == NULL)
-        return -1 ;
+	if (rwlock == NULL)
+		return -1;
+	int index = rwlock->index;
+	if(index == 0)
+		return 0;
+	rwlock->index = 0;
 
-    HANDLE handle = obj->handle ;
-    if(::WaitForSingleObject(handle , INFINITE) == WAIT_OBJECT_0)
-    {
-        obj->handle = NULL ;
-        pthread_rwlock_data_t * data = (pthread_rwlock_data_t *)obj->addition ;
-        if(data != NULL)
-        {
-            obj->addition = NULL;
-            ::free(data) ;
-        }
+	qkc::Object * obj = qkc::ObjMgr::Singleton().Get(index);
+	if (obj == NULL || obj->IsPThreadRWLock() == false)
+		return -1;
 
-        ::ReleaseMutex(handle) ;
-        ::CloseHandle(handle) ;
-        wobj_del(widx) ;
-    }
+	qkc::Object * dobj = NULL;
+	if (qkc::ObjMgr::Singleton().Delete(index, dobj) == false || dobj != obj)
+		return -1;
 
-    return 0 ;
+	delete dobj;
+	return 0;	
+}
+
+inline qkc::PThreadRWLocker * ConfirmRWLocker(pthread_rwlock_t * rwlock)
+{
+	if (rwlock == NULL)
+		return NULL;
+
+	if (qkc::EnsurePThreadRWLockerInited(&rwlock->index) == false)
+		return NULL;
+
+	int index = rwlock->index;
+	qkc::Object * obj = qkc::ObjMgr::Singleton().Get(index);
+	if (obj == NULL || obj->IsPThreadRWLock() == false)
+		return NULL;
+
+	return (qkc::PThreadRWLocker *)obj;
 }
 
 int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock) 
 {
-    if(pthread_rwlock_anonymous_init(rwlock) == false)
-        return -1 ;
+	qkc::PThreadRWLocker * locker = ConfirmRWLocker(rwlock);
+	if (locker == NULL)
+		return -1;
 
-    HANDLE handle = NULL ;
-    pthread_rwlock_data_t * data = NULL ;
-    if(rwlock_handle(rwlock , &handle , &data) == false)
-        return -1;
-
-    bool owner = false ;
-    while(::WaitForSingleObject(handle , INFINITE) == WAIT_OBJECT_0)
-    {
-        if(data->writers == 0)
-        {
-            data->readers++ ;
-            owner = true ;
-            ::ReleaseMutex(handle) ;
-            break ;
-        }
-
-        ::ReleaseMutex(handle) ;
-    }
-
-    if(owner == true)
-        ::AcquireSRWLockShared(&data->locker) ;
-
-    return (owner?0:-1) ;
+	return locker->RdLock();
 }
 
 int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock) 
 {
-    if(pthread_rwlock_anonymous_init(rwlock) == false)
-        return -1 ;
+	qkc::PThreadRWLocker * locker = ConfirmRWLocker(rwlock);
+	if (locker == NULL)
+		return -1;
 
-    HANDLE handle = NULL ;
-    pthread_rwlock_data_t * data = NULL ;
-    if(rwlock_handle(rwlock , &handle , &data) == false)
-        return -1;
-
-    if(::WaitForSingleObject(handle , 0) != WAIT_OBJECT_0)
-        return -1 ;
-
-    bool owner = false ;
-    if(data != NULL)
-    {
-        if(data->writers == 0)
-        {
-            data->readers++ ;
-            owner = true ;
-        }
-    }
-
-    if(owner == true)
-        ::AcquireSRWLockShared(&data->locker) ;
-
-    ::ReleaseMutex(handle) ;
-    return (owner?0:-1) ;
+	return locker->TryRdLock();
 }
 
 int pthread_rwlock_timedrdlock(pthread_rwlock_t * rwlock , const struct timespec * abstime) 
 {
-    if(pthread_rwlock_anonymous_init(rwlock) == false)
-        return -1 ;
+	qkc::PThreadRWLocker * locker = ConfirmRWLocker(rwlock);
+	if (locker == NULL)
+		return -1;
 
-    HANDLE handle = NULL ;
-    pthread_rwlock_data_t * data = NULL ;
-    if(rwlock_handle(rwlock , &handle , &data) == false)
-        return -1;
-
-    uint64_t elapse = ElapseToMSec(abstime) ;
-    if(::WaitForSingleObject(handle , (DWORD)elapse) != WAIT_OBJECT_0)
-        return -1 ;
-
-    bool owner = false ;
-    if(data != NULL)
-    {
-        if(data->writers == 0)
-        {
-            data->readers++ ;
-            owner = true ;
-        }
-    }
-
-    if(owner == true)
-        ::AcquireSRWLockShared(&data->locker) ;
-
-    ::ReleaseMutex(handle) ;
-    return (owner?0:-1) ;
+	int msec = (int)qkc::ElapseToMSec(abstime);
+	return locker->TimedRdLock(msec);
 }
 
 int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock) 
 {
-    if(pthread_rwlock_anonymous_init(rwlock) == false)
-        return -1 ;
-
-    HANDLE handle = NULL ;
-    pthread_rwlock_data_t * data = NULL ;
-    if(rwlock_handle(rwlock , &handle , &data) == false)
-        return -1;
-
-    bool owner = false ;
-    while(::WaitForSingleObject(handle , INFINITE) == WAIT_OBJECT_0)
-    {
-        if(data->readers == 0)
-        {
-            data->writers++ ;
-            owner = true ;
-            ::ReleaseMutex(handle) ;
-            break ;
-        }
-    }
-
-    if(owner == true)
-        ::AcquireSRWLockExclusive(&data->locker) ;
-
-    return (owner?0:-1) ;
+	qkc::PThreadRWLocker * locker = ConfirmRWLocker(rwlock);
+	if (locker == NULL)
+		return -1;
+	return locker->WrLock();
 }
 
 int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock)
 {
-    if(pthread_rwlock_anonymous_init(rwlock) == false)
-        return -1 ;
-
-    HANDLE handle = NULL ;
-    pthread_rwlock_data_t * data = NULL ;
-    if(rwlock_handle(rwlock , &handle , &data) == false)
-        return -1;
-
-    if(::WaitForSingleObject(handle , 0) != WAIT_OBJECT_0)
-        return -1 ;
-
-    bool owner = false ;
-    if(data->readers == 0)
-    {
-        data->writers++ ;
-        owner = true ;
-        ::AcquireSRWLockExclusive(&data->locker) ;
-    }        
-
-    ::ReleaseMutex(handle) ;
-    return (owner?0:-1) ;
+	qkc::PThreadRWLocker * locker = ConfirmRWLocker(rwlock);
+	if (locker == NULL)
+		return -1;
+	return locker->TryWrLock();
 }
 
 int pthread_rwlock_timedwrlock(pthread_rwlock_t * rwlock , const struct timespec * abstime) 
 {
-    if(pthread_rwlock_anonymous_init(rwlock) == false)
-        return -1 ;
+	qkc::PThreadRWLocker * locker = ConfirmRWLocker(rwlock);
+	if (locker == NULL)
+		return -1;
 
-    HANDLE handle = NULL ;
-    pthread_rwlock_data_t * data = NULL ;
-    if(rwlock_handle(rwlock , &handle , &data) == false)
-        return -1;
-
-    uint64_t elapse = ElapseToMSec(abstime) ;
-    bool owner = false ;
-    if(::WaitForSingleObject(handle , (DWORD)elapse) != WAIT_OBJECT_0)
-        return -1 ;
-
-    if(data->readers == 0)
-    {
-        data->writers++ ;
-        owner = true ;
-    }
-    ::ReleaseMutex(handle) ;
-
-    if(owner == true)
-        ::AcquireSRWLockExclusive(&data->locker) ;
-
-    return (owner?0:-1) ;
+	int msec = (int)qkc::ElapseToMSec(abstime);
+	return locker->TimedWrLock(msec);
 }
 
 int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) 
 {
-    if(rwlock->index == 0)
-        return -1 ;
-
-    HANDLE handle = NULL ;
-    pthread_rwlock_data_t * data = NULL ;
-    if(rwlock_handle(rwlock , &handle , &data) == false)
-        return -1;
-
-    if(::WaitForSingleObject(handle , INFINITE) != WAIT_OBJECT_0)
-        return -1 ;
-
-    if(data->readers != 0)
-    {
-        data->readers-- ;
-        ::ReleaseSRWLockShared(&data->locker) ;
-    }
-    else if(data->writers != 0)
-    {
-        data->writers-- ;
-        ::ReleaseSRWLockExclusive(&data->locker) ;
-    }
-
-    ::ReleaseMutex(handle) ;
-    return 0 ;
+	qkc::PThreadRWLocker * locker = ConfirmRWLocker(rwlock);
+	if (locker == NULL)
+		return -1;
+	return locker->RWUnLock();
 }
 
-
-static SRWLOCK __pthread_cond_anonymous__ = SRWLOCK_INIT ;
-bool pthread_cond_anonymous_init(pthread_cond_t *cond)
+inline qkc::PThreadCond * ConfirmCond(pthread_cond_t * cond)
 {
-    bool result = true ;
-    if(cond->flag != 1)
-    {
-        ::AcquireSRWLockExclusive(&__pthread_cond_anonymous__) ;
-        if(cond->flag != 1)
-            result = (pthread_cond_init(cond , NULL) == 0) ;
-        ::ReleaseSRWLockExclusive(&__pthread_cond_anonymous__) ;
-    }
+	if (cond == NULL)
+		return NULL;
 
-    return result ;
+	if (qkc::EnsurePThreadCondInited(&cond->index) == false)
+		return NULL;
+
+	int index = cond->index;
+	qkc::Object * obj = qkc::ObjMgr::Singleton().Get(index);
+	if (obj == NULL || obj->IsPThreadCond() == false)
+		return NULL;
+
+	return (qkc::PThreadCond *)obj;
 }
 
 int pthread_cond_init(pthread_cond_t * cond , const pthread_condattr_t * cond_attr) 
 {
-    cond->flag = 1 ;
-    cond->pad = 0 ;
-    ::InitializeConditionVariable((PCONDITION_VARIABLE)&cond->locker) ;
+	if (cond == NULL)
+		return -1;
+
+	qkc::PThreadCond * locker = new qkc::PThreadCond();
+	if (qkc::ObjMgr::Singleton().Add(locker->Handle(), locker) <= 0)
+	{
+		delete locker;
+		return -1;
+	}
+
+	cond->index = locker->OIndex();
     return 0 ;
 }
 
 int pthread_cond_destroy(pthread_cond_t *cond) 
 {
-    if(cond->flag == 1)
-    {
-        ::WakeAllConditionVariable((PCONDITION_VARIABLE)&cond->locker) ;
-        cond->flag = 0 ;        
-        cond->locker = 0 ;
-        return 0 ;
-    }
-    else
-        return -1 ;
+	if (cond == NULL || cond->index == 0)
+		return -1;
+
+	int index = cond->index;
+	qkc::Object * obj = qkc::ObjMgr::Singleton().Get(index);
+	if (obj == NULL || obj->IsPThreadCond() == false)
+		return -1;
+
+	qkc::Object * dobj = NULL;
+	if (qkc::ObjMgr::Singleton().Delete(index, dobj) == false || dobj == NULL)
+		return -1;
+
+	delete dobj;
+	return 0;	
 }
 
 int pthread_cond_signal(pthread_cond_t *cond) 
 {
-    if(pthread_cond_anonymous_init(cond) == false)
-        return -1 ;
+	if (cond == NULL)
+		return -1;
 
-    if(cond->flag == 1)
-    {
-        ::WakeConditionVariable((PCONDITION_VARIABLE)&cond->locker) ;
-        return 0 ;
-    }
-    else
-        return -1 ;
+	qkc::PThreadCond * locker = ConfirmCond(cond);
+	if (locker == NULL)
+		return -1;
+
+	return locker->Signal();
 }
 
 int pthread_cond_broadcast(pthread_cond_t *cond) 
 {
-    if(pthread_cond_anonymous_init(cond) == false)
-        return -1 ;
+	if (cond == NULL)
+		return -1;
 
-    if(cond->flag == 1)
-    {
-        ::WakeAllConditionVariable((PCONDITION_VARIABLE)&cond->locker) ;
-        return 0 ;
-    }
-    else
-        return -1 ;
+	qkc::PThreadCond * locker = ConfirmCond(cond);
+	if (locker == NULL)
+		return -1;
+
+	return locker->BroadCast();
+}
+
+inline qkc::PThreadMutex * GetPThreadMutex(pthread_mutex_t * mutex)
+{
+	if (mutex == NULL || mutex->index <= 0)
+		return NULL;
+
+	qkc::Object * obj = qkc::ObjMgr::Singleton().Get(mutex->index);
+	if (obj == NULL || obj->IsPThreadMutex() == false)
+		return NULL;
+	return (qkc::PThreadMutex *)obj;
 }
 
 int pthread_cond_wait(pthread_cond_t * cond , pthread_mutex_t * mutex) 
 {
-    if(pthread_cond_anonymous_init(cond) == false)
-        return -1 ;
+	if (cond == NULL || mutex == NULL)
+		return -1;
 
-    int widx = mutex->index ;
-    wobj_t * obj = wobj_get(widx) ;
-    if(obj == NULL || obj->type != WOBJ_MUTEX || obj->addition == NULL)
-        return -1 ;
+	qkc::PThreadMutex * ptm = GetPThreadMutex(mutex);
+	if (ptm == NULL)
+		return -1;
 
-    pthread_mutex_data * data = (pthread_mutex_data *)obj->addition ;
-    if(data->handle_critical_section == NULL)
-    {
-        LPCRITICAL_SECTION cs = (LPCRITICAL_SECTION)::malloc(sizeof(CRITICAL_SECTION)) ;
-        ::InitializeCriticalSection(cs) ;
-        data->handle_critical_section = cs ;
-    }
-    ::EnterCriticalSection(data->handle_critical_section) ;
-    ::ReleaseMutex(obj->handle) ;
+	qkc::PThreadCond * ptc = ConfirmCond(cond);
+	if (ptc == NULL)
+		return -1;
 
-
-    BOOL result = ::SleepConditionVariableCS((PCONDITION_VARIABLE)&cond->locker , data->handle_critical_section , INFINITE) ;
-
-    ::WaitForSingleObject(obj->handle , INFINITE) ;
-    ::LeaveCriticalSection(data->handle_critical_section) ;
-
-    return (result?0:-1) ;
+	return ptc->Wait(ptm);
 }
 
 int pthread_cond_timedwait(pthread_cond_t * cond , pthread_mutex_t * mutex , const struct timespec * abstime) 
 {
-    if(pthread_cond_anonymous_init(cond) == false)
-        return -1 ;
+	if (cond == NULL || mutex == NULL)
+		return -1;
 
-    int widx = mutex->index ;
-    wobj_t * obj = wobj_get(widx) ;
-    if(obj == NULL || obj->type != WOBJ_MUTEX || obj->addition == NULL)
-        return -1 ;
+	qkc::PThreadMutex * ptm = GetPThreadMutex(mutex);
+	if (ptm == NULL)
+		return -1;
 
-    pthread_mutex_data * data = (pthread_mutex_data *)obj->addition ;
-    if(data->handle_critical_section == NULL)
-    {
-        LPCRITICAL_SECTION cs = (LPCRITICAL_SECTION)::malloc(sizeof(CRITICAL_SECTION)) ;
-        ::InitializeCriticalSection(cs) ;
-        data->handle_critical_section = cs ;
-    }
-    ::EnterCriticalSection(data->handle_critical_section) ;
-    ::ReleaseMutex(obj->handle) ;
+	qkc::PThreadCond * ptc = ConfirmCond(cond);
+	if (ptc == NULL)
+		return -1;
 
-    uint64_t timeout = ElapseToMSec(abstime) ;
-	int result = 0;
-    if(::SleepConditionVariableCS((PCONDITION_VARIABLE)&cond->locker , data->handle_critical_section , (DWORD)timeout) == FALSE)
-	{
-		if (::GetLastError() == ERROR_TIMEOUT)
-			result = ETIMEDOUT;
-		else
-			result = -1;
-	}
-
-    ::WaitForSingleObject(obj->handle , INFINITE) ;
-    ::LeaveCriticalSection(data->handle_critical_section) ;
-
-	return result;
+	return ptc->TimedWait(ptm , (int)qkc::ElapseToMSec(abstime));
 }
 
 int pthread_condattr_init(pthread_condattr_t *attr) 
@@ -793,30 +526,39 @@ int pthread_spin_unlock(pthread_spinlock_t *lock)
 
 int pthread_key_create(pthread_key_t *key , void(*destr_function)(void *)) 
 {
-    int tls = wthr_tls_alloc(destr_function) ;
-    if(tls > 0)
-    {
-        *key = tls ;
-        return 0 ;
-    }
-    else
-        return -1 ;
+	if (key == NULL)
+		return -1;
+
+	qkc::ThreadLocal * tls = new qkc::ThreadLocal(destr_function);
+	
+	*key = tls->Index();
+	return 0;
 }
 
 int pthread_key_delete(pthread_key_t key) 
 {
-    wthr_tls_delete(key) ;
+	qkc::ThreadLocal * tls = NULL;
+	qkc::ThreadLocalLogger::Singleton().DelByIndex(key, tls);
+
+	if (tls != NULL)
+		delete tls;
     return 0 ;
 }
 
 void *pthread_getspecific(pthread_key_t key) 
 {
-    return wthr_tls_get_val(key) ;
+	qkc::ThreadLocal * tls = qkc::ThreadLocalLogger::Singleton().GetByIndex(key);
+	if (tls == NULL)
+		return NULL;
+	return tls->GetData();
 }
 
 int pthread_setspecific(pthread_key_t key , const void *pointer) 
 {
-    return wthr_tls_set_val(key , (void *)pointer) ;
+	qkc::ThreadLocal * tls = qkc::ThreadLocalLogger::Singleton().GetByIndex(key);
+	if (tls == NULL)
+		return -1;
+	return tls->SetData(pointer);
 }
 
 

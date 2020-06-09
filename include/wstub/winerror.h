@@ -3793,7 +3793,7 @@
 //
 //  ERROR_WAIT_63
 //
-#define ERROR_WAIT_63                    734L
+#define ERROR_WAIT_63                    734
 
 //
 // MessageId: ERROR_ABANDONED_WAIT_0

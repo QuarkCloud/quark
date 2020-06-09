@@ -2,11 +2,11 @@
 #include <sys/time.h>
 #include <stdint.h>
 #include <windows.h>
-#include <wintf/wtime.h>
+#include "wobjs/DateTime.h"
 
 
 //¾«¶ÈÎª100ÄÉÃë
-static inline uint64_t hr_nano_time() {return GetWinHrTime() ;}
+static inline uint64_t hr_nano_time() {return qkc::GetWinHrTime() ;}
 
 int gettimeofday (struct timeval * tv , void * tz)
 {

@@ -1,26 +1,7 @@
 
 #include <stdio.h>
-#include <wintf/wcrt.h>
+#include "wobjs/CrtLinker.h"
 
-#if _MSC_VER < 1900
-struct _iobuf {
-    char *_ptr;
-    int   _cnt;
-    char *_base;
-    int   _flag;
-    int   _file;
-    int   _charbuf;
-    int   _bufsiz;
-    char *_tmpfname;
-};
-
-QUARK_LINKAGE FILE * __iob_func(void);
-
-QKCAPI FILE *  __qkc_iob_func__(unsigned idx)
-{
-    return &__qkc_iob_func__()[idx];
-}
-#endif
 
 char *tmpnam_r (char *s)
 {

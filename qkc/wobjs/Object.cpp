@@ -5,8 +5,10 @@
 namespace qkc {
 	Object::Object()
 	{
-		oid_ = Object::AllocID();
+		id_ = Object::AllocID();
 		type_ = Object::kVoid;
+		subtype_ = 0;
+		index_ = -1;
 		name_ = NULL;
 
 		SetInfo();
@@ -17,9 +19,15 @@ namespace qkc {
 		//
 	}
 
+	void Object::OType(int type)
+	{
+		type_ = type;
+		name_ = Object::Type2Name(type);
+	}
+
 	void Object::SetInfo()
 	{
-	
+		//
 	}
 
 	int Object::AllocID()
@@ -29,6 +37,13 @@ namespace qkc {
 		return (int)::InterlockedIncrement(&__internal_object_id__);	
 	}
 
+	bool Object::IsValidType(int type)
+	{
+		if (type > kVoid && type < kMaxType)
+			return true;
+		return false;
+	}
+
 	const char * Object::kEmptyName = "";
 
 	const char * Object::Type2Name(int type)
@@ -36,8 +51,8 @@ namespace qkc {
 		static const char * __object_type_names__[Object::kMaxType] = {
 			"Void" , "Other" , "Process" , "Thread" , "File" , "Module" , "Mutex" , "Semaphore" ,       /** 0 ~ 7  */
 			"Event" , "Socket" , "ShareMemory" , "FileWatcher" , "IOCP" , "RWLock" , "SpinLock" , "Condition" ,  /** 8 ~ 15 */
-			"" ,"" , "" , "" , "Pipe" , "PipeAlias" , "" , "" ,		/** 16 ~ 23 */
-			"" ,"" , "" , "" , "" , "" , "" , "" 		/** 24 ~ 31 */
+			"" ,"" , "" , "" , "Pipe" , "PipeAlias" , "PthreadMutex" , "PthreadRWLock" ,		/** 16 ~ 23 */
+			"PthreadCond" ,"" , "" , "" , "" , "" , "" , "" 		/** 24 ~ 31 */
 		}; 
 
 		if (type < 0 || type >= Object::kMaxType)

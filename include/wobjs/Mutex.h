@@ -15,6 +15,7 @@ namespace qkc {
 
 		int Lock();
 		int TryLock();
+		int TimedLock(int msec);
 		int Unlock();
 
 		class QKCAPI ScopedLock {

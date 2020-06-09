@@ -14,20 +14,36 @@ namespace qkc {
 	class QKCAPI AddrNode : public RBNode {
 	public:
 		AddrNode();
-		explicit AddrNode(void * addr , void * data);
-		void Assign(void * addr, void * data);
+		AddrNode(const AddrNode& node);
+		explicit AddrNode(void * addr , uintptr_t data);
+		AddrNode& operator=(const AddrNode& node);
+
+		void Assign(void * addr, uintptr_t data);
+		void Assign(const AddrNode& node);
+
+		void Reset();
+
 		void * Addr;
-		void * Data;
+		uintptr_t Data;
 	};
 
 	class QKCAPI AddrMgr : public RBTree{
 	public:
-		AddrMgr();
+		AddrMgr(MemMgr * mmgr = NULL);
 		virtual ~AddrMgr();
 
-		bool Insert(void * addr, void * data);
-		bool Delete(void * addr, AddrNode *& node);
-		bool Find(void * addr, const AddrNode *& node) const;
+		typedef AddrNode Node;
+
+		bool Insert(void * addr, uintptr_t data);
+		bool Update(void * addr, uintptr_t data);
+		bool Delete(const void * addr, uintptr_t& data);
+		bool Find(const void * addr, uintptr_t& data) const;
+		void Clear();
+
+		// <= addr
+		AddrNode *LowerBound(const void * addr) const;
+		// >= addr
+		AddrNode *UpperBound(const void * addr) const;
 
 		const AddrNode * First() const;
 		AddrNode * First();
@@ -38,10 +54,18 @@ namespace qkc {
 		const AddrNode * Next(const AddrNode * node) const;
 		AddrNode * Next(AddrNode * node);
 
+		inline bool Empty() const { return RBTree::Empty(); }
+		inline const AddrNode * Root() const { return (const AddrNode *)RBTree::Root(); }
+		inline AddrNode * Root() { return (AddrNode *)RBTree::Root(); }
+		inline MemMgr * MMgr() { return mmgr_; }
+		inline void MMgr(MemMgr * mmgr) { mmgr_ = mmgr; }
 	protected:
 		int Compare(const RBNode * src, const RBNode * dst) const;
+		int Compare(const void * src, const void * dst) const;
 	private:
-		//
+		AddrNode * NodeAlloc();
+		void NodeFree(AddrNode * node);
+		MemMgr * mmgr_;
 	};
 }
 

@@ -29,7 +29,6 @@ namespace qkc {
 	void Semaphore::SetInfo()
 	{
 		OType(Object::kSemaphore);
-		OName(Object::Type2Name(OType()));
 	}
 
 	int Semaphore::Post(int count)

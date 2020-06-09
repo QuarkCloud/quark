@@ -2046,12 +2046,48 @@ WINBASEAPI DWORD WINAPI GetTickCount(VOID);
 
 #ifdef _X86_
 
+LONG64 InterlockedCompareExchange64(LONG64 volatile *Destination,LONG64 ExChange,LONG64 Comperand);
+#define InterlockedCompareExchange64 _InterlockedCompareExchange64
+
+
+LONGLONG FORCEINLINE _InlineInterlockedIncrement64(LONGLONG volatile *Addend)
+{
+	LONGLONG Old;
+
+	do {
+		Old = *Addend;
+	} while (InterlockedCompareExchange64(Addend,
+		Old + 1,
+		Old) != Old);
+
+	return Old + 1;
+}
+#define InterlockedIncrement64 _InlineInterlockedIncrement64
+
+
+FORCEINLINE LONGLONG _InlineInterlockedDecrement64(LONGLONG volatile *Addend)
+{
+	LONGLONG Old;
+
+	do {
+		Old = *Addend;
+	} while (InterlockedCompareExchange64(Addend,
+		Old - 1,
+		Old) != Old);
+
+	return Old - 1;
+}
+
+#define InterlockedDecrement64 _InlineInterlockedDecrement64
+
+
 WINBASEAPI LONG WINAPI InterlockedIncrement(LONG volatile *lpAddend);
+//WINBASEAPI LONG64 WINAPI InterlockedIncrement64(LONG64 volatile *lpAddend);
 WINBASEAPI LONG WINAPI InterlockedDecrement(LONG volatile *lpAddend);
 WINBASEAPI LONG WINAPI InterlockedExchange(LONG volatile *Target, LONG Value);
 WINBASEAPI LONG WINAPI InterlockedExchangeAdd(LONG volatile *Addend, LONG Value);
 WINBASEAPI LONG WINAPI InterlockedCompareExchange(LONG volatile *Destination, LONG Exchange, LONG Comperand);
-WINBASEAPI LONGLONG WINAPI InterlockedCompareExchange64(LONGLONG volatile *Destination, LONGLONG Exchange, LONGLONG Comperand);
+//WINBASEAPI LONGLONG WINAPI InterlockedCompareExchange64(LONGLONG volatile *Destination, LONGLONG Exchange, LONGLONG Comperand);
 
 #pragma warning( push )
 #pragma warning( disable : 4793 )
@@ -2078,7 +2114,9 @@ __forceinline PVOID _InlineInterlockedCompareExchangePointer(PVOID volatile * De
 #define MemoryBarrier __faststorefence
 
 #define InterlockedIncrement _InterlockedIncrement
+#define InterlockedIncrement64 _InterlockedIncrement64
 #define InterlockedDecrement _InterlockedDecrement
+#define InterlockedDecrement64 _InterlockedDecrement64
 #define InterlockedExchange _InterlockedExchange
 #define InterlockedExchangeAdd _InterlockedExchangeAdd
 #define InterlockedCompareExchange _InterlockedCompareExchange
@@ -2665,6 +2703,65 @@ WINBASEAPI BOOL WINAPI GetNamedPipeInfo(HANDLE hNamedPipe,LPDWORD lpFlags,LPDWOR
 
 
 
+
+
+WINBASEAPI BOOL WINAPI QueryPerformanceCounter(LARGE_INTEGER* lpPerformanceCount);
+
+WINBASEAPI BOOL WINAPI QueryPerformanceFrequency(LARGE_INTEGER* lpFrequency);
+
+
+typedef struct _TIME_ZONE_INFORMATION {
+	LONG Bias;
+	WCHAR StandardName[32];
+	SYSTEMTIME StandardDate;
+	LONG StandardBias;
+	WCHAR DaylightName[32];
+	SYSTEMTIME DaylightDate;
+	LONG DaylightBias;
+} TIME_ZONE_INFORMATION, *PTIME_ZONE_INFORMATION, *LPTIME_ZONE_INFORMATION;
+
+WINBASEAPI DWORD WINAPI GetTimeZoneInformation(LPTIME_ZONE_INFORMATION lpTimeZoneInformation);
+
+WINBASEAPI BOOL WINAPI SetTimeZoneInformation(TIME_ZONE_INFORMATION* lpTimeZoneInformation);
+
+
+#define GetProcessMemoryInfo        K32GetProcessMemoryInfo
+
+typedef struct _PROCESS_MEMORY_COUNTERS {
+	DWORD cb;
+	DWORD PageFaultCount;
+	SIZE_T PeakWorkingSetSize;
+	SIZE_T WorkingSetSize;
+	SIZE_T QuotaPeakPagedPoolUsage;
+	SIZE_T QuotaPagedPoolUsage;
+	SIZE_T QuotaPeakNonPagedPoolUsage;
+	SIZE_T QuotaNonPagedPoolUsage;
+	SIZE_T PagefileUsage;
+	SIZE_T PeakPagefileUsage;
+} PROCESS_MEMORY_COUNTERS;
+typedef PROCESS_MEMORY_COUNTERS *PPROCESS_MEMORY_COUNTERS;
+
+BOOL WINAPI GetProcessMemoryInfo(HANDLE Process, PPROCESS_MEMORY_COUNTERS ppsmemCounters,	DWORD cb);
+
+#define GetPerformanceInfo          K32GetPerformanceInfo
+typedef struct _PERFORMANCE_INFORMATION {
+	DWORD cb;
+	SIZE_T CommitTotal;
+	SIZE_T CommitLimit;
+	SIZE_T CommitPeak;
+	SIZE_T PhysicalTotal;
+	SIZE_T PhysicalAvailable;
+	SIZE_T SystemCache;
+	SIZE_T KernelTotal;
+	SIZE_T KernelPaged;
+	SIZE_T KernelNonpaged;
+	SIZE_T PageSize;
+	DWORD HandleCount;
+	DWORD ProcessCount;
+	DWORD ThreadCount;
+} PERFORMANCE_INFORMATION, *PPERFORMANCE_INFORMATION, PERFORMACE_INFORMATION, *PPERFORMACE_INFORMATION;
+
+BOOL WINAPI GetPerformanceInfo(PPERFORMANCE_INFORMATION pPerformanceInformation,DWORD cb);
 
 #ifdef __cplusplus
 }

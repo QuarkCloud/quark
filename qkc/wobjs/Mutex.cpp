@@ -11,7 +11,6 @@ namespace qkc {
 	void Mutex::SetInfo()
 	{
 		OType(Object::kMutex);
-		OName(Object::Type2Name(OType()));
 	}
 
 	Mutex::~Mutex()
@@ -38,6 +37,15 @@ namespace qkc {
 		else
 			return 0;
 
+	}
+
+	int Mutex::TimedLock(int msec)
+	{
+		if (msec < 0)
+			return Lock();
+		else if (msec == 0)
+			return TryLock();
+	
 	}
 
 	int Mutex::Unlock()

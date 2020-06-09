@@ -48,6 +48,12 @@
     <Filter Include="源文件\wobjs">
       <UniqueIdentifier>{b47967fe-96da-4f5d-b0a5-1fc4282b0fde}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\wimpl">
+      <UniqueIdentifier>{5520e5f0-8476-402d-b71b-8eba31427a3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\wimpl">
+      <UniqueIdentifier>{97c8c2a6-de30-49f9-a912-62ce9d31ec7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="advapi32_imp.cpp">
@@ -212,76 +218,10 @@
     <ClCompile Include="winsock2_imp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="wintf\wcap.cpp">
-      <Filter>源文件\wintf</Filter>
-    </ClCompile>
-    <ClCompile Include="wintf\wcrt.cpp">
-      <Filter>源文件\wintf</Filter>
-    </ClCompile>
-    <ClCompile Include="wintf\wdll.cpp">
-      <Filter>源文件\wintf</Filter>
-    </ClCompile>
-    <ClCompile Include="wintf\werr.cpp">
-      <Filter>源文件\wintf</Filter>
-    </ClCompile>
     <ClCompile Include="wintf\wipc.cpp">
       <Filter>源文件\wintf</Filter>
     </ClCompile>
-    <ClCompile Include="wintf\wobj.cpp">
-      <Filter>源文件\wintf</Filter>
-    </ClCompile>
-    <ClCompile Include="wintf\wps.cpp">
-      <Filter>源文件\wintf</Filter>
-    </ClCompile>
-    <ClCompile Include="wintf\wthr.cpp">
-      <Filter>源文件\wintf</Filter>
-    </ClCompile>
-    <ClCompile Include="wintf\wtime.cpp">
-      <Filter>源文件\wintf</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\addr_mgr.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\file_system.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\file_system_dev_null.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\file_system_proc.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
     <ClCompile Include="internal\fsocket.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\hash.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\inotify_mgr.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\iocp_item.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\iocp_mgr.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\rbtree.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\ring_buffer.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\rxtree.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\sockopt.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\string_util.cpp">
-      <Filter>源文件\internal</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\sysconf.cpp">
       <Filter>源文件\internal</Filter>
     </ClCompile>
     <ClCompile Include="ucrt\ucrt_stdio.cpp">
@@ -289,9 +229,6 @@
     </ClCompile>
     <ClCompile Include="ucrt\ucrt_errno.cpp">
       <Filter>源文件\ucrt</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\mman_mgr.cpp">
-      <Filter>源文件\internal</Filter>
     </ClCompile>
     <ClCompile Include="internal\pipe_mgr.cpp">
       <Filter>源文件\internal</Filter>
@@ -345,6 +282,84 @@
       <Filter>源文件\wobjs</Filter>
     </ClCompile>
     <ClCompile Include="wobjs\SemaphoreW.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\ObjMgr.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\SysInfo.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\MemoryInfo.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\ErrorMap.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\CrtLoader.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\INotifyMgr.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\IOCPMgr.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\FileSystem.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\StrUtil.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\Hash.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\SockOpt.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\FileSystemDevNull.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\FileSystemProc.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\ProcessMemoryInfo.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\DllInit.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\DateTime.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\Thread.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wimpl\PThreadMutex.cpp">
+      <Filter>源文件\wimpl</Filter>
+    </ClCompile>
+    <ClCompile Include="wimpl\PThreadRWLocker.cpp">
+      <Filter>源文件\wimpl</Filter>
+    </ClCompile>
+    <ClCompile Include="wimpl\PThreadCond.cpp">
+      <Filter>源文件\wimpl</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\ThreadLocal.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wimpl\MMapMgr.cpp">
+      <Filter>源文件\wimpl</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\LargePageMap.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\RingBuffer.cpp">
+      <Filter>源文件\wobjs</Filter>
+    </ClCompile>
+    <ClCompile Include="wimpl\IOCPMgr.cpp">
+      <Filter>源文件\wimpl</Filter>
+    </ClCompile>
+    <ClCompile Include="wobjs\AtomicCounter.cpp">
       <Filter>源文件\wobjs</Filter>
     </ClCompile>
   </ItemGroup>
@@ -556,28 +571,7 @@
     <ClInclude Include="..\include\sys\wait.h">
       <Filter>头文件\sys</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\wintf\wcap.h">
-      <Filter>头文件\wintf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\wintf\wcrt.h">
-      <Filter>头文件\wintf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\wintf\werr.h">
-      <Filter>头文件\wintf</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\wintf\wipc.h">
-      <Filter>头文件\wintf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\wintf\wobj.h">
-      <Filter>头文件\wintf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\wintf\wps.h">
-      <Filter>头文件\wintf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\wintf\wthr.h">
-      <Filter>头文件\wintf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\wintf\wtime.h">
       <Filter>头文件\wintf</Filter>
     </ClInclude>
     <ClInclude Include="..\include\arpa\inet.h">
@@ -592,55 +586,7 @@
     <ClInclude Include="..\include\netinet\udp.h">
       <Filter>头文件\netinet</Filter>
     </ClInclude>
-    <ClInclude Include="internal\addr_mgr.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\bitop.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\file_system.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\file_system_dev_null.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\file_system_proc.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
     <ClInclude Include="internal\fsocket.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\hash.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\inotify_mgr.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\iocp_item.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\iocp_mgr.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\rbtree.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\ring_buffer.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\rlist.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\rxtree.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\sockopt.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\string_util.h">
-      <Filter>头文件\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\sysconf.h">
       <Filter>头文件\internal</Filter>
     </ClInclude>
     <ClInclude Include="..\include\bits\confname.h">
@@ -678,9 +624,6 @@
     </ClInclude>
     <ClInclude Include="..\include\netpacket\packet.h">
       <Filter>头文件\netpacket</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\mman_mgr.h">
-      <Filter>头文件\internal</Filter>
     </ClInclude>
     <ClInclude Include="internal\pipe_mgr.h">
       <Filter>头文件\internal</Filter>
@@ -734,6 +677,90 @@
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
     <ClInclude Include="..\include\wobjs\SemaphoreW.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\ObjMgr.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\SysInfo.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\CrtLinker.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\MemoryInfo.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\ErrorMap.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\CrtLoader.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\INotifyMgr.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\IOCPMgr.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\BitOP.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\FileSystem.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\StrUtil.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\Hash.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\SockOpt.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\FileSystemDevNull.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\FileSystemProc.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\ProcessMemoryInfo.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\DateTime.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\Thread.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\DllInit.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wimpl\PThreadMutex.h">
+      <Filter>头文件\wimpl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wimpl\PThreadRWLocker.h">
+      <Filter>头文件\wimpl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wimpl\PThreadCond.h">
+      <Filter>头文件\wimpl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\ThreadLocal.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wimpl\MMapMgr.h">
+      <Filter>头文件\wimpl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\LargePageMap.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\RingBuffer.h">
+      <Filter>头文件\wobjs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wimpl\IOCPMgr.h">
+      <Filter>头文件\wimpl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\wobjs\AtomicCounter.h">
       <Filter>头文件\wobjs</Filter>
     </ClInclude>
   </ItemGroup>

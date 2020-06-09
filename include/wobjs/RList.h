@@ -12,6 +12,7 @@ namespace qkc {
 		RLNode();
 		void Init();
 		bool Empty() const;
+		void Remove();
 		RLNode * Prev;
 		RLNode * Next;
 	};

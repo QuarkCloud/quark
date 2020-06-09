@@ -4,10 +4,11 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <errno.h>
-#include "internal/rlist.h"
+//#include "internal/rlist.h"
 #include "internal/rbtree.h"
 #include "internal/fsocket.h"
 #include "internal/iocp_mgr.h"
+#include "wobjs/RList.h"
 
 int epoll_create (int size)
 {

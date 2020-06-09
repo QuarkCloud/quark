@@ -62,8 +62,8 @@ typedef struct __st_pthread_rwlock{int index ;} pthread_rwlock_t ;
 #define PTHREAD_COND_SIZE 16 
 typedef struct __st_pthread_cond{
     int flag ;
-    int pad ;
-    uintptr_t locker ;
+	int index;
+	int64_t pad;
 } pthread_cond_t ;
 #define PTHREAD_COND_INITIALIZER {0 , 0 , 0}
 

@@ -3,6 +3,7 @@
 #define __QUARK_WOBJS_OBJECT_H 1
 
 #include <quark_compile.h>
+#include <stdint.h>
 
 namespace qkc {
 	class QKCAPI Object {
@@ -10,14 +11,39 @@ namespace qkc {
 		Object();
 		virtual ~Object();
 
-		inline int OID() const { return oid_; }
-		//inline void OID(int oid) { oid_ = oid; }	//自动分配
+		inline int OID() const { return id_; }
 		inline int OType() const { return type_; }
-		inline void OType(int type) { type_ = type; }
+		void OType(int type);
+		inline int OSubType() const { return subtype_; }
+		inline void OSubType(int subtype) { subtype_ = subtype; }
 		inline const char * OName() const { return name_; }
-		inline void OName(const char * name) { name_ = name; }
+		inline const int OIndex() const { return index_; }
+
+		inline bool IsProcess() const { return type_ == kProcess; }
+		inline bool IsThread() const { return type_ == kThread; }
+		inline bool IsFile() const { return type_ == kFile; }
+		inline bool IsModule() const { return type_ == kModule; }
+
+		inline bool IsMutex() const { return type_ == kMutex; }
+		inline bool IsSemaphore() const { return type_ == kSemaphore; }
+		inline bool IsEvent() const { return type_ == kEvent; }
+		inline bool IsSocket() const { return type_ == kSocket; }
+
+		inline bool IsShareMemory() const { return type_ == kShareMemory; }
+		inline bool IsFileWatcher() const { return type_ == kFileWatcher; }
+		inline bool IsIOCP() const { return type_ == kIOCP; }
+		inline bool IsRWLocker() const { return type_ == kRWLocker; }
+
+		inline bool IsSpinLocker() const { return type_ == kSpinLocker; }
+		inline bool IsCondition() const { return type_ == kCondition; }
+		inline bool IsPipe() const { return type_ == kPipe; }
+		inline bool IsPipeAlias() const { return type_ == kPipeAlias; }
+		inline bool IsPThreadMutex() const { return type_ == kPthreadMutex; }
+		inline bool IsPThreadRWLock() const { return type_ == kPthreadRWLock; }
+		inline bool IsPThreadCond() const { return type_ == kPthreadCond; }
 
 		static int AllocID();
+		static bool IsValidType(int type);
 
 		static const int kVoid = 0;
 		static const int kOther	= 1;
@@ -38,15 +64,25 @@ namespace qkc {
 
 		static const int kPipe = 20;
 		static const int kPipeAlias = 21;
+
+		static const int kPthreadMutex = 22;		//主要为pthread_mutex使用，解决pthread_cond和SRWLock的兼容问题
+		static const int kPthreadRWLock = 23;	
+		static const int kPthreadCond = 24;
+
 		static const int kMaxType = 32;
 
 		static const char * kEmptyName;
 		static const char * Type2Name(int type);
+
+		friend class ObjMgr;
 	protected:
 		virtual void SetInfo();
 	private:
-		int oid_;
+		int id_;
 		int type_;
+		int subtype_;	//由子类定义。
+		int index_;
+		uintptr_t wdata_;
 		const char * name_;
 	};
 

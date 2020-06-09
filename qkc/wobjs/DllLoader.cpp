@@ -12,6 +12,10 @@ namespace qkc {
 	DllLoader::~DllLoader()
 	{
 		Final();
+		if (handle_ != NULL && handle_ != INVALID_HANDLE_VALUE)
+		{
+			Close();
+		}
 	}
 
 	bool DllLoader::Init()

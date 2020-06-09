@@ -12,7 +12,6 @@ namespace qkc {
 	void Condition::SetInfo()
 	{
 		OType(Object::kCondition);
-		OName(Object::Type2Name(OType()));	
 	}
 
 	Condition::	~Condition()

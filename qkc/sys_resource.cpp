@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-#include "wintf/werr.h"
-#include "wintf/wps.h"
+#include "wobjs/ErrorMap.h"
+#include "wobjs/ProcessMemoryInfo.h"
 
 int getrusage(int who, struct rusage *usage)
 {
@@ -18,7 +18,7 @@ int getrusage(int who, struct rusage *usage)
 
     FILETIME createTime, exitTime, kernelTime, userTime;
     SYSTEMTIME kernelSystemTime, userSystemTime;
-    process_memory_info_t memCounters ;
+	qkc::ProcessMemoryInfo  memCounters ;
     IO_COUNTERS ioCounters;
     int ret;
 
@@ -43,8 +43,7 @@ int getrusage(int who, struct rusage *usage)
         return -1 ;
     }
 
-    //ret = GetProcessMemoryInfo(GetCurrentProcess(),&memCounters,sizeof(memCounters));
-    if(get_process_memory_info(0 , &memCounters) == false)
+	if(memCounters.Load() == false)
         return -1 ;
 
     ret = GetProcessIoCounters(GetCurrentProcess(), &ioCounters);

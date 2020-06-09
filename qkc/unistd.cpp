@@ -1,15 +1,15 @@
 
 #include <unistd.h>
 #include <errno.h>
-#include <wintf/wcrt.h>
+#include "wobjs/CrtLinker.h"
 #include <wintf/wobj.h>
 #include <winsock2.h>
-#include "internal/inotify_mgr.h"
-#include "internal/sysconf.h"
-#include "internal/file_system.h"
+//#include "internal/sysconf.h"
+//#include "internal/file_system.h"
 #include "internal/fpipe.h"
 #include "internal/pipe_mgr.h"
 
+#include "wobjs/INotifyMgr.h"
 
 off_t lseek(int fd , off_t offset , int whence)
 {
@@ -51,7 +51,7 @@ int close(int fd)
     }
     else if(type == WOBJ_NOTF) 
     {
-        inotify_mgr_free((inotify_mgr_t *)wobj->addition) ;
+        //inotify_mgr_free((inotify_mgr_t *)wobj->addition) ;
     }
     else if(type == WOBJ_FILE)
     {

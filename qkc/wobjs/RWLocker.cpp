@@ -15,7 +15,6 @@ namespace qkc {
 	void RWLocker::SetInfo()
 	{
 		OType(Object::kRWLocker);
-		OName(Object::Type2Name(OType()));
 	}
 
 	void RWLocker::Lock()
@@ -28,12 +27,12 @@ namespace qkc {
 		::ReleaseSRWLockExclusive(&locker_);
 	}
 
-	void RWLocker::LockShared()
+	void RWLocker::LockShared() const
 	{
 		::AcquireSRWLockShared(&locker_);
 	}
 
-	void RWLocker::UnlockShared()
+	void RWLocker::UnlockShared() const
 	{
 		::ReleaseSRWLockShared(&locker_);
 	}

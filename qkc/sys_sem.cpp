@@ -6,7 +6,7 @@
 #include <time.h>
 #include <wintf/wipc.h>
 #include <wintf/wobj.h>
-#include "internal/bitop.h"
+#include "wobjs/BitOP.h"
 
 int semctl_getval(ipc_sem_t * sem)
 {
@@ -169,7 +169,7 @@ int semop (int semid, struct sembuf * sops, size_t nsops)
     else if(op < 0)
     {
         DWORD timeout = INFINITE ;
-        if(::bitop_get(flag , IPC_NOWAIT) != 0)
+        if(qkc::BitOPGet(flag , IPC_NOWAIT) != 0)
             timeout = 0 ;
 
         int times = 0 ;
@@ -185,7 +185,7 @@ int semop (int semid, struct sembuf * sops, size_t nsops)
     }
     else
     {
-        if(::bitop_get(flag , IPC_NOWAIT) != 0)
+        if(qkc::BitOPGet(flag , IPC_NOWAIT) != 0)
         {
             if(::InterlockedCompareExchange(&sem->value , 0 , 0) != 0)
             {

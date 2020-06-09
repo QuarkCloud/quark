@@ -1,6 +1,6 @@
 
 #include <time.h>
-#include <wintf/wcrt.h>
+#include "wobjs/CrtLinker.h"
 #include <windows.h>
 
 time_t time (time_t *ts)

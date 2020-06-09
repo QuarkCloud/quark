@@ -2,7 +2,7 @@
 #include <wait.h>
 #include <errno.h>
 #include <windows.h>
-#include <wintf/wcrt.h>
+#include "wobjs/CrtLinker.h"
 
 pid_t wait(__WAIT_STATUS stat_loc)
 {

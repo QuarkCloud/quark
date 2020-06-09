@@ -5,12 +5,15 @@
 
 #include <sys/mman.h>
 #include <windows.h>
-#include <wintf/wcrt.h>
+//#include <wintf/wcrt.h>
 #include <wintf/wobj.h>
-#include "rlist.h"
+//#include "rlist.h"
+#include "wobjs/RList.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 __BEGIN_DECLS
 

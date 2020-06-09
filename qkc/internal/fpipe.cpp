@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include "wintf/wcrt.h"
 #include "wintf/wobj.h"
+#include "wobjs/CrtLinker.h"
 
 
 int iocp_pipe_callback(iocp_item_t * item , int evt , int result)

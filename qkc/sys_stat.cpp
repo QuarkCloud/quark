@@ -2,10 +2,10 @@
 #include <quark_compile.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <wintf/wcrt.h>
 #include <windows.h>
 #include <errno.h>
 #include <string.h>
+#include "wobjs/CrtLinker.h"
 
 int stat (const char * file, struct stat * buf)
 {

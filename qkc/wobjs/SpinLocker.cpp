@@ -14,7 +14,6 @@ namespace qkc {
 	void SpinLocker::SetInfo()
 	{
 		OType(Object::kSpinLocker);
-		OName(Object::Type2Name(OType()));
 	}
 
 	SpinLocker::~SpinLocker()

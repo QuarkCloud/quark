@@ -5,14 +5,24 @@ namespace qkc {
 
 	RBNode::RBNode()
 	{
-		Parent = Right = Left = NULL;
-		Color = kRed;
+		Reset();
 	}
+
+	RBNode::RBNode(const RBNode& node)
+	{
+		Assign(node);
+	}	
 
 	RBNode::~RBNode()
 	{
 		//
 	}
+	RBNode& RBNode::operator=(const RBNode& node)
+	{
+		Assign(node);
+		return (*this);
+	}
+
 	void RBNode::Link(RBNode * parent, RBNode ** link)
 	{
 		Parent = parent;
@@ -23,20 +33,41 @@ namespace qkc {
 			*link = this;
 	}
 
+	void RBNode::Reset()
+	{
+		Parent = Right = Left = NULL;
+		Color = kRed;
+	}
+
 	void RBNode::SetParentColor(RBNode * parent, int color)
 	{
 		Parent = parent;
 		Color = color;
 	}
 
+	void RBNode::Assign(const RBNode& node)
+	{
+		Parent = node.Parent;
+		Right = node.Right;
+		Left = node.Left;
+		Color = node.Color;
+	}
+
 	RBTree::RBTree()
 	{
 		root_ = NULL;
+		size_ = 0;
 	}
 
 	RBTree::~RBTree()
 	{
 		//
+	}
+
+	void RBTree::Clear()
+	{
+		root_ = NULL;
+		size_ = 0;
 	}
 
 	int RBTree::Compare(const RBNode * src, const RBNode * dst) const
@@ -92,6 +123,7 @@ namespace qkc {
 
 		node->Link(parent, link);
 		InternalInsert(node, false , NULL);
+		++size_;
 		return true;
 	}
 
@@ -100,6 +132,7 @@ namespace qkc {
 		RBNode * rebalance = InternalErase(node, NULL);
 		if (rebalance != NULL)
 			InternalEraseColor(rebalance);
+		--size_;
 	}
 
 	const RBNode * RBTree::Find(const RBNode * node) const

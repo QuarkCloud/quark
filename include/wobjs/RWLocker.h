@@ -15,14 +15,37 @@ namespace qkc {
 
 		void Lock();
 		void Unlock();
-		void LockShared();
-		void UnlockShared();
+		void LockShared() const;
+		void UnlockShared() const;
+
+		class QKCAPI ScopedLock {
+		public:
+			ScopedLock(RWLocker& locker) : locker_(locker) { locker_.Lock(); }
+			~ScopedLock() { locker_.Unlock(); }
+		private:
+			ScopedLock(const ScopedLock& locker);
+			ScopedLock& operator=(const ScopedLock&) { return *this; }
+
+			RWLocker& locker_;
+		};
+
+		class QKCAPI ScopedSharedLock {
+		public:
+			ScopedSharedLock(RWLocker& locker) : locker_(locker) { locker_.LockShared(); }
+			~ScopedSharedLock() { locker_.UnlockShared(); }
+		private:
+			ScopedSharedLock(const ScopedSharedLock& locker);
+			ScopedSharedLock& operator=(const ScopedSharedLock&) { return *this; }
+
+			RWLocker& locker_;
+		};
+
 	protected:
 		void SetInfo();
 	private:
 		RWLocker(const RWLocker& locker);
-		RWLocker& operator=(const RWLocker& locker);
-		SRWLOCK locker_;
+		RWLocker& operator=(const RWLocker& locker) { return (*this); }
+		mutable SRWLOCK locker_;
 	};
 }
 
